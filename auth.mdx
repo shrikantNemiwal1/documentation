@@ -23,7 +23,7 @@ Authentication is the process of verifying a user's identity before granting acc
 You can edit the authentication method and configure the respective credentials under the authentication page of settings in Company profie as shown in below image.
 
 <img
-  src="/images/auth/authentication_settings.svg"
+  src="/images/auth/authentication_settings.png"
   alt="Auth methods"
   width="100%"
 />
@@ -116,10 +116,17 @@ Single-use codes sent via email for secure, passwordless authentication.
 
 ### Configuration To enable Google authentication:
 
-1. Create OAuth credentials in [Google Cloud Console]() Google Cloud Console: - Create a project (if you don't have one) - Configure
+1. Create OAuth credentials in [Google Cloud Console](https://console.cloud.google.com/) Google Cloud Console: - Create a project (if you don't have one) - Configure
    OAuth consent screen - Create OAuth client ID (Web application) - Note your Client ID and Client Secret
-2. In your application: - Navigate to
-   Authentication Settings - Toggle on "Google" - Enter Client ID - Configure redirect URI (typically your-app-url/auth/google/callback)- Click "Save"
+
+   <div style={{ textAlign: "center" }}>
+     <img
+       src="/images/auth/google/google_create_clientId.png"
+       alt="Google create credentials in console"
+       width="90%"
+     />
+   </div>
+
    <Warning>
      Redirect Uri in you Google Cloud Console should match exactly with the
      (your-app-url/auth/google/callback)
@@ -129,12 +136,22 @@ Single-use codes sent via email for secure, passwordless authentication.
        Console.
      </Info>
    </Warning>
+   <div style={{ textAlign: "center" }}>
+     <img
+       src="/images/auth/google/google_redirectUri.png"
+       alt="Google console redirect uri page"
+       width="90%"
+     />
+   </div>
 
-<img
-  src="/images/auth/google_config.svg"
-  alt="Google configuration Dialog"
-  width="100%"
-/>
+2. Navigate to Authentication Settings - Toggle on "Google" - Enter Client ID - Click "Save"
+   <div style={{ textAlign: "center" }}>
+     <img
+       src="/images/auth/google/google_config.svg"
+       alt="Google configuration Dialog"
+       width="90%"
+     />
+   </div>
 
 </Tab>
 
@@ -182,30 +199,30 @@ Single-use codes sent via email for secure, passwordless authentication.
 </Tab>
 
   <Tab title="SAML SSO">
-    ## SAML SSO Enterprise single sign-on using Security Assertion Markup
-    Language (SAML) protocol.
-    ### How It Works 
-    1. User attempts to access your application 
-    2. System redirects to the Identity Provider (IdP) 3. User
-    authenticates with the IdP 4. IdP generates a SAML assertion (token) 5. User
-    is redirected back to your application with the SAML assertion 6. System
-    validates the SAML assertion 7. Upon successful validation, access is
-    granted ### Configuration To enable SAML SSO: 1. Gather information about
-    your application (Service Provider): - Generate or obtain a Certificate and
+    ## Enterprise single sign-on using Security Assertion Markup Language (SAML) protocol.
+    
+    ### How It Works
+
+    1. User attempts to access your application
+    2. System redirects to the Identity Provider (IdP)
+    3. User authenticates with the IdP and IdP generates a SAML assertion (token).
+    5. User is redirected back to your application with the SAML assertion. System validates the SAML assertion. Upon successful validation, access is granted
+
+    ### Configuration To enable SAML SSO:
+    1. Gather information about your application (Service Provider): - Generate or obtain a Certificate and
     Private Key - Determine Entity ID (usually your application URL) - Determine
-    Assertion Consumer Service (ACS) URL 2. Register your application with your
+    Assertion Consumer Service (ACS) URL
+    2. Register your application with your
     Identity Provider: - Upload certificate - Configure SAML attributes and
-    mappings - Note the IdP metadata URL or download metadata XML 3. In your
-    application: - Navigate to Authentication Settings - Toggle on "SAML SSO" -
+    mappings - Note the IdP metadata URL or download metadata XML
+    3. In your application: - Navigate to Authentication Settings - Toggle on "SAML SSO" -
     Enter Entity ID and Single Sign-On URL from IdP - Upload IdP Certificate -
-    Configure attribute mappings - Click "Not Configured" to change status to
-    "Configured" ### Enterprise Features - Works with most major Identity
-    Providers (Okta, OneLogin, etc.) - Attribute-based access control -
-    Just-in-time user provisioning - Session management
+
     <Warning>
       SAML configuration requires technical coordination between your
       application admin and the Identity Provider admin.
     </Warning>
+
   </Tab>
 </Tabs>
 
