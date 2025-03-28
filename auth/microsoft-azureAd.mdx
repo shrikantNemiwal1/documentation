@@ -1,0 +1,26 @@
+---
+title: "Microsoft and Azure-Ad"
+description: "Configure how users authenticate and access the application thorugh microsoft and azure"
+icon: "microsoft"
+---
+
+## Microsoft Authentication Allow users to sign in with their Microsoft
+
+accounts using OAuth 2.0. ### How It Works 1. User clicks "Sign in with
+Microsoft" 2. User is redirected to Microsoft's authentication page 3. After
+authenticating with Microsoft, user is returned to your application 4. System
+validates the Microsoft authentication token 5. Upon successful validation,
+access is granted ### Configuration To enable Microsoft authentication: 1.
+Register your application in the Microsoft Azure portal: - Sign in to the
+Azure portal - Navigate to Azure Active Directory - Register a new application
+
+- Configure platform settings (Web) - Note your Application (client) ID and
+  Client Secret 2. In your application: - Navigate to Authentication Settings -
+  Toggle on "Microsoft" - Enter Client ID and Client Secret - Configure redirect
+  URI (typically your-app-url/auth/microsoft/callback) - Click "Save" ### Best
+  Practices - Implement proper session management - Use state parameters to
+  prevent CSRF attacks - Validate all tokens server-side
+  <Info>
+    Microsoft authentication works well for organizations using Microsoft 365 or
+    with an existing Microsoft identity infrastructure.
+  </Info>

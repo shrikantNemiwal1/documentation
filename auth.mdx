@@ -34,39 +34,8 @@ You can edit the authentication method and configure the respective credentials 
   <Tab title="Password">
     ## Password Authentication 
     Traditional username and password authentication for your application.
-    ### How It Works 
-    1. Users enter their email address and password 
-    2. The system validates credentials against stored (hashed)
-    passwords 
-    3. Upon successful validation, access is granted 
-    ### Configuration
-    Password authentication is enabled by default. From the Authentication
-    Settings page: 
-    1. Ensure "Password" is toggled on.
 
-    <Info>
-      Password that was used to login for the first time will be considered as default.
-    </Info>
-
-    ### Reset Password
-    For resetting the password, user can go to the profile page and click on the change password option.
-
-    <img src="/images/auth/reset_password.svg" alt="Reset password" width="90%" />
-
-    Enter the current password and new password and click on update password.
-
-    ### Forgot Password
-    If a user forgets their password, SMTP configuration is necessary to enable the password reset functionality.
-
-    How It Works
-
-    1. Users click on the "Forgot Password" option.
-    2. The system sends a password reset email via the configured SMTP server.
-    3. The email contains a secure link redirecting the user to the password reset page.
-    4. Users enter and confirm their new password.
-    5. The system updates the password and grants access.
-
-    ### For Smtp Configuration, refer to [SMTP Configuration Guide](/smtp).
+    ### For more info, refer to [Password Configuration Guide](/auth/password).
 
 
     <Info>
@@ -81,146 +50,30 @@ You can edit the authentication method and configure the respective credentials 
 
 Single-use codes sent via email for secure, passwordless authentication.
 
-### How It Works
+### For more info, refer to [OTP Configuration Guide](/auth/otp).
 
-1. User enters their email address
-2. System generates a one-time code and sends it to the user's email
-3. User inputs the code to verify their identity
-4. Upon validation, access is granted
-
-### Configuration To enable OTP authentication:
-
-1. Navigate to Authentication Settings
-2. Toggle on "One-Time Password"
-3. Ensure SMTP settings are properly configured
-
-### Requirements - Functional SMTP configuration - Valid email addresses for all users
-
-  <Warning>
-    OTP authentication requires proper SMTP configuration to deliver
-    verification codes to users. For setting up Smtp, refer to [SMTP
-    Configuration Guide](/smtp)
-  </Warning>
 </Tab>
 
 <Tab title="Google">
 
 ## Google Authentication Allow users to sign in with their Google accounts using OAuth 2.0.
 
-### How It Works
+Get credentials from Google Cloud console.
 
-1. User clicks "Sign in with Google"
-2. User is redirected to Google's authentication page
-3. After authenticating with Google, user is returned to the application
-4. Upon successful validation, access is granted
-
-### Configuration To enable Google authentication:
-
-1. Create OAuth credentials in [Google Cloud Console](https://console.cloud.google.com/) Google Cloud Console: - Create a project (if you don't have one) - Configure
-   OAuth consent screen - Create OAuth client ID (Web application) - Note your Client ID and Client Secret
-
-   <div style={{ textAlign: "center" }}>
-     <img
-       src="/images/auth/google/google_create_clientId.png"
-       alt="Google create credentials in console"
-       width="90%"
-     />
-   </div>
-
-   <Warning>
-     Redirect Uri in you Google Cloud Console should match exactly with the
-     (your-app-url/auth/google/callback)
-     <Info>
-       For example - if your app is running on localhost:3001 then redirectUri
-       should be http://localhost:3001/auth/google/callback in Google Cloud
-       Console.
-     </Info>
-   </Warning>
-   <div style={{ textAlign: "center" }}>
-     <img
-       src="/images/auth/google/google_redirectUri.png"
-       alt="Google console redirect uri page"
-       width="90%"
-     />
-   </div>
-
-2. Navigate to Authentication Settings - Toggle on "Google" - Enter Client ID - Click "Save"
-   <div style={{ textAlign: "center" }}>
-     <img
-       src="/images/auth/google/google_config.svg"
-       alt="Google configuration Dialog"
-       width="90%"
-     />
-   </div>
+### For more info, refer to [Google Configuration Guide](/auth/google).
 
 </Tab>
 
-<Tab title="Microsoft">
+<Tab title="Microsoft/AzureAd">
   ## Microsoft Authentication Allow users to sign in with their Microsoft
-  accounts using OAuth 2.0. ### How It Works 1. User clicks "Sign in with
-  Microsoft" 2. User is redirected to Microsoft's authentication page 3. After
-  authenticating with Microsoft, user is returned to your application 4. System
-  validates the Microsoft authentication token 5. Upon successful validation,
-  access is granted ### Configuration To enable Microsoft authentication: 1.
-  Register your application in the Microsoft Azure portal: - Sign in to the
-  Azure portal - Navigate to Azure Active Directory - Register a new application
-  - Configure platform settings (Web) - Note your Application (client) ID and
-  Client Secret 2. In your application: - Navigate to Authentication Settings -
-  Toggle on "Microsoft" - Enter Client ID and Client Secret - Configure redirect
-  URI (typically your-app-url/auth/microsoft/callback) - Click "Save" ### Best
-  Practices - Implement proper session management - Use state parameters to
-  prevent CSRF attacks - Validate all tokens server-side
-  <Info>
-    Microsoft authentication works well for organizations using Microsoft 365 or
-    with an existing Microsoft identity infrastructure.
-  </Info>
-</Tab>
+  accounts using OAuth 2.0.
 
-<Tab title="Azure AD">
-  ## Azure Active Directory (AD) Enterprise authentication using Microsoft's
-  Azure Active Directory. ### How It Works 1. User clicks "Sign in with Azure
-  AD" 2. User is redirected to their organization's Azure AD login page 3. After
-  authenticating, user is returned to your application 4. System validates the
-  Azure AD authentication token 5. Upon successful validation, access is granted
-  ### Configuration To enable Azure AD authentication: 1. Register your
-  application in the Azure portal: - Sign in to the Azure portal - Navigate to
-  Azure Active Directory - Register a new application - Configure platform
-  settings (Web) - Note your Application (client) ID and Tenant ID - Create a
-  Client Secret 2. In your application: - Navigate to Authentication Settings -
-  Toggle on "Azure AD" - Enter Application ID, Tenant ID, and Client Secret -
-  Configure redirect URI - Set up required permissions and optional claims -
-  Click "Not Configured" to change status to "Configured" ### Enterprise
-  Features - Group-based access control - Multi-factor authentication
-  integration - Conditional access policies - Enterprise audit logs
-  <Info>
-    Azure AD is ideal for enterprise scenarios where centralized identity
-    management is required.
-  </Info>
 </Tab>
 
   <Tab title="SAML SSO">
     ## Enterprise single sign-on using Security Assertion Markup Language (SAML) protocol.
-    
-    ### How It Works
-
-    1. User attempts to access your application
-    2. System redirects to the Identity Provider (IdP)
-    3. User authenticates with the IdP and IdP generates a SAML assertion (token).
-    5. User is redirected back to your application with the SAML assertion. System validates the SAML assertion. Upon successful validation, access is granted
-
-    ### Configuration To enable SAML SSO:
-    1. Gather information about your application (Service Provider): - Generate or obtain a Certificate and
-    Private Key - Determine Entity ID (usually your application URL) - Determine
-    Assertion Consumer Service (ACS) URL
-    2. Register your application with your
-    Identity Provider: - Upload certificate - Configure SAML attributes and
-    mappings - Note the IdP metadata URL or download metadata XML
-    3. In your application: - Navigate to Authentication Settings - Toggle on "SAML SSO" -
-    Enter Entity ID and Single Sign-On URL from IdP - Upload IdP Certificate -
-
     <Warning>
-      SAML configuration requires technical coordination between your
-      application admin and the Identity Provider admin.
+      SAML configuration requires technical coordination between your application admin and the Identity Provider admin.
     </Warning>
 
   </Tab>
