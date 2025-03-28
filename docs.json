@@ -15,20 +15,14 @@
         "groups": [
           {
             "group": "Get Started",
-            "pages": ["introduction", "quickstart", "development", "smtp"]
-          },
-          {
-            "group": "Authentication",
             "pages": [
-              "auth",
-              "auth/password",
-              "auth/otp",
-              "auth/google",
-              "auth/microsoft-azureAd",
-              "auth/saml"
+              "introduction",
+              "quickstart",
+              "development",
+              "smtp",
+              "auth"
             ]
           },
-
           {
             "group": "Essentials",
             "pages": [
