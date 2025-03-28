@@ -1,0 +1,54 @@
+---
+title: "Google Authentication"
+description: "Configure how users authenticate and access the application using google"
+icon: "google"
+---
+
+## Google Authentication Allow users to sign in with their Google accounts using OAuth 2.0.
+
+### How It Works
+
+1. User clicks "Sign in with Google"
+2. User is redirected to Google's authentication page
+3. After authenticating with Google, user is returned to the application
+4. Upon successful validation, access is granted
+
+### Configuration To enable Google authentication:
+
+1. Create OAuth credentials in [Google Cloud Console](https://console.cloud.google.com/) Google Cloud Console: - Create a project (if you don't have one) - Configure
+   OAuth consent screen - Create OAuth client ID (Web application) - Note your Client ID and Client Secret
+
+   <div style={{ textAlign: "center" }}>
+     <img
+       src="/images/auth/google/google_create_clientId.png"
+       alt="Google create credentials in console"
+       width="90%"
+     />
+   </div>
+
+   <Warning>
+     Redirect Uri in you Google Cloud Console should match exactly with the
+     (your-app-url/auth/google/callback)
+     <Info>
+       For example - if your app is running on https://f7f0-240.ngrok-free.app
+       then redirectUri should be
+       https://f7f0-240.ngrok-free.app/auth/google/callback in Google Cloud
+       Console.
+     </Info>
+   </Warning>
+   <div style={{ textAlign: "center" }}>
+     <img
+       src="/images/auth/google/google_redirectUri.png"
+       alt="Google console redirect uri page"
+       width="90%"
+     />
+   </div>
+
+2. Navigate to Authentication Settings - Toggle on "Google" - Enter Client ID - Click "Save"
+   <div style={{ textAlign: "center" }}>
+     <img
+       src="/images/auth/google/google_config.svg"
+       alt="Google configuration Dialog"
+       width="90%"
+     />
+   </div>
