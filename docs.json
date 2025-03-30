@@ -15,29 +15,53 @@
         "groups": [
           {
             "group": "Get Started",
-            "pages": ["introduction", "quickstart", "development", "smtp"]
+            "pages": ["introduction", "quickstart", "development"]
           },
           {
             "group": "Authentication",
             "pages": [
               "auth",
-              "auth/password",
-              "auth/otp",
-              "auth/google",
-              "auth/microsoft-azureAd",
-              "auth/saml"
+              {
+                "group": "Methods",
+                "pages": [
+                  "auth/password",
+                  "auth/otp",
+                  "auth/google",
+                  "auth/microsoft-azureAd",
+                  "auth/saml"
+                ]
+              }
+            ]
+          },
+          {
+            "group": "Mail Configuration",
+            "pages": ["smtp"]
+          },
+
+          {
+            "group": "Enterprise",
+            "pages": [
+              "enterprise/connectors",
+              "enterprise/connectors/googleWorkspace"
             ]
           },
 
           {
-            "group": "Essentials",
+            "group": "Individual",
             "pages": [
-              "essentials/markdown",
-              "essentials/code",
-              "essentials/images",
-              "essentials/settings",
-              "essentials/navigation",
-              "essentials/reusable-snippets"
+              "individual/connectors",
+              "individual/connectors/googleWorkspace"
+            ]
+          },
+
+          {
+            "group": "Services",
+            "pages": [
+              "services/internalServices",
+              {
+                "group": "External Services",
+                "pages": ["services/externalServices"]
+              }
             ]
           }
         ]
