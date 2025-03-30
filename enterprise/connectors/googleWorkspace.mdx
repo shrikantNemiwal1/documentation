@@ -1,0 +1,65 @@
+---
+title: "Google Workspace"
+description: "Seamless integration with Google's productivity and collaboration tools"
+icon: "google"
+---
+
+## Overview
+
+The Google Workspace connector allows you to access, manage, and synchronize data across Gmail, Google Calendar, and Google Drive.
+
+Google Workspace (formerly G Suite) is a collection of cloud computing, productivity, and collaboration tools developed by Google. This connector provides access to core Google Workspace services through a unified API.
+
+### Authentication
+
+The Google Workspace connector uses OAuth 2.0 for authentication. This requires users to grant permission for the application to access their Google Workspace data within the scopes specified.
+
+## How to configure and enable the Google Workspace Connector
+
+### Obtaining credentials
+
+1. To obtain service credentials for a Google Workspace connector, you need to create a service account in the Google Cloud Console, assign it the necessary roles, and then download the service account key as a JSON file.
+2. Access the Google Cloud Console: Go to the [Google Cloud Console](https://console.cloud.google.com/).
+   Sign in with an administrator account for your Google Workspace domain.
+3. Navigate to Service Accounts:
+   In the Google Cloud console, go to "IAM & Admin" > "Service Accounts".
+4. Create a Service Account. Generate a Key. Choose "JSON" as the key type and click "Create".
+   A JSON file containing the private key will be downloaded to your computer.
+   Important: Store this JSON file securely, as it's the only copy of the private key.
+
+   <div style={{ textAlign: "center" }}>
+     <img
+       src="/images/connectors/googleWorkspace/enterprise/service_account.png"
+       alt="Google create credentials in console"
+       width="90%"
+     />
+   </div>
+
+### Configuring and enabling connector
+
+1. Navigate to the Connectors tab under settings tab in Company Profile
+2. Click on "Click to View" Button.
+3. If not configured, click on settings button which will open a configuration dialog.
+4. In the Configuration Dialog
+
+   - Enter the admin email (email with which you created the google cloud credentials- service.json file)
+   - Select the service.json file to upload and click on save button.
+     <div style={{ textAlign: "center" }}>
+       <img
+         src="/images/connectors/googleWorkspace/enterprise/config.png"
+         alt="Google create credentials in console"
+         width="90%"
+       />
+     </div>
+
+5. To enable the connector, click on the enable button so that data can be shared.
+
+   <div style={{ textAlign: "center" }}>
+     <img
+       src="/images/connectors/googleWorkspace/enterprise/enable.png"
+       alt="Google create credentials in console"
+       width="90%"
+     />
+   </div>
+
+<Info>Add Scopes</Info>
