@@ -17,6 +17,12 @@
             "group": "Get Started",
             "pages": ["introduction", "quickstart", "development"]
           },
+
+          {
+            "group": "Account",
+            "pages": ["account/organisation", "account/userGroups"]
+          },
+
           {
             "group": "Authentication",
             "pages": [
@@ -56,13 +62,7 @@
 
           {
             "group": "Services",
-            "pages": [
-              "services/internalServices",
-              {
-                "group": "External Services",
-                "pages": ["services/externalServices"]
-              }
-            ]
+            "pages": ["services/internalServices", "services/externalServices"]
           }
         ]
       },
