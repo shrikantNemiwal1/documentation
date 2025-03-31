@@ -1,0 +1,84 @@
+---
+title: "SAML SSO"
+description: "Configure how users authenticate and access the application through Single Sign On"
+icon: "user-lock"
+---
+
+## Enterprise single sign-on using Security Assertion Markup Language (SAML) protocol.
+
+    1. User attempts to access your application
+    2. System redirects to the Identity Provider (IdP)
+    3. User authenticates with the IdP and IdP generates a SAML assertion (token).
+    5. User is redirected back to your application with the SAML assertion. System validates the SAML assertion. Upon successful validation, access is granted
+
+    ### Configuration To enable SAML SSO:
+    1. Gather information about your application (Service Provider): - Generate or obtain a Certificate and
+    Private Key - Determine Entity ID (usually your application URL) - Determine
+    Assertion Consumer Service (ACS) URL
+    2. Register your application with your
+    Identity Provider: - Upload certificate - Configure SAML attributes and
+    mappings - Note the IdP metadata URL or download metadata XML
+    3. In your application: - Navigate to Authentication Settings - Click on settings button in "SAML SSO".
+    4. You can either upload the IdP metadata or enter manually the entryPoint SSO Url and Email attribute Key
+    5. Click on "Save button
+
+
+    <Info>
+        To enable SAML authentication, you need to configure your Identity Provider (IdP) and specify the attribute name that contains the user's email address in the SAML response.
+        Different IdPs may use different names for this field.
+    </Info>
+
+    ### Set Up the Recipient and Audience URL in the IdP Settings
+
+    Enter the Required URLs
+
+    1. Recipient URL: This is where the SAML response will be sent after authentication which is (your-frontend-url/api/v1/saml/signin/callback)
+
+    Example: https://f7f0-240.ngrok-free.app/api/v1/saml/signin/callback
+
+    2. Audience URL (Audience Restriction): This is used to verify the intended recipient of the SAML response.
+
+    Example: https://f7f0-240.ngrok-free.app
+
+    ### Here is the example for setting in Okta
+
+     <div style={{ textAlign: "center" }}>
+     <img
+       src="/images/auth/saml/saml_url.png"
+       alt="Saml redirect uri page"
+       width="90%"
+     />
+
+   </div>
+
+### What is Email Attribute Key
+
+    When a user logs in using SAML, the IdP sends a SAML response containing user details.
+    The email address may be sent under different attribute names, depending on the IdP.
+    You must enter the correct attribute name in our system so we can extract the email and verify the user.
+
+    ### Where to find the Email Attribute Key
+
+    Method 1 : Through Settings of Identity Provider
+    1. Check Your IdP's SAML Attribute Mapping
+    2. Log in to your IdP Admin Console (e.g., Okta, Azure, Google, etc.).
+    3. Navigate to SAML Attribute Mapping or Claims settings.
+    Look for the attribute that contains the user email address.
+
+    Method 2 : Inspect a SAML Response
+    1. If you're unsure, you can manually inspect the SAML response:
+    2. Use SAML Tracer (a browser extension for Chrome/Firefox).
+    3. Perform a login and capture the SAML response.
+    4. Look for the email field in the response.
+
+
+    | Identity Provider | Common Email Attribute Name |
+    | ----------------- | --------------------------- |
+    | Okta              |      `NameID`               |
+    | Google Workspace  |      `email`                |
+    | OneLogin          |      `User.Email`           |
+    | Custom IdP        | (Check your IdP settings)   |
+
+        <Warning>
+          SAML configuration requires technical coordination between your application admin and the Identity Provider admin.
+        </Warning>
