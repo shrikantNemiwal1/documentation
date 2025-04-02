@@ -12,15 +12,12 @@ icon: "user-lock"
     5. User is redirected back to your application with the SAML assertion. System validates the SAML assertion. Upon successful validation, access is granted
 
     ### Configuration To enable SAML SSO:
-    1. Gather information about your application (Service Provider): - Generate or obtain a Certificate and
-    Private Key - Determine Entity ID (usually your application URL) - Determine
-    Assertion Consumer Service (ACS) URL
-    2. Register your application with your
+    1. Register your application with your
     Identity Provider: - Upload certificate - Configure SAML attributes and
     mappings - Note the IdP metadata URL or download metadata XML
-    3. In your application: - Navigate to Authentication Settings - Click on settings button in "SAML SSO".
-    4. You can either upload the IdP metadata or enter manually the entryPoint SSO Url and Email attribute Key
-    5. Click on "Save button
+    2. In your application: - Navigate to Authentication Settings - Click on settings button in "SAML SSO".
+    3. You can either upload the IdP metadata or enter manually the entryPoint SSO Url and Email attribute Key
+    4.. Click on **Save** button
 
 
     <Info>
@@ -28,23 +25,41 @@ icon: "user-lock"
         Different IdPs may use different names for this field.
     </Info>
 
-    ### Set Up the Recipient and Audience URL in the IdP Settings
+    ### Set Up the Recipient URLs and Audience in the IdP Settings
 
     Enter the Required URLs
 
-    1. Recipient URL: This is where the SAML response will be sent after authentication which is (your-frontend-url/api/v1/saml/signin/callback)
+    Recipient URL: This is where the SAML response will be sent after authentication which is (your-frontend-url/api/v1/saml/signin/callback)
 
     Example: https://f7f0-240.ngrok-free.app/api/v1/saml/signin/callback
 
-    2. Audience URL (Audience Restriction): This is used to verify the intended recipient of the SAML response.
-
-    Example: https://f7f0-240.ngrok-free.app
+    2. Audience (Audience Restriction): This is used to verify the intended recipient of the SAML response.
+    <Info>Keep it as **pageipesHub** </Info>
 
     ### Here is the example for setting in Okta
 
      <div style={{ textAlign: "center" }}>
      <img
-       src="/images/auth/saml/saml_url.png"
+       src="/images/auth/saml/saml_okta_url.png"
+       alt="Saml redirect uri page"
+       width="90%"
+     />
+
+   </div>
+
+    ### Here is the example for setting in OneLogin
+
+    <div style={{ textAlign: "center" }}>
+     <img
+       src="/images/auth/saml/saml_onelogin_url.png"
+       alt="Saml redirect uri page"
+       width="90%"
+     />
+
+    You can get credentials from here
+
+      <img
+       src="/images/auth/saml/saml_credentials_onelogin.png"
        alt="Saml redirect uri page"
        width="90%"
      />
@@ -76,7 +91,7 @@ icon: "user-lock"
     | ----------------- | --------------------------- |
     | Okta              |      `NameID`               |
     | Google Workspace  |      `email`                |
-    | OneLogin          |      `User.Email`           |
+    | OneLogin          |      `NameID / User.Email`  |
     | Custom IdP        | (Check your IdP settings)   |
 
         <Warning>

@@ -1,0 +1,107 @@
+---
+title: "Onboarding"
+description: "This guide walks through setting up the system when first time logging in, starting with AI model configuration, followed by optional configurations for storage, connectors, and SMTP."
+---
+
+## Step 1: Configure AI Model (Required)
+
+Before proceeding with the setup, configuring an AI model is mandatory.
+
+1. Select the AI Provider (OpenAI or Azure OpenAI).
+2. Enter the Client ID (if applicable).
+3. Provide the API Key to authenticate the AI model.
+4. Specify the Model Name (e.g., gpt-4-turbo).
+5. Click **Continue** to proceed.
+
+<img
+  src="/images/onboarding/aiModels.png"
+  alt="AI models onboarding"
+  width="100%"
+/>
+
+### For more info, refer to [AI models Configuration Guide](/smtp).
+
+<Info>AI model configuration is required to enable AI-powered features.</Info>
+
+## Step 2: Configure Storage (Optional)
+
+Setting up storage allows the system to save and retrieve data efficiently.
+By default, local storage (local machine) will be used to store the files.
+
+1. Choose a Storage Provider (e.g., AWS S3, Local, Azure Blob Storage).
+
+2. Enter the corresponding configuration.
+
+- Mount Name and Base Url for **Local Storage**.
+- Access Key and Secret Key for authentication and bucket Name or storage container details for **Amazon S3**.
+- Account name, container name,account key, protocol and endpoint suffix for **Azure Blob**.
+
+Click **Continue** to save the configuration.
+
+<img
+  src="/images/onboarding/storage.png"
+  alt="storage onboarding"
+  width="100%"
+/>
+
+### For more info, refer to [Storage Configuration Guide](/storage).
+
+<Info>You can skip this step. By default Local storage will be chosen.</Info>
+
+## Step 3: Configure Connectors (Optional)
+
+Connectors help integrate third-party services with the system.
+Enter the necessary API credentials to authenticate the connection.
+
+### - Enterprise
+
+Service credentials (json file) is required and Admin Email of your google admin account.
+
+For more information, refer to [Connectors Enterprise](/enterprise/connectors/googleWorkspace).
+
+### - Individual
+
+Google Client Id and Client Secret are required, set Redirect Uri in Google Cloud Console as given in the window.
+
+For more information, refer to [Connectors Individual](/individual/connectors/googleWorkspace).
+
+<img
+  src="/images/onboarding/connectors.png"
+  alt="connectors onboarding"
+  width="100%"
+/>
+
+Click **Continue** to save the configuration.
+
+<Info>
+  You can skip this step and later configure them in settings under profile tab.
+</Info>
+
+## Step 4: Configure SMTP (Optional)
+
+SMTP configuration allows the system to send emails (invite new users, forgot password etc).
+
+1. Enter the SMTP Server Address (e.g., smtp.example.com).
+
+2. Provide the Port Number (e.g., 587 for TLS).
+
+3. Enter the Username and Password for authentication.
+
+4. Set up the From Email Address (e.g., noreply@example.com).
+
+Click **Complete Setup** to finalize the setup.
+
+<img src="/images/onboarding/smtp.png" alt="smtp onboarding" width="100%" />
+
+### For Smtp Configuration, refer to [SMTP Configuration Guide](/smtp).
+
+<Info>
+  You can skip this step if email functionality is not needed and later add in
+  authentication tab in settings.
+</Info>
+
+Finalizing Setup Once you complete the AI model setup (required) and any optional
+configurations, the system will be ready for use.
+
+✅ Required: AI Model Configuration
+⚡ Optional: Storage, Connectors, SMTP
