@@ -17,6 +17,7 @@
               "quickstart", 
               "development", 
               "onboarding",
+              "system-overview",
               "contact-us"
             ]
           },
@@ -42,7 +43,23 @@
               "smtp"
             ]
           },
-
+          {
+            "group": "AI Providers",
+            "pages": [
+              "ai-models/overview",
+              {
+                "group": "Providers",
+                "pages": [
+                  "ai-models/openai",
+                  "ai-models/azure-openai",
+                  "ai-models/anthropic",
+                  "ai-models/vertex-ai",
+                  "ai-models/ollama",
+                  "ai-models/deepseek"
+                ]
+              }
+            ]
+          },
           {
             "group": "Enterprise",
             "pages": [
@@ -85,18 +102,23 @@
       "anchors": [
         {
           "anchor": "Documentation",
-          "href": "https://mintlify.com/docs",
-          "icon": "book-open-cover"
+          "href": "https://docs.pipeshub.com/introduction",
+          "icon": "book"
         },
         {
-          "anchor": "Community",
+          "anchor": "Slack",
           "href": "https://mintlify.com/community",
           "icon": "slack"
         },
         {
+          "anchor": "Discord",
+          "href": "https://mintlify.com/community",
+          "icon": "discord"
+        },
+        {
           "anchor": "Blog",
-          "href": "https://mintlify.com/blog",
-          "icon": "newspaper"
+          "href": "https://blog.pipeshub.com/",
+          "icon": "blog"
         }
       ]
     }
