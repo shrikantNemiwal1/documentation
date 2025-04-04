@@ -16,7 +16,9 @@
               "introduction", 
               "quickstart", 
               "development", 
-              "onboarding"]
+              "onboarding",
+              "contact-us"
+            ]
           },
           {
             "group": "Authentication",
