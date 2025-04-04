@@ -1,21 +1,22 @@
 {
   "$schema": "https://mintlify.com/docs.json",
   "theme": "mint",
-  "name": "Mint Starter Kit",
+  "name": "PipesHub Workplace AI",
   "colors": {
-    "primary": "#16A34A",
+    "primary": "#2d30ff",
     "light": "#07C983",
     "dark": "#15803D"
   },
   "favicon": "/favicon.svg",
   "navigation": {
-    "tabs": [
-      {
-        "tab": "Guides",
         "groups": [
           {
-            "group": "Get Started",
-            "pages": ["introduction", "quickstart", "development", "onboarding"]
+            "group": "Welcome To PipesHub",
+            "pages": [
+              "introduction", 
+              "quickstart", 
+              "development", 
+              "onboarding"]
           },
           {
             "group": "Authentication",
@@ -35,7 +36,9 @@
           },
           {
             "group": "Mail Configuration",
-            "pages": ["smtp"]
+            "pages": [
+              "smtp"
+            ]
           },
 
           {
@@ -75,26 +78,6 @@
             "group": "Services",
             "pages": ["services/internalServices", "services/externalServices"]
           }
-        ]
-      },
-      {
-        "tab": "API Reference",
-        "groups": [
-          {
-            "group": "API Documentation",
-            "pages": ["api-reference/introduction"]
-          },
-          {
-            "group": "Endpoint Examples",
-            "pages": [
-              "api-reference/endpoint/get",
-              "api-reference/endpoint/create",
-              "api-reference/endpoint/delete",
-              "api-reference/endpoint/webhook"
-            ]
-          }
-        ]
-      }
     ],
     "global": {
       "anchors": [
@@ -117,8 +100,8 @@
     }
   },
   "logo": {
-    "light": "/logo/light.svg",
-    "dark": "/logo/dark.svg"
+    "light": "/logo/pipeshub-logo.svg",
+    "dark": "/logo/pipeshub-logo.svg"
   },
   "navbar": {
     "primary": {
@@ -128,7 +111,7 @@
   },
   "footer": {
     "socials": {
-      "x": "https://x.com/mintlify",
+      "x": "https://x.com/PipesHub",
       "github": "https://github.com/pipeshub-ai",
       "linkedin": "https://www.linkedin.com/company/pipeshub/",
       "youtube": "https://www.youtube.com/@PipesHub-GenAI"
