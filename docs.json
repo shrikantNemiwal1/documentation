@@ -92,10 +92,39 @@
               }
             ]
           },
-
+          {
+            "group": "Deployment",
+            "pages": [
+              "deployment/overview",
+              {
+                "group": "Vendor",
+                "pages": [
+                  "deployment/vendor/aws",
+                  "deployment/vendor/azure",
+                  "deployment/vendor/gcp",
+                  "deployment/vendor/private"
+                ]
+              }
+            ]
+          },
           {
             "group": "Services",
             "pages": ["services/internalServices", "services/externalServices"]
+          },
+          {
+            "group": "Developer",
+            "pages": [
+              "developer/getting-started",
+              "developer/api-reference"
+            ]
+          },
+          {
+            "group": "Additional Resources",
+            "pages": [
+              "additional-resources/changelog",
+              "additional-resources/telemetry",
+              "additional-resources/faq"
+            ]
           }
     ],
     "global": {
