@@ -16,50 +16,278 @@ The Google Workspace connector uses OAuth 2.0 for authentication. This requires 
 
 ## How to configure and enable the Google Workspace Connector
 
-### Obtaining credentials
+### Step 1: Create a Google Cloud Project & Set Up Admin Access
 
-1. To obtain service credentials for a Google Workspace connector, you need to create a service account in the Google Cloud Console, assign it the necessary roles, and then download the service account key as a JSON file.
-2. Access the Google Cloud Console: Go to the [Google Cloud Console](https://console.cloud.google.com/).
-   Sign in with an administrator account for your Google Workspace domain.
-3. Navigate to Service Accounts:
-   In the Google Cloud console, go to "IAM & Admin" > "Service Accounts".
-4. Create a Service Account. Generate a Key. Choose "JSON" as the key type and click "Create".
-   A JSON file containing the private key will be downloaded to your computer.
-   Important: Store this JSON file securely, as it's the only copy of the private key.
+1. **Sign in as Super Administrator:**  
+   Log in to the [Google Cloud Console](https://console.cloud.google.com/) using an account with super administrator privileges.
 
-   <div style={{ textAlign: "center" }}>
-     <img
-       src="/images/connectors/googleWorkspace/enterprise/service_account.png"
-       alt="Google create credentials in console"
-       width="90%"
-     />
-   </div>
+2. **Create a New Project:**
+   - Click on the project dropdown at the top of the console and select **New Project**
+   - Enter a project name and (optionally) assign it to a folder or organization
+   - Click **Create**
+
+<div style={{ textAlign: "center" }}>
+  <img
+    src="/images/connectors/googleWorkspace/enterprise/create_project.png"
+    alt="Create Google Cloud Project"
+    style={{ display: 'block', margin: '0 auto' }}
+    width="90%"
+  />
+</div>
+
+<Info>
+  Only the project creator has full control by default. It is recommended to add at least one additional administrator (using the IAM settings) to ensure continued access even if the original creator leaves your organization.
+</Info>
+
+### Step 2: Enable Required APIs
+
+1. Navigate to **APIs & Services > Library** in the Cloud Console
+
+2. Search for and enable the following APIs:
+   - **Google Drive API**
+   - **Gmail API**
+   - **Google Calendar API**
+   - **Admin SDK API**
+   - **Google Docs API**
+   - **Google Sheets API**
+   - **Google Slides API**
+
+<div style={{ textAlign: "center", padding: "5px" }}>
+  <img
+    src="/images/connectors/googleWorkspace/enterprise/apis.png"
+    alt="Google APIs"
+    style={{ display: 'block', margin: '0 auto' }}
+    width="80%"
+  />
+</div>
+<div style={{ textAlign: "center", padding: "5px" }}>
+  <img
+    src="/images/connectors/googleWorkspace/enterprise/enable_api.png"
+    alt="Enable Google APIs"
+    style={{ display: 'block', margin: '0 auto' }}
+    width="80%"
+  />
+</div>
+
+<Warning>
+  Make sure that all of the listed APIs are enabled to ensure smooth operation of the enterprise search application.
+</Warning>
+
+### Step 3: Create a Service Account
+
+1. Navigate to **IAM & Admin > Service Accounts** in the Cloud Console
+2. Click **Create Service Account**
+<div style={{ textAlign: "center" }}>
+  <img
+    src="/images/connectors/googleWorkspace/enterprise/service_account.png"
+    alt="Create Service Account"
+    style={{ display: 'block', margin: '0 auto' }}
+    width="90%"
+  />
+</div>
+3. Enter a **Service Account Name** and an optional **Description**
+4. Click **Create and Continue**, then **Done**
+
+<div style={{ textAlign: "center" }}>
+  <img
+    src="/images/connectors/googleWorkspace/enterprise/create_service_account.png"
+    alt="Create Service Account"
+    style={{ display: 'block', margin: '0 auto' }}
+    width="80%"
+  />
+</div>
+5. Copy the **Unique ID** for use in the next step
+<div style={{ textAlign: "center" }}>
+  <img
+    src="/images/connectors/googleWorkspace/enterprise/copy_id.png"
+    alt="Copy Service Account ID"
+    style={{ display: 'block', margin: '0 auto' }}
+    width="80%"
+  />
+</div>
+
+### Step 4: Delegate Domain-Wide Authority
+
+1. Sign in to the [Google Admin Console](https://admin.google.com/) with a super administrator account
+2. Navigate to **Security > Access and data control > API controls**
+3. Click **Manage Domain Wide Delegation**
+4. Click **Add new** and paste the service account's client ID
+5. Add the following OAuth scopes:
+```
+https://www.googleapis.com/auth/admin.directory.group.readonly,https://www.googleapis.com/auth/admin.reports.audit.readonly,https://www.googleapis.com/auth/admin.directory.user.readonly,https://www.googleapis.com/auth/admin.directory.domain.readonly,https://www.googleapis.com/auth/admin.directory.orgunit,https://www.googleapis.com/auth/gmail.readonly,https://www.googleapis.com/auth/drive.readonly,https://www.googleapis.com/auth/calendar.readonly,https://www.googleapis.com/auth/documents.readonly,https://www.googleapis.com/auth/spreadsheets.readonly,https://www.googleapis.com/auth/presentations.readonly
+```
+
+6. Click **Authorize**
+
+<Info>
+  Domain-wide delegation lets your service account impersonate users within your domain. Make sure that both the service account and the end user email belong to the same domain.
+</Info>
+
+### Step 5: Create a JSON Key for the Service Account
+
+1. In the Service Accounts list, select your newly created service account
+2. Click on the **Keys** tab
+3. Click **Add Key** and select **Create new key**
+4. Choose **JSON** as the key type and click **Create**
+5. Save the automatically downloaded JSON key file
+
+<Warning>
+  Store this JSON file securely as it contains sensitive credentials and cannot be recovered if lost.
+</Warning>
+
+<Note>
+    It might be that while creating the key you get the error:
+    
+    <div style={{ textAlign: "center" }}>
+      <img
+        src="/images/connectors/googleWorkspace/enterprise/org_policy_error.png"
+        alt="Organization Policy Error"
+        style={{ display: 'block', margin: '0 auto' }}
+        width="80%"
+      />
+    </div>
+    
+    In this case, follow the steps given under the heading [Enable Service Account Key Creation](#enable-service-account-key-creation). <br/>
+    If your key was successfully created and downloaded, you can use that key in the enterprise search application.
+
+</Note>
 
 ### Configuring and enabling connector
 
 1. Navigate to the Connectors tab under settings tab in Company Profile
-2. Click on "Click to View" Button.
-3. If not configured, click on settings button which will open a configuration dialog.
-4. In the Configuration Dialog
+2. Click on **"Click to View"** Button
+3. If not configured, click on settings button which will open a configuration dialog
+4. In the Configuration Dialog:
+   - Enter the **Admin Email** (Admin user's email with which you created the Google Cloud credentials)
+   - Select the **JSON** key file to upload and click on **Save** button.
 
-   - Enter the admin email (email with which you created the google cloud credentials- service.json file)
-   - Select the service.json file to upload and click on save button.
-     <div style={{ textAlign: "center" }}>
-       <img
-         src="/images/connectors/googleWorkspace/enterprise/config.png"
-         alt="Google create credentials in console"
-         width="90%"
-       />
-     </div>
+<div style={{ textAlign: "center" }}>
+  <img
+    src="/images/connectors/googleWorkspace/enterprise/config.png"
+    alt="Configure Google Workspace"
+    style={{ display: 'block', margin: '0 auto' }}
+    width="90%"
+  />
+</div>
 
-5. To enable the connector, click on the enable button so that data can be shared.
+5. To enable the connector, click on the enable button so that data can be shared
 
-   <div style={{ textAlign: "center" }}>
-     <img
-       src="/images/connectors/googleWorkspace/enterprise/enable.png"
-       alt="Google create credentials in console"
-       width="90%"
-     />
-   </div>
+<div style={{ textAlign: "center" }}>
+  <img
+    src="/images/connectors/googleWorkspace/enterprise/enable.png"
+    alt="Enable Google Workspace"
+    style={{ display: 'block', margin: '0 auto' }}
+    width="90%"
+  />
+</div>
 
-<Info>Add Scopes</Info>
+### Enable Service Account Key Creation
+
+If you encounter an error while creating the service account key due to organization policy constraints, follow these steps:
+
+#### 1. Switch to the Organization Context
+
+At the top of the Google Cloud Console (where the project name is shown), click the drop-down to see a list of organizations and projects.
+
+Select your organization rather than a specific project.
+
+If you don't see an organization listed, make sure you're signed in with an account that has access to the organization.
+
+
+#### 2. Add Organisation Policy Administrator Role
+
+Navigate to **IAM & Admin > IAM** in the Cloud Console
+
+Find the current user and Click on the **Pencil** icon.
+
+Click on the **Add another role** button.
+
+Search for the **Organisation Policy Administrator** role.
+
+Click on the **Add** button.
+
+<div style={{ textAlign: "center" }}>
+  <img
+    src="/images/connectors/googleWorkspace/enterprise/org_policy_admin.png"
+    alt="Add Organisation Policy Administrator"
+    style={{ display: 'block', margin: '0 auto' }}
+    width="80%"
+  />
+</div>
+
+Click on the **Save** button.
+
+#### 3. Disable the Service Account Key Creation constraint
+
+Navigate to **IAM & Admin > Organization Policies** in the Cloud Console
+
+Search for `"iam.disableServiceAccountKeyCreation"`
+
+Select the policy
+
+Click on the **Manage Policy** button
+
+In Policy source, Select **Override parent's policy**. Add a rule and set the enforcement to "Off"
+
+Click on the **Save** button
+
+After completing these steps, return to [Step 5](#step-5%3A-create-a-json-key-for-the-service-account) and try creating the service account key again.
+
+## Google PubSub Configuration
+
+PubSub setup enables real-time updates for Gmail content. While optional, it's highly recommended for maintaining up-to-date content in Enterprise search.
+
+### Step 1: Set Up a Cloud Pub/Sub Topic
+
+1. Navigate to **Pub/Sub > Topics** in the Cloud Console sidebar
+2. Click **Create Topic**
+3. Enter a unique name (e.g., `projects/your-project-id/topics/gmail-webhook-topic`)
+4. Check **"Add a default subscription"**
+5. Click **Create** to confirm
+
+<div style={{ textAlign: "center" }}>
+  <img
+    src="/images/connectors/googleWorkspace/enterprise/topic.png"
+    alt="Create Topic"
+    style={{ display: 'block', margin: '0 auto' }}
+    width="80%"
+  />
+</div>
+
+### Step 2: Configure the Subscription
+
+1. Go to **Pub/Sub > Topics**
+2. Select the subscription created with the topic
+3. Click **Edit**
+4. Change Delivery type to **"Push"**
+5. Set Endpoint URL as **"_your_base_url_/gmail/webhook"**
+6. Adjust Expiry Period as needed
+7. Click **Update**
+
+<Warning>
+  Ensure your base URL matches the Enterprise search connector service base URL
+</Warning>
+
+### Step 3: Set Topic Permissions
+
+1. In **Pub/Sub > Topics**, select your topic
+2. Open the Info Panel (right side)
+3. Click **Add Principals**
+4. Add `gmail-api-push@system.gserviceaccount.com`
+5. Assign the **Pub/Sub Publisher** role
+
+<div style={{ textAlign: "center" }}>
+  <img
+    src="/images/connectors/googleWorkspace/enterprise/publisher_principals.png"
+    alt="Add Principals"
+    style={{ display: 'block', margin: '0 auto' }}
+    width="60%"
+  />
+</div>
+
+6. Click **Save**
+
+<Info>
+  If you encounter an organizational policy constraint error, modify the policy in organizational policies to allow the given domain. Allow 5-10 minutes for changes to propagate.
+</Info>
+
