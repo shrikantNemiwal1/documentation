@@ -36,10 +36,29 @@ icon: "google"
        Console.
      </Info>
    </Warning>
+
    <div style={{ textAlign: "center" }}>
      <img
        src="/images/auth/google/google_redirectUri.png"
        alt="Google console redirect uri page"
+       width="90%"
+     />
+   </div>
+
+   <Warning>
+     Authorized Javascript Origin in you Google Cloud Console should match
+     exactly with the (your-app-url)
+     <Info>
+       For example - if your app is running on https://f7f0-240.ngrok-free.app
+       then authorized Javascript origin should be
+       https://f7f0-240.ngrok-free.app in Google Cloud Console.
+     </Info>
+   </Warning>
+
+   <div style={{ textAlign: "center" }}>
+     <img
+       src="/images/auth/google/google_origin.png"
+       alt="Google console origin"
        width="90%"
      />
    </div>
