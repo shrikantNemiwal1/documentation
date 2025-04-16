@@ -1,12 +1,61 @@
 ---
-title: 'Quickstart'
-description: 'How to deploy PipesHub Workplace AI platform on your local machine'
-icon: 'play'
+title: "Quickstart"
+description: "How to deploy PipesHub Workplace AI platform on your local machine"
+icon: "play"
 ---
 
 ## Requirements
-  - Git
-  - Docker with compose
 
+- Git
+- Docker with Compose
 
 ## Setup
+
+### 📦 Developer Build
+
+<Steps>
+  <Step title="🔁 Clone the repository">
+    ```bash
+    git clone https://github.com/pipeshub-ai/pipeshub-ai.git
+    ```
+  </Step>
+
+  <Step title="📁 Navigate to the deployment folder">
+    ```bash
+    cd pipeshub-ai/deployment/docker-compose
+    ```
+  </Step>
+  
+  <Step title="🛠️ Copy and update the environment file">
+    ```bash
+    cp .env.template .env
+    ```
+
+    👉 Edit the `.env` file to set secrets, passwords, and the public URLs of the Frontend and Connector services.
+
+    <Info>
+      These are required for webhook notifications and real-time updates.
+    </Info>
+
+  </Step>
+  <Step title="🚀 Start the development deployment with build">
+    ```bash
+    docker compose -f docker-compose.dev.yml -p pipeshub-ai up --build -d
+    ```
+  </Step>
+  <Step title="Onboarding Setup">
+
+    1. After docker build is up and running, **open the UI** via localhost:3000 (if running on same system) or Frontend Public Url or Port that you entered in your .env.
+    2. If you're an individual, select the **"Individual"** account type. For businesses, choose **"Enterprise"** and complete your account setup by filling in the basic details.
+    3. You will then be redirected to the **onboarding** page. Please fill in all the required information carefully. You can always update these details later under the "Profile" tab in the Settings page.
+
+    For more information, refer to our [Onboarding Guide](/onboarding).
+
+  </Step>
+
+  <Step title="🛑 To stop the services">
+    ```bash
+    docker compose -f docker-compose.dev.yml -p pipeshub-ai down
+    ```
+  </Step>
+</Steps>
