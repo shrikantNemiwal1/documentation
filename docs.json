@@ -27,9 +27,10 @@
               {
                 "group": "PipesHub Services",
                 "pages": [
-                  "system-overview/enterprise-search",
-                  "system-overview/configuration-manager",
+                  "system-overview/authentication",
                   "system-overview/user-management",
+                  "system-overview/configuration-manager",
+                  "system-overview/enterprise-search",
                   "system-overview/mail-service"
                 ]
               },
