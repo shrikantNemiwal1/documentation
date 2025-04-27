@@ -1,0 +1,550 @@
+---
+title: 'Enterprise Search'
+description: 'Documentation for the Enterprise Search Service'
+---
+
+# Enterprise Search Service
+
+The Enterprise Search Service provides intelligent search capabilities across your organization's data, allowing users to find information through natural language queries. The service consists of two main components:
+
+1. Conversational Search API - Enables chat-style interactions with your data
+2. Semantic Search API - Powers direct search queries across your content
+
+## Architecture Overview
+The Enterprise Search Service is built on a Node.js backend with MongoDB for data persistence. It leverages AI models to provide accurate responses and semantic search capabilities. The service integrates with other components such as:
+
+- AI Backend - Processes queries and generates responses
+- IAM Service - Handles user authentication and authorization
+- Configuration Manager - Manages application settings
+
+## Data Models
+
+### Conversations
+
+Conversations represent chat sessions with the AI assistant. Each conversation consists of:
+
+- User queries and AI responses stored as messages
+- Citations that reference source documents
+- Metadata about the conversation (creation time, sharing status, etc.)
+
+### Citations
+
+Citations are references to source documents that back the AI's responses:
+
+- Content snippets from source documents
+- Metadata about the source (document name, type, location)
+- Relevance information
+
+### Searches
+
+Searches represent individual search queries and their results:
+
+- The original query
+- Citation results
+- Metadata about the search (creation time, sharing status, etc.)
+
+## Conversation API
+
+The Conversation API enables chat-style interactions with your organizational data.
+
+### Create Conversation Thread
+
+Start a new conversation thread.
+<CodeGroup>
+  ```http title="Create Conversation"
+  POST /api/v1/conversations/create
+  ```
+
+  **Request Body Parameters:**
+  
+  | Parameter | Type | Required | Description |
+  |-----------|------|----------|-------------|
+  | query | string | Yes | The user's query or question |
+  | recordIds | string[] | No | Specific record IDs to search within |
+  | filters | object | No | Additional filters to narrow the search |
+
+  ```typescript title="CC Example Code"
+  // Using fetch API
+  const createConversation = async () => {
+    const response = await fetch('https://api.example.com/api/v1/conversations/create', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer YOUR_TOKEN'
+      },
+      body: JSON.stringify({
+        query: "What is our company's vacation policy?",
+        recordIds: ["60a2b5e3a1b3c4d5e6f7g8h9"], // Optional
+        filters: {
+          apps: ["drive", "gmail", "jira", "confluence"] // Optional
+        }
+      })
+    });
+    
+    const data = await response.json();
+    return data;
+  };
+  ```
+
+  ```json title="CC Response"
+  {
+    "conversation": {
+      "_id": "60d21b4667d0d8992e610c85",
+      "messages": [
+        {
+          "messageType": "user_query",
+          "content": "What is our company's vacation policy?"
+        },
+        {
+          "messageType": "bot_response",
+          "content": "Our company provides 20 days of paid vacation...",
+          "citations": [...]
+        }
+      ]
+    },
+    "meta": {
+      "requestId": "req-123",
+      "timestamp": "2025-04-27T12:00:00.000Z",
+      "duration": 1200
+    }
+  }
+  ```
+</CodeGroup>
+
+### Add Message
+
+Adds a new message to an existing conversation.
+
+<CodeGroup>
+  ```http title="Add Message Endpoint"
+  POST /api/v1/conversations/:conversationId/messages
+  ```
+
+  **Request Body Parameters:**
+  
+  | Parameter | Type | Required | Description |
+  |-----------|------|----------|-------------|
+  | query | string | Yes | The user's follow-up question |
+  | filters | object | No | Additional filters to narrow the search |
+
+  ```typescript title="AM Example Code"
+  // Using fetch API
+  const addMessage = async (conversationId) => {
+    const response = await fetch(`https://api.example.com/api/v1/conversations/${conversationId}/messages`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer YOUR_TOKEN'
+      },
+      body: JSON.stringify({
+        query: "How much notice should I give before taking vacation?",
+        filters: {
+          apps: ["drive"] // Optional
+        }
+      })
+    });
+    
+    const data = await response.json();
+    return data;
+  };
+  ```
+  ```json title="AM Response"
+  {
+    "conversation": {
+      "messages": [
+        {
+          "messageType": "user_query",
+          "content": "How much notice should I give before taking vacation?"
+        },
+        {
+          "messageType": "bot_response",
+          "content": "You should provide at least 2 weeks notice...",
+          "citations": [...]
+        }
+      ]
+    },
+    "meta": {
+      "requestId": "req-456",
+      "timestamp": "2025-04-27T12:05:00.000Z",
+      "duration": 950,
+      "recordsUsed": 3
+    }
+  }
+  ```
+</CodeGroup>
+
+### Get All Conversations
+
+Retrieves all conversations for the authenticated user.
+
+<CodeGroup>
+  ```http title="Get All Conversations Endpoint"
+  GET /api/v1/conversations
+  ```
+
+  **Query Parameters:**
+  
+  | Parameter | Type | Default | Description |
+  |-----------|------|---------|-------------|
+  | page | number | 1 | Page number for pagination |
+  | limit | number | 20 | Number of items per page |
+  | sortBy | string | lastActivityAt | Field to sort by (createdAt, lastActivityAt, title) |
+  | sortOrder | string | desc | Sort order (asc, desc) |
+  | search | string | - | Search term for filtering conversations |
+  | startDate | string | - | Filter by start date (ISO format) |
+  | endDate | string | - | Filter by end date (ISO format) |
+  | shared | boolean | - | Filter by shared status (true, false) |
+
+  ```typescript title="GAC Example Code"
+  // Using fetch API
+  const getConversations = async () => {
+    // Build query parameters
+    const params = new URLSearchParams({
+      page: '1',
+      limit: '20',
+      sortBy: 'lastActivityAt',
+      sortOrder: 'desc',
+      search: 'vacation',  // Optional search term
+      startDate: '2025-01-01', // Optional date filters
+      endDate: '2025-04-27',
+      shared: 'true'  // Optional shared filter
+    });
+    
+    const response = await fetch(`https://api.example.com/api/v1/conversations?${params.toString()}`, {
+      method: 'GET',
+      headers: {
+        'Authorization': 'Bearer YOUR_TOKEN'
+      }
+    });
+    
+    const data = await response.json();
+    return data;
+  };
+  ```
+
+  ```json title="GAC Response"
+  {
+    "conversations": [
+      {
+        "_id": "60d21b4667d0d8992e610c85",
+        "title": "Vacation Policy Discussion",
+        "initiator": "5fb3b7...",
+        "createdAt": "2025-04-20T15:30:00.000Z",
+        "lastActivityAt": "2025-04-25T10:15:00.000Z",
+        "isShared": true
+      },
+      // More conversations...
+    ],
+    "sharedWithMeConversations": [
+      // Conversations shared with the user
+    ],
+    "pagination": {
+      "page": 1,
+      "limit": 20,
+      "totalCount": 45,
+      "totalPages": 3,
+      "hasNextPage": true,
+      "hasPrevPage": false
+    },
+    "filters": {
+      "applied": {
+        "filters": ["search", "shared", "dateRange"],
+        "values": {
+          "search": "vacation",
+          "shared": "true",
+          "dateRange": {
+            "start": "2025-01-01T00:00:00.000Z",
+            "end": "2025-04-27T23:59:59.999Z"
+          }
+        }
+      },
+      "available": {/* Available filter options */}
+    },
+    "meta": {
+      "requestId": "req-789",
+      "timestamp": "2025-04-27T12:10:00.000Z",
+      "duration": 350
+    }
+  }
+  ```
+</CodeGroup>
+
+### Get Conversation By ID
+Retrieve conversation by id for the authenticated user.
+
+<CodeGroup>
+  ```http title="Get Conversation By ID Endpoint"
+  GET /api/v1/conversations/:conversationId
+  ```
+
+  **Query Parameters:**
+  - `sortBy` - Field to sort messages by (createdAt, messageType, content)
+  - `sortOrder` - Sort order (asc, desc)
+  - `page` - Page number for message pagination
+  - `limit` - Number of messages per page
+  ```json title="GC Response"
+  {
+    "conversation": {
+      "id": "60d21b4667d0d8992e610c85",
+      "title": "Vacation Policy Discussion",
+      "messages": [...],
+      "pagination": {...},
+      "access": {
+        "isOwner": true,
+        "accessLevel": "write"
+      }
+    },
+    "filters": {...},
+    "meta": {...}
+  }
+  ```
+</CodeGroup>
+
+### Delete Conversation
+Delete a conversation by its id for the authenticated user. This is a soft delete operation.
+<CodeGroup>
+  ```http title="Delete Conversation Endpoint"
+  DELETE /api/v1/conversations/:conversationId
+  ```
+  ```json title="Delete Conversation Response"
+  {
+    "id": "60d21b4667d0d8992e610c85",
+    "status": "deleted",
+    "deletedAt": "2025-04-27T12:10:00.000Z",
+    "deletedBy": "5fb3b7...",
+    "citationsDeleted": 12,
+    "meta": {...}
+  }
+  ```
+</CodeGroup>
+
+### Share Conversation
+
+<CodeGroup>
+  ```http title="Share Endpoint"
+  POST /api/v1/conversations/:conversationId/share
+  ```
+  
+  ```json title="SC Request Body"
+  {
+    "userIds": ["5fb3b7..."],
+    "accessLevel": "read" // Optional, default: "read"
+  }
+  ```
+  
+  ```json title="SC Response"
+  {
+    "id": "60d21b4667d0d8992e610c85",
+    "isShared": true,
+    "shareLink": "...",
+    "sharedWith": [
+      {
+        "userId": "5fb3b7...",
+        "accessLevel": "read"
+      }
+    ],
+    "meta": {...}
+  }
+  ```
+</CodeGroup>
+
+### Unshare Conversation
+
+<CodeGroup>
+  ```http title="Unshare Endpoint"
+  POST /api/v1/conversations/:conversationId/unshare
+  ```
+  
+  ```json title="UsC Request Body"
+  {
+    "userIds": ["5fb3b7..."]
+  }
+  ```
+  
+  ```json title="UsC Response"
+  {
+    "id": "60d21b4667d0d8992e610c85",
+    "isShared": true, // false if no more shares exist
+    "shareLink": "...",
+    "sharedWith": [...],
+    "unsharedUsers": ["5fb3b7..."],
+    "meta": {...}
+  }
+  ```
+</CodeGroup>
+
+### Regenerate Answer
+
+<CodeGroup>
+  ```http title="Regenerate Endpoint"
+  POST /api/v1/conversations/:conversationId/message/:messageId/regenerate
+  ```
+  
+  ```typescript title="Regenerate Request Code"
+  // Using fetch API
+  const regenerateAnswer = async (conversationId, messageId) => {
+    const response = await fetch(`https://api.example.com/api/v1/conversations/${conversationId}/message/${messageId}/regenerate`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer YOUR_TOKEN'
+      }
+      // No request body needed for this endpoint
+    });
+    
+    const data = await response.json();
+    return data;
+  };
+  ```
+  
+  ```json title="Regenerate Response"
+  {
+    "conversation": {
+      "id": "60d21b4667d0d8992e610c85",
+      "messages": [
+        {
+          "messageType": "bot_response",
+          "content": "Here is a new response with updated information...",
+          "citations": [...]
+        }
+      ]
+    },
+    "meta": {...}
+  }
+  ```
+</CodeGroup>
+
+### Update Title
+
+<CodeGroup>
+  ```http title="Title Endpoint"
+  PATCH /api/v1/conversations/:conversationId/title
+  ```
+  
+  ```json title="Title Request Body"
+  {
+    "title": "Updated Vacation Policy Discussion"
+  }
+  ```
+
+  ```typescript title="Title Request Code"
+  // Using fetch API
+  const updateTitle = async (conversationId, newTitle) => {
+    const response = await fetch(`https://api.example.com/api/v1/conversations/${conversationId}/title`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer YOUR_TOKEN'
+      },
+      body: JSON.stringify({
+        title: newTitle
+      })
+    });
+    
+    const data = await response.json();
+    return data;
+  };
+  
+  // Example usage
+  updateTitle('60d21b4667d0d8992e610c85', 'Updated Vacation Policy Discussion');
+  ```
+  
+  ```json title="Response"
+  {
+    "conversation": {
+      "title": "Updated Vacation Policy Discussion",
+      ...
+    },
+    "meta": {...}
+  }
+  ```
+</CodeGroup>
+
+### Add Feedback
+
+<CodeGroup>
+  ```http title="Feedback Endpoint"
+  POST /api/v1/conversations/:conversationId/message/:messageId/feedback
+  ```
+  
+  ```json title="Feedback Request Body"
+  {
+    "isHelpful": true,
+    "ratings": {
+      "accuracy": 5,
+      "relevance": 4,
+      "completeness": 5,
+      "clarity": 5
+    },
+    "comments": {
+      "positive": "This was very helpful and accurate",
+      "suggestions": "Could have included more context"
+    }
+  }
+  ```
+  ```json title="Feedback Response"
+  {
+    "conversationId": "60d21b4667d0d8992e610c85",
+    "messageId": "7fb3c8...",
+    "feedback": {...},
+    "meta": {...}
+  }
+  ```
+</CodeGroup>
+
+### Archive Conversation
+
+<CodeGroup>
+  ```http title="Archive Endpoint"
+  PATCH /api/v1/conversations/:conversationId/archive
+  ```
+  
+  ```json title="Archive Response"
+  {
+    "id": "60d21b4667d0d8992e610c85",
+    "status": "archived",
+    "archivedBy": "5fb3b7...",
+    "archivedAt": "2025-04-27T12:15:00.000Z",
+    "meta": {...}
+  }
+  ```
+</CodeGroup>
+
+### Unarchive Conversation
+
+<CodeGroup>
+  ```http title="Unarchive Endpoint"
+  PATCH /api/v1/conversations/:conversationId/unarchive
+  ```
+  ```json title="Unarchive Response"
+  {
+    "id": "60d21b4667d0d8992e610c85",
+    "status": "unarchived",
+    "unarchivedBy": "5fb3b7...",
+    "unarchivedAt": "2025-04-27T12:20:00.000Z",
+    "meta": {...}
+  }
+  ```
+</CodeGroup>
+
+### List Archived Conversations
+
+<CodeGroup>
+  ```http title="List Archived Endpoint"
+  GET /api/v1/conversations/show/archives
+  ```
+  
+  ```json title="List Archived Response"
+  {
+    "conversations": [...],
+    "pagination": {...},
+    "filters": {...},
+    "summary": {
+      "totalArchived": 12,
+      "oldestArchive": "2025-01-15T10:30:00.000Z",
+      "newestArchive": "2025-04-20T15:45:00.000Z"
+    },
+    "meta": {...}
+  }
+  ```
+</CodeGroup>
