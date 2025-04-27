@@ -31,10 +31,10 @@
                   "system-overview/user-management",
                   "system-overview/token-manager",
                   "system-overview/configuration-manager",
+                  "system-overview/storage",
                   "system-overview/knowledge-base",
                   "system-overview/enterprise-search",
-                  "system-overview/mail-service",
-                  "system-overview/storage"
+                  "system-overview/mail-service"
                 ]
               },
               {
