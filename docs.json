@@ -30,8 +30,10 @@
                   "system-overview/authentication",
                   "system-overview/user-management",
                   "system-overview/configuration-manager",
+                  "system-overview/knowledge-base",
                   "system-overview/enterprise-search",
-                  "system-overview/mail-service"
+                  "system-overview/mail-service",
+                  "system-overview/storage"
                 ]
               },
               {
