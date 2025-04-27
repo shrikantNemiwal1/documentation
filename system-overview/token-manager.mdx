@@ -1,0 +1,634 @@
+---
+title: 'Token Manager'
+description: 'Documentation for the Token Manager Service'
+---
+
+# Token Manager Service
+
+The Token Manager Service manages authentication tokens for third-party integrations and connectors within your organization's ecosystem. It handles token lifecycle management, including creation, refreshing, and revocation of tokens for various services like Google Workspace, ensuring secure and seamless integration with external systems.
+
+## Architecture Overview
+
+The Token Manager Service is built on a Node.js backend with MongoDB for data persistence and Redis for caching. It leverages several key components:
+
+- **ETCD** - For storing sensitive configuration and token data in an encrypted format
+- **Kafka** - For event-driven communication between services
+- **IAM Service** - Handles user authentication and authorization
+- **Configuration Manager** - Manages application settings and connector configurations
+
+The service securely stores OAuth credentials and automatically refreshes tokens when they expire, maintaining continuous connectivity with integrated systems.
+
+## Connectors API
+
+The Connectors API enables integration with third-party services such as Google Workspace.
+
+### Get Connector Credentials
+
+Retrieves connector credentials for the authenticated user's organization.
+
+<CodeGroup>
+  ```http title="Get Credentials"
+  GET /api/v1/connectors/credentials
+  ```
+
+  **Response:**
+  
+  ```json title="Response (Configured)"
+  {
+    "adminEmail": "admin@example.com",
+    "enableRealTimeUpdates": true,
+    "topicName": "workspace-updates",
+    "isConfigured": true
+  }
+  ```
+
+  ```json title="Response (Not Configured)"
+  {
+    "isConfigured": false
+  }
+  ```
+</CodeGroup>
+
+### Set Connector Credentials
+
+Sets or updates connector credentials for the authenticated user's organization.
+
+<CodeGroup>
+  ```http title="Set Credentials"
+  POST /api/v1/connectors/credentials
+  ```
+
+  **Request Body:**
+  
+  The request should include a JSON file upload with the credentials in the `googleWorkspaceCredentials` field. The file should contain the OAuth client credentials from Google Cloud Console.
+
+  ```json title="Credentials Format"
+  {
+    "client_id": "YOUR_CLIENT_ID",
+    "client_secret": "YOUR_CLIENT_SECRET",
+    "adminEmail": "admin@example.com",
+    "enableRealTimeUpdates": true,
+    "topicName": "workspace-updates"
+  }
+  ```
+
+  **Response:**
+  
+  ```json title="Response"
+  {
+    "isConfigured": true
+  }
+  ```
+</CodeGroup>
+
+### Delete Connector Credentials
+
+Deletes connector credentials for the authenticated user's organization.
+
+<CodeGroup>
+  ```http title="Delete Credentials"
+  DELETE /api/v1/connectors/credentials
+  ```
+
+  **Response:**
+  
+  ```json title="Response"
+  {
+    "message": "Credentials successfully deleted"
+  }
+  ```
+</CodeGroup>
+
+### Download Connector Credentials
+
+Downloads the connector credentials as a JSON file.
+
+<CodeGroup>
+  ```http title="Download Credentials"
+  GET /api/v1/connectors/credentials/download
+  ```
+
+  **Response:**
+  
+  The response will be a downloadable JSON file containing the credentials.
+</CodeGroup>
+
+### Get Connectors Status
+
+Retrieves the status of all connectors for the authenticated user's organization.
+
+<CodeGroup>
+  ```http title="Get Status"
+  GET /api/v1/connectors/status
+  ```
+
+  **Response:**
+  
+  ```json title="Response"
+  [
+    {
+      "key": "googleWorkspace",
+      "isEnabled": true
+    }
+    // Other connectors...
+  ]
+  ```
+</CodeGroup>
+
+### Get Connector Configuration
+
+Retrieves the configuration for a specific connector.
+
+<CodeGroup>
+  ```http title="Get Config"
+  GET /api/v1/connectors/config?service=googleWorkspace
+  ```
+
+  **Query Parameters:**
+  
+  | Parameter | Type | Required | Description |
+  |-----------|------|----------|-------------|
+  | service | string | Yes | The connector service name (e.g., googleWorkspace) |
+
+  **Response for Individual Account Type:**
+  
+  ```json title="Individual Account Response"
+  {
+    "googleClientId": "YOUR_CLIENT_ID",
+    "googleClientSecret": "YOUR_CLIENT_SECRET",
+    "enableRealTimeUpdates": true,
+    "topicName": "workspace-updates"
+  }
+  ```
+
+  **Response for Business Account Type:**
+  
+  ```json title="Business Account Response"
+  {
+    "adminEmail": "admin@example.com",
+    "isConfigured": true
+  }
+  ```
+</CodeGroup>
+
+### Set Connector Configuration
+
+Sets or updates the configuration for a specific connector.
+
+<CodeGroup>
+  ```http title="Set Config"
+  POST /api/v1/connectors/config?service=googleWorkspace
+  ```
+
+  **Query Parameters:**
+  
+  | Parameter | Type | Required | Description |
+  |-----------|------|----------|-------------|
+  | service | string | Yes | The connector service name (e.g., googleWorkspace) |
+
+  **Request Body:**
+  
+  ```json title="Request Body"
+  {
+    "clientId": "YOUR_CLIENT_ID",
+    "clientSecret": "YOUR_CLIENT_SECRET",
+    "enableRealTimeUpdates": true,
+    "topicName": "workspace-updates"
+  }
+  ```
+
+  **Response:**
+  
+  ```json title="Response"
+  {
+    "message": "config successfully updated"
+  }
+  ```
+</CodeGroup>
+
+### Disable Connector
+
+Disables a specific connector for the authenticated user's organization.
+
+<CodeGroup>
+  ```http title="Disable Connector"
+  POST /api/v1/connectors/disable?service=googleWorkspace
+  ```
+
+  **Query Parameters:**
+  
+  | Parameter | Type | Required | Description |
+  |-----------|------|----------|-------------|
+  | service | string | Yes | The connector service name (e.g., googleWorkspace) |
+
+  **Response:**
+  
+  ```json title="Response"
+  {
+    "message": "Connector googleWorkspace is now disabled",
+    "connector": {
+      "_id": "60d21b4667d0d8992e610c85",
+      "name": "Google Workspace",
+      "isEnabled": false,
+      "lastUpdatedBy": "5fb3b7...",
+      "orgId": "5fb3b8..."
+    }
+  }
+  ```
+</CodeGroup>
+
+### Enable Connector
+
+Enables a specific connector for the authenticated user's organization.
+
+<CodeGroup>
+  ```http title="Enable Connector"
+  POST /api/v1/connectors/enable?service=googleWorkspace
+  ```
+
+  **Query Parameters:**
+  
+  | Parameter | Type | Required | Description |
+  |-----------|------|----------|-------------|
+  | service | string | Yes | The connector service name (e.g., googleWorkspace) |
+
+  **Response:**
+  
+  ```json title="Response"
+  {
+    "message": "Connector googleWorkspace is now enabled",
+    "connector": {
+      "_id": "60d21b4667d0d8992e610c85",
+      "name": "Google Workspace",
+      "isEnabled": true,
+      "lastUpdatedBy": "5fb3b7...",
+      "orgId": "5fb3b8..."
+    }
+  }
+  ```
+</CodeGroup>
+
+### Exchange OAuth Code for Tokens
+
+Exchanges an OAuth authorization code for access and refresh tokens.
+
+<CodeGroup>
+  ```http title="Exchange Token"
+  POST /api/v1/connectors/getTokenFromCode
+  ```
+
+  **Request Body:**
+  
+  ```json title="Request Body"
+  {
+    "tempCode": "OAUTH_AUTHORIZATION_CODE"
+  }
+  ```
+
+  **Response:**
+  
+  ```json title="Response"
+  {
+    "message": "Connector is now enabled",
+    "connector": {
+      "_id": "60d21b4667d0d8992e610c85",
+      "name": "Google Workspace",
+      "isEnabled": true,
+      "lastUpdatedBy": "5fb3b7...",
+      "orgId": "5fb3b8..."
+    }
+  }
+  ```
+</CodeGroup>
+
+### Refresh Individual Connector Token
+
+Refreshes an expired access token using a refresh token. This endpoint is for internal service communication.
+
+<CodeGroup>
+  ```http title="Refresh Token"
+  POST /api/v1/connectors/internal/refreshIndividualConnectorToken
+  ```
+
+  **Response:**
+  
+  ```json title="Response"
+  {
+    "message": "accesstoken updated Successfully"
+  }
+  ```
+</CodeGroup>
+
+### Update App Configuration
+
+Updates the application configuration for the token manager service. This endpoint is for internal service communication.
+
+<CodeGroup>
+  ```http title="Update Config"
+  POST /api/v1/connectors/updateAppConfig
+  ```
+
+  **Response:**
+  
+  ```json title="Response"
+  {
+    "message": "Connectors configuration updated successfully",
+    "config": {
+      // Configuration object
+    }
+  }
+  ```
+</CodeGroup>
+
+## Health API
+
+The Health API allows for monitoring the health status of the Token Manager Service and its dependencies.
+
+### Get Health Status
+
+Retrieves the health status of the service and its dependencies.
+
+<CodeGroup>
+  ```http title="Health Status"
+  GET /api/v1/health
+  ```
+
+  **Response:**
+  
+  ```json title="Response"
+  {
+    "status": "healthy",
+    "timestamp": "2025-04-27T12:00:00.000Z",
+    "services": {
+      "redis": "healthy",
+      "kafka": "healthy",
+      "mongodb": "healthy",
+      "arangodb": "healthy",
+      "KVStoreservice": "healthy"
+    }
+  }
+  ```
+</CodeGroup>
+
+## Schema Definitions
+
+<AccordionGroup>
+  <Accordion title="Application Config Schema">
+  ```typescript
+  interface AppConfig {
+    // JWT and authentication secrets
+    jwtSecret: string;
+    scopedJwtSecret: string;
+    cookieSecret: string;
+    rsAvailable: string;
+
+    // Service endpoints
+    communicationBackend: string;
+    frontendUrl: string;
+    iamBackend: string;
+    authBackend: string;
+    cmBackend: string;
+    kbBackend: string;
+    esBackend: string;
+    storageBackend: string;
+    tokenBackend: string;
+    aiBackend: string;
+    connectorBackend: string;
+    indexingBackend: string;
+    
+    // Kafka configuration
+    kafka: {
+      brokers: string[];
+      sasl?: {
+        mechanism: 'plain' | 'scram-sha-256' | 'scram-sha-512';
+        username: string;
+        password: string;
+      };
+    };
+    
+    // Redis configuration
+    redis: {
+      host: string;
+      port: number;
+      password?: string;
+      db?: number;
+    };
+    
+    // MongoDB configuration
+    mongo: {
+      uri: string;
+      db: string;
+    };
+
+    // Qdrant configuration
+    qdrant: {
+      port: number;
+      apiKey: string;
+      host: string;
+      grpcPort: number;
+    };
+
+    // ArangoDB configuration
+    arango: {
+      url: string;
+      db: string;
+      username: string;
+      password: string;
+    };
+    
+    // ETCD configuration
+    etcd: {
+      host: string;
+      port: number;
+      dialTimeout: number;
+    };
+
+    // SMTP configuration
+    smtp: {
+      host: string;
+      port: number;
+      username?: string;
+      password?: string;
+      fromEmail: string;
+    } | null;
+    
+    // Storage configuration
+    storage: {
+      storageType: string;
+      endpoint: string;
+    };
+  }
+  ```
+  </Accordion>
+
+  <Accordion title="Connectors Config Schema">
+  ```typescript
+  interface ConnectorsConfig {
+    // Organization and user identifiers
+    orgId: string;
+    name: string;
+    lastUpdatedBy: string;
+    
+    // Status
+    isEnabled: boolean;
+    
+    // Timestamps
+    createdAt: Date;
+    updatedAt: Date;
+  }
+  ```
+  </Accordion>
+
+  <Accordion title="Token Event Schema">
+  ```typescript
+  enum ServiceType {
+    ONEDRIVE = 'ONEDRIVE',
+    GOOGLE_DRIVE = 'GOOGLE_DRIVE',
+    CONFLUENCE = 'CONFLUENCE',
+  }
+
+  enum TokenEventType {
+    TOKEN_CREATED = 'TOKEN_CREATED',
+    TOKEN_REFRESHED = 'TOKEN_REFRESHED',
+    TOKEN_REVOKED = 'TOKEN_REVOKED',
+    TOKEN_EXPIRED = 'TOKEN_EXPIRED',
+  }
+
+  interface ITokenEvent {
+    eventId: string;
+    eventType: TokenEventType;
+    tokenReferenceId: string;
+    serviceType: ServiceType;
+    accountId: string;
+    timestamp: Number;
+  }
+  ```
+  </Accordion>
+
+  <Accordion title="Entity Event Schema">
+  ```typescript
+  enum SyncAction {
+    None = 'none',
+    Immediate = 'immediate',
+    Scheduled = 'scheduled',
+  }
+
+  enum EventType {
+    AppEnabledEvent = 'appEnabled',
+    AppDisabledEvent = 'appDisabled',
+  }
+
+  interface Event {
+    eventType: EventType;
+    timestamp: number;
+    payload: AppEnabledEvent | AppDisabledEvent;
+  }
+
+  interface AppEnabledEvent {
+    orgId: string;
+    appGroup: string;
+    appGroupId: string;
+    credentialsRoute?: string;
+    refreshTokenRoute?: string;
+    apps: string[];
+    syncAction: SyncAction;
+  }
+  
+  interface AppDisabledEvent {
+    orgId: string;
+    appGroup: string;
+    appGroupId: string;
+    apps: string[];
+  }
+  ```
+  </Accordion>
+
+  <Accordion title="Google Workspace Types">
+  ```typescript
+  enum GoogleWorkspaceApp {
+    Drive = 'DRIVE',
+    Gmail = 'GMAIL',
+    Calendar = 'CALENDAR',
+  }
+
+  interface GoogleWorkspaceApps {
+    apps: GoogleWorkspaceApp[];
+  }
+
+  const scopeToAppMap: { [key: string]: GoogleWorkspaceApp } = {
+    'https://www.googleapis.com/auth/gmail.readonly': GoogleWorkspaceApp.Gmail,
+    'https://www.googleapis.com/auth/calendar': GoogleWorkspaceApp.Calendar,
+    'https://www.googleapis.com/auth/drive': GoogleWorkspaceApp.Drive,
+  };
+  ```
+  </Accordion>
+
+  <Accordion title="Health Status Schema">
+  ```typescript
+  interface HealthStatus {
+    status: 'healthy' | 'unhealthy';
+    timestamp: string;
+    services: {
+      redis: string;
+      kafka: string;
+      mongodb: string;
+      arangodb: string;
+      KVStoreservice: string;
+    };
+  }
+  ```
+  </Accordion>
+</AccordionGroup>
+
+## Configuration Management
+
+The Token Manager Service uses ETCD as a key-value store for managing configurations securely. All sensitive information, such as OAuth client IDs/secrets and access tokens, are encrypted before storage.
+
+### Configuration Types
+
+The service manages several types of configurations:
+
+1. **Service Connection Information**
+   - Database connection strings (MongoDB, ArangoDB)
+   - Message broker details (Kafka brokers, authentication)
+   - Cache settings (Redis host, port, credentials)
+
+2. **Service Discovery**
+   - Backend service endpoints (IAM, Auth, Configuration Manager, etc.)
+   - Frontend URL for OAuth redirects
+
+3. **Authentication Secrets**
+   - JWT signing keys
+   - Scoped JWT secrets for service-to-service communication
+   - Cookie encryption secrets
+
+4. **Connector Credentials**
+   - OAuth client IDs and secrets
+   - Access tokens and refresh tokens
+   - Token expiration timestamps
+
+### Security Measures
+
+All sensitive configuration data is encrypted using AES-256 before storage in ETCD. The encryption keys themselves are securely managed and not stored in plaintext in the codebase or configuration files.
+
+## Event-Driven Architecture
+
+The Token Manager Service uses Kafka as an event bus to communicate token-related events to other services. This enables other components to react to token lifecycle events appropriately.
+
+### Token Events
+
+Token events are published to the `token-events` Kafka topic and include:
+
+- **TOKEN_CREATED**: Emitted when a new token is acquired
+- **TOKEN_REFRESHED**: Emitted when a token is refreshed
+- **TOKEN_REVOKED**: Emitted when a token is explicitly revoked
+- **TOKEN_EXPIRED**: Emitted when a token has expired
+
+### Entity Events
+
+Entity events are published to the `entity-events` Kafka topic and include:
+
+- **AppEnabledEvent**: Emitted when a connector is enabled
+- **AppDisabledEvent**: Emitted when a connector is disabled
+
+These events trigger synchronization jobs in other services, such as initiating content indexing when a new data source is connected.
