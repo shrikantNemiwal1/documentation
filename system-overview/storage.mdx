@@ -1,0 +1,519 @@
+---
+title: 'Storage Service'
+description: 'Documentation for the Storage Service API'
+---
+
+# Storage Service
+
+The Storage Service provides robust file storage, versioning, and retrieval capabilities across your organization's infrastructure. This service abstracts away the underlying storage vendor implementation, allowing seamless interaction with files regardless of where they're physically stored.
+
+## Architecture Overview
+
+The Storage Service is built on a Node.js backend with MongoDB for metadata persistence. It provides a flexible storage interface that supports three storage vendor backends:
+
+1. **Amazon S3** - For cloud-based storage on AWS
+2. **Azure Blob Storage** - For cloud-based storage on Microsoft Azure
+3. **Local Storage** - For on-premises file storage
+
+The service integrates with other components such as:
+
+- **Configuration Manager** - Manages storage configuration settings stored in etcd
+- **IAM Service** - Handles user authentication and authorization
+- **Key-Value Store** - Provides access to configuration data from etcd
+
+## Storage Configuration
+
+Storage configuration is maintained in etcd under the `/services/storage` path. The configuration determines which storage vendor is active and the credentials needed to access it. The service dynamically loads this configuration at runtime and can switch between storage vendors without restarting.
+
+## Authentication Modes
+
+The Storage Service offers two authentication modes:
+
+1. **User Authentication** - Uses standard user JWT tokens for operations performed by end users
+2. **Service Authentication** - Uses scoped tokens with specific permissions for service-to-service communication
+
+## Data Models
+
+### Document
+
+The Document model represents metadata about files stored in the system, including:
+
+- Basic information (name, path, size, MIME type)
+- Versioning metadata and history
+- Storage location details
+- Permissions and ownership
+- Custom metadata
+
+### Version History
+
+Each versioned document maintains a complete history of changes, including:
+
+- Previous versions of the document
+- Metadata for each version (size, creation time, creator)
+- Storage locations for each version
+- Version notes and labels
+
+## Storage API
+
+The Storage API provides endpoints for document management, versioning, and retrieval operations.
+
+### Create Document
+
+Upload a new document to the storage service.
+
+<CodeGroup>
+  ```http title="Upload Document"
+  POST /api/v1/document/upload
+  ```
+
+  **Request Body Parameters:**
+  
+  | Parameter | Type | Required | Description |
+  |-----------|------|----------|-------------|
+  | file | File | Yes | The file to upload |
+  | documentName | string | Yes | Name of the document |
+  | documentPath | string | No | Optional path for document storage |
+  | alternateDocumentName | string | No | Alternative name for the document |
+  | permissions | string | No | Access permissions (owner, editor, commentator, readonly) |
+  | customMetadata | object | No | Custom metadata to associate with the document |
+  | isVersionedFile | string | Yes | Whether the document supports versioning ("true"/"false") |
+
+  ```json title="Upload Response"
+  {
+    "_id": "60f8a5b3e6d8f32a94c12345",
+    "documentName": "presentation",
+    "documentPath": "org123/PipesHub/marketing/campaigns/60f8a5b3e6d8f32a94c12345",
+    "alternateDocumentName": null,
+    "isVersionedFile": true,
+    "sizeInBytes": 2048576,
+    "extension": ".pptx",
+    "storageVendor": "s3",
+    "s3": {
+      "url": "https://bucket.s3.region.amazonaws.com/org123/PipesHub/marketing/campaigns/60f8a5b3e6d8f32a94c12345/current/presentation.pptx"
+    },
+    "versionHistory": [
+      {
+        "version": 0,
+        "s3": {
+          "url": "https://bucket.s3.region.amazonaws.com/org123/PipesHub/marketing/campaigns/60f8a5b3e6d8f32a94c12345/versions/v0.pptx"
+        },
+        "createdAt": 1626955195000,
+        "size": 2048576,
+        "extension": ".pptx"
+      }
+    ],
+    "createdAt": 1626955195000,
+    "updatedAt": 1626955195000,
+    "isDeleted": false
+  }
+  ```
+</CodeGroup>
+
+### Create Document Placeholder
+
+Create a document placeholder for future direct uploads.
+
+<CodeGroup>
+  ```http title="Create Placeholder"
+  POST /api/v1/document/placeholder
+  ```
+
+  **Request Body Parameters:**
+  
+  | Parameter | Type | Required | Description |
+  |-----------|------|----------|-------------|
+  | documentName | string | Yes | Name of the document |
+  | documentPath | string | Yes | Path for document storage |
+  | alternateDocumentName | string | No | Alternative name for the document |
+  | permissions | string | No | Access permissions |
+  | metaData | object | No | Custom metadata |
+  | isVersionedFile | boolean | No | Whether the document supports versioning |
+  | extension | string | Yes | File extension (e.g., "pdf") |
+
+  ```json title="Placeholder Response"
+  {
+    "_id": "60f8a5b3e6d8f32a94c67890",
+    "documentName": "large-dataset",
+    "documentPath": "analytics/data",
+    "isVersionedFile": false,
+    "extension": ".csv",
+    "storageVendor": "s3",
+    "createdAt": 1626955245000,
+    "updatedAt": 1626955245000,
+    "isDeleted": false
+  }
+  ```
+</CodeGroup>
+
+### Get Document
+
+Retrieve document metadata by ID.
+
+<CodeGroup>
+  ```http title="Get Document"
+  GET /api/v1/document/:documentId
+  ```
+
+  ```json title="Get Document Response"
+  {
+    "_id": "60f8a5b3e6d8f32a94c12345",
+    "documentName": "presentation",
+    "documentPath": "org123/PipesHub/marketing/campaigns/60f8a5b3e6d8f32a94c12345",
+    "alternateDocumentName": null,
+    "isVersionedFile": true,
+    "sizeInBytes": 2048576,
+    "extension": ".pptx",
+    "storageVendor": "s3",
+    "s3": {
+      "url": "https://bucket.s3.region.amazonaws.com/org123/PipesHub/marketing/campaigns/60f8a5b3e6d8f32a94c12345/current/presentation.pptx"
+    },
+    "versionHistory": [...],
+    "createdAt": 1626955195000,
+    "updatedAt": 1626955195000,
+    "isDeleted": false
+  }
+  ```
+</CodeGroup>
+
+### Download Document
+
+Get a signed URL to download a document or stream it for local storage.
+
+<CodeGroup>
+  ```http title="Download Document"
+  GET /api/v1/document/:documentId/download
+  ```
+
+  **Query Parameters:**
+  
+  | Parameter | Type | Required | Description |
+  |-----------|------|----------|-------------|
+  | version | number | No | Version number to download (default is latest) |
+  | expirationTimeInSeconds | number | No | Expiration time for the signed URL (default: 3600) |
+
+  ```json title="Download Response (for S3/Azure)"
+  {
+    "signedUrl": "https://bucket.s3.region.amazonaws.com/org123/PipesHub/marketing/campaigns/60f8a5b3e6d8f32a94c12345/current/presentation.pptx?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=..."
+  }
+  ```
+</CodeGroup>
+
+### Delete Document
+
+Mark a document as deleted (soft delete).
+
+<CodeGroup>
+  ```http title="Delete Document"
+  DELETE /api/v1/document/:documentId
+  ```
+
+  ```json title="Delete Response"
+  {
+    "_id": "60f8a5b3e6d8f32a94c12345",
+    "documentName": "presentation",
+    "isDeleted": true,
+    "deletedByUserId": "5fb3b7c8e1d8f32a94c98765",
+    "updatedAt": 1626958795000
+  }
+  ```
+</CodeGroup>
+
+### Get Document Buffer
+
+Get the document's content as a buffer.
+
+<CodeGroup>
+  ```http title="Get Buffer"
+  GET /api/v1/document/:documentId/buffer
+  ```
+
+  **Query Parameters:**
+  
+  | Parameter | Type | Required | Description |
+  |-----------|------|----------|-------------|
+  | version | number | No | Version number to retrieve (default is latest) |
+
+</CodeGroup>
+
+### Update Document Buffer
+
+Update a document's content.
+
+<CodeGroup>
+  ```http title="Update Buffer"
+  PUT /api/v1/document/:documentId/buffer
+  ```
+
+  ```json title="Update Buffer Response"
+  "https://bucket.s3.region.amazonaws.com/org123/PipesHub/marketing/campaigns/60f8a5b3e6d8f32a94c12345/current/presentation.pptx"
+  ```
+</CodeGroup>
+
+### Upload Next Version
+
+Upload a new version of an existing document.
+
+<CodeGroup>
+  ```http title="Upload Next Version"
+  POST /api/v1/document/:documentId/uploadNextVersion
+  ```
+
+  **Request Body Parameters:**
+  
+  | Parameter | Type | Required | Description |
+  |-----------|------|----------|-------------|
+  | file | File | Yes | The new file content |
+  | currentVersionNote | string | No | Note for the current version |
+  | nextVersionNote | string | No | Note for the next version |
+
+  ```json title="Upload Next Version Response"
+  {
+    "_id": "60f8a5b3e6d8f32a94c12345",
+    "documentName": "presentation",
+    "isVersionedFile": true,
+    "mutationCount": 2,
+    "sizeInBytes": 2359296,
+    "versionHistory": [
+      {
+        "version": 0,
+        "s3": {
+          "url": "https://bucket.s3.region.amazonaws.com/org123/PipesHub/marketing/campaigns/60f8a5b3e6d8f32a94c12345/versions/v0.pptx"
+        },
+        "createdAt": 1626955195000,
+        "size": 2048576,
+        "extension": ".pptx"
+      },
+      {
+        "version": 1,
+        "s3": {
+          "url": "https://bucket.s3.region.amazonaws.com/org123/PipesHub/marketing/campaigns/60f8a5b3e6d8f32a94c12345/versions/v1.pptx"
+        },
+        "note": "Updated version",
+        "createdAt": 1626958895000,
+        "size": 2359296,
+        "extension": ".pptx",
+        "initiatedByUserId": "5fb3b7c8e1d8f32a94c98765"
+      }
+    ],
+    "updatedAt": 1626958895000
+  }
+  ```
+</CodeGroup>
+
+### Roll Back to Previous Version
+
+Restore a document to a previous version.
+
+<CodeGroup>
+  ```http title="Roll Back"
+  POST /api/v1/document/:documentId/rollBack
+  ```
+
+  **Request Body Parameters:**
+  
+  | Parameter | Type | Required | Description |
+  |-----------|------|----------|-------------|
+  | version | string | Yes | Version number to roll back to |
+  | note | string | Yes | Note about the rollback operation |
+
+  ```json title="Roll Back Response"
+  {
+    "_id": "60f8a5b3e6d8f32a94c12345",
+    "documentName": "presentation",
+    "mutationCount": 3,
+    "versionHistory": [
+      {
+        "version": 0,
+        "s3": {
+          "url": "https://bucket.s3.region.amazonaws.com/org123/PipesHub/marketing/campaigns/60f8a5b3e6d8f32a94c12345/versions/v0.pptx"
+        },
+        "createdAt": 1626955195000,
+        "size": 2048576,
+        "extension": ".pptx"
+      },
+      {
+        "version": 1,
+        "s3": {
+          "url": "https://bucket.s3.region.amazonaws.com/org123/PipesHub/marketing/campaigns/60f8a5b3e6d8f32a94c12345/versions/v1.pptx"
+        },
+        "note": "Updated version",
+        "createdAt": 1626958895000,
+        "size": 2359296,
+        "extension": ".pptx",
+        "initiatedByUserId": "5fb3b7c8e1d8f32a94c98765"
+      },
+      {
+        "version": 2,
+        "s3": {
+          "url": "https://bucket.s3.region.amazonaws.com/org123/PipesHub/marketing/campaigns/60f8a5b3e6d8f32a94c12345/versions/v2.pptx"
+        },
+        "note": "Rolled back due to errors",
+        "createdAt": 1626959195000,
+        "size": 2048576,
+        "extension": ".pptx",
+        "initiatedByUserId": "5fb3b7c8e1d8f32a94c98765"
+      }
+    ],
+    "updatedAt": 1626959195000
+  }
+  ```
+</CodeGroup>
+
+### Get Direct Upload URL
+
+Generate a presigned URL for directly uploading to storage.
+
+<CodeGroup>
+  ```http title="Direct Upload"
+  POST /api/v1/document/:documentId/directUpload
+  ```
+
+  ```json title="Direct Upload Response"
+  {
+    "signedUrl": "https://bucket.s3.region.amazonaws.com/org123/PipesHub/analytics/data/60f8a5b3e6d8f32a94c67890?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=...",
+    "documentId": "60f8a5b3e6d8f32a94c67890"
+  }
+  ```
+</CodeGroup>
+
+### Check If Document Is Modified
+
+Check if a document has been modified since its last version.
+
+<CodeGroup>
+  ```http title="Check Modified"
+  GET /api/v1/document/:documentId/isModified
+  ```
+
+  ```json title="Check Modified Response"
+  true
+  ```
+</CodeGroup>
+
+## Internal Service API
+
+All of the endpoints described above also have service-to-service equivalents which are accessed using scoped tokens instead of user tokens. These endpoints are prefixed with `/internal` and provide the same functionality but are intended for use by other services.
+
+Example: `/api/v1/document/internal/:documentId/download`
+
+## Schema Definitions
+
+<AccordionGroup>
+  <Accordion title="Document Schema">
+  ```typescript
+  interface Document {
+    // Basic document information
+    documentName: string;
+    alternateDocumentName?: string;
+    documentPath?: string;
+    isVersionedFile: boolean;
+    orgId: ObjectId;
+    
+    // Document metrics
+    mutationCount?: number;
+    sizeInBytes?: number;
+    mimeType?: string;
+    extension: string;
+    
+    // Access control
+    permissions?: 'owner' | 'editor' | 'commentator' | 'readonly';
+    initiatorUserId: ObjectId | null;
+    
+    // Versioning
+    versionHistory?: DocumentVersion[];
+    currentVersion: number;
+    
+    // Metadata
+    customMetadata?: CustomMetadata[];
+    tags?: string[];
+    
+    // Timestamps
+    createdAt?: number;
+    updatedAt?: number;
+    
+    // Deletion status
+    deletedByUserId?: ObjectId;
+    isDeleted: boolean;
+    
+    // Storage information
+    s3?: StorageInfo;
+    azureBlob?: StorageInfo;
+    local?: StorageInfo;
+    storageVendor: 's3' | 'azureBlob' | 'local';
+  }
+  ```
+  </Accordion>
+
+  <Accordion title="DocumentVersion Schema">
+  ```typescript
+  interface DocumentVersion {
+    version?: number;
+    userAssignedVersionLabel?: string;
+    s3?: StorageInfo;
+    azureBlob?: StorageInfo;
+    local?: StorageInfo;
+    note?: string;
+    extension?: string;
+    currentVersion?: number;
+    createdAt?: number;
+    mutationCount?: number;
+    initiatedByUserId?: ObjectId;
+    size?: number;
+  }
+  ```
+  </Accordion>
+
+  <Accordion title="StorageInfo Schema">
+  ```typescript
+  interface StorageInfo {
+    url: string;
+    localPath?: string;  // Only used for local storage
+  }
+  ```
+  </Accordion>
+
+  <Accordion title="CustomMetadata Schema">
+  ```typescript
+  interface CustomMetadata {
+    key: string;
+    value: any;
+  }
+  ```
+  </Accordion>
+</AccordionGroup>
+
+## Storage Provider Implementation
+
+The Storage Service uses an adapter pattern to abstract the underlying storage provider implementation. Three storage providers are supported:
+
+### Amazon S3
+
+Uses the AWS SDK to interact with S3 buckets. Supports features like:
+- Direct file uploads/downloads
+- Signed URLs with expiration
+- Multipart uploads for large files
+- Object versioning
+
+### Azure Blob Storage
+
+Uses the Azure Storage SDK to interact with blob containers. Supports:
+- Direct file uploads/downloads
+- SAS token generation for secure access
+- Blob versioning
+
+### Local Storage
+
+Uses the Node.js filesystem API to store files locally. Supports:
+- Direct file storage and retrieval
+- File streaming
+- Directory-based organization
+
+## Configuration
+
+Storage configuration is stored in etcd and accessed via the Key-Value Store. The configuration includes:
+
+- Storage type (s3, azureBlob, local)
+- Credentials for the selected storage vendor
+- Default options and behaviors
+
+The service can switch between storage vendors at runtime by updating the configuration in etcd.
