@@ -28,7 +28,8 @@
                 "group": "PipesHub Services",
                 "pages": [
                   "system-overview/enterprise-search",
-                  "system-overview/configuration-manager"
+                  "system-overview/configuration-manager",
+                  "system-overview/user-management"
                 ]
               },
               {

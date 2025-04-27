@@ -1,0 +1,1045 @@
+---
+title: 'User Management'
+description: 'Documentation for the User Management Service'
+---
+
+# User Management Service
+
+The User Management Service provides comprehensive functionality for managing users, organizations, and user groups within your application. This service handles org and user profile management, allowing for seamless user administration across your organization.
+
+## Architecture Overview
+
+The User Management Service is built on a Node.js backend with MongoDB for data persistence. It utilizes an Inversify container for dependency injection and includes several key components:
+
+1. **User Management** - Core functionality for managing user accounts
+2. **Organization Management** - Controls organization-level settings and configurations
+3. **User Groups Management** - Manages permissions and access control through user groups
+
+The service integrates with other components such as:
+
+- **Auth Service** - Handles authentication methods and user credentials
+- **IAM Service** - Manages permissions and authorization
+- **Mail Service** - Sends notifications and invitations
+- **Configuration Manager** - Manages application settings
+
+## Data Models
+
+### Organizations
+
+Organizations represent the top-level entity that contains users and groups:
+
+- Organization metadata (name, domain, contact information)
+- Organization settings and configurations
+- Onboarding status tracking
+
+### Users
+
+Users represent individual accounts within an organization:
+
+- Profile information (name, email, contact details)
+- Organization membership
+- Authentication status
+
+### User Groups
+
+User Groups provide role-based access control within organizations:
+
+- Group types (admin, standard, everyone, custom)
+- User memberships
+- Access permissions
+
+## Organization API
+
+The Organization API enables managing organization-level settings and configurations.
+
+### Check Organization Existence
+
+Checks if any organization exists in the system.
+
+<CodeGroup>
+  ```http title="Check Organization Existence"
+  GET /api/v1/org/exists
+  ```
+
+  ```json title="Response"
+  {
+    "exists": true
+  }
+  ```
+</CodeGroup>
+
+### Create Organization
+
+Creates a new organization in the system.
+
+<CodeGroup>
+  ```http title="Create Organization"
+  POST /api/v1/org
+  ```
+
+  **Request Body Parameters:**
+  
+  | Parameter | Type | Required | Description |
+  |-----------|------|----------|-------------|
+  | accountType | string | Yes | Type of account ('individual' or 'business') |
+  | contactEmail | string | Yes | Primary contact email for the organization |
+  | registeredName | string | Yes (for business) | Official registered name of the organization |
+  | adminFullName | string | Yes | Name of the initial admin user |
+  | password | string | Yes | Password for the admin account |
+  | sendEmail | boolean | No | Whether to send welcome email |
+  | permanentAddress | object | No | Organization's address details |
+
+  ```json title="Response"
+  {
+    "_id": "60d21b4667d0d8992e610c85",
+    "slug": "org-1001",
+    "registeredName": "Example Corporation",
+    "domain": "example.com",
+    "contactEmail": "admin@example.com",
+    "accountType": "business",
+    "onBoardingStatus": "notConfigured",
+    "createdAt": "2025-04-27T12:00:00.000Z",
+    "updatedAt": "2025-04-27T12:00:00.000Z"
+  }
+  ```
+</CodeGroup>
+
+### Get Organization
+
+Retrieves the authenticated user's organization details.
+
+<CodeGroup>
+  ```http title="Get Organization"
+  GET /api/v1/org
+  ```
+
+  **Headers:**
+  - `Authorization: Bearer YOUR_TOKEN`
+
+  ```json title="Response"
+  {
+    "_id": "60d21b4667d0d8992e610c85",
+    "slug": "org-1001",
+    "registeredName": "Example Corporation",
+    "shortName": "ExampleCorp",
+    "domain": "example.com",
+    "contactEmail": "admin@example.com",
+    "accountType": "business",
+    "permanentAddress": {
+      "street": "123 Business Ave",
+      "city": "Tech City",
+      "state": "Innovation State",
+      "country": "United States",
+      "postalCode": "12345"
+    },
+    "onBoardingStatus": "configured",
+    "createdAt": "2025-04-27T12:00:00.000Z",
+    "updatedAt": "2025-04-27T12:00:00.000Z"
+  }
+  ```
+</CodeGroup>
+
+### Update Organization
+
+Updates organization details.
+
+<CodeGroup>
+  ```http title="Update Organization"
+  PATCH /api/v1/org
+  ```
+
+  **Headers:**
+  - `Authorization: Bearer YOUR_TOKEN`
+
+  **Request Body Parameters:**
+  
+  | Parameter | Type | Required | Description |
+  |-----------|------|----------|-------------|
+  | contactEmail | string | No | Primary contact email |
+  | registeredName | string | No | Official registered name |
+  | shortName | string | No | Short display name |
+  | permanentAddress | object | No | Organization's address details |
+
+  ```json title="Response"
+  {
+    "message": "Organization updated successfully",
+    "data": {
+      "_id": "60d21b4667d0d8992e610c85",
+      "contactEmail": "new-admin@example.com",
+      "shortName": "ExampleCorp",
+      "updatedAt": "2025-04-27T14:30:00.000Z"
+    }
+  }
+  ```
+</CodeGroup>
+
+### Get Onboarding Status
+
+Retrieves the current onboarding status of the organization.
+
+<CodeGroup>
+  ```http title="Get Onboarding Status"
+  GET /api/v1/org/onboarding-status
+  ```
+
+  **Headers:**
+  - `Authorization: Bearer YOUR_TOKEN`
+
+  ```json title="Response"
+  {
+    "status": "configured"
+  }
+  ```
+</CodeGroup>
+
+### Update Onboarding Status
+
+Updates the organization's onboarding status.
+
+<CodeGroup>
+  ```http title="Update Onboarding Status"
+  PUT /api/v1/org/onboarding-status
+  ```
+
+  **Headers:**
+  - `Authorization: Bearer YOUR_TOKEN`
+
+  **Request Body Parameters:**
+  
+  | Parameter | Type | Required | Description |
+  |-----------|------|----------|-------------|
+  | status | string | Yes | Onboarding status ('configured', 'notConfigured', 'skipped') |
+
+  ```json title="Response"
+  {
+    "message": "Onboarding status updated successfully",
+    "status": "configured"
+  }
+  ```
+</CodeGroup>
+
+### Upload Organization Logo
+
+Uploads a logo for the organization.
+
+<CodeGroup>
+  ```http title="Upload Organization Logo"
+  PUT /api/v1/org/logo
+  ```
+
+  **Headers:**
+  - `Authorization: Bearer YOUR_TOKEN`
+  - `Content-Type: multipart/form-data`
+
+  **Form Data:**
+  - `file`: Image file (PNG, JPEG, JPG, WebP, or GIF)
+</CodeGroup>
+
+### Get Organization Logo
+
+Retrieves the organization's logo.
+
+<CodeGroup>
+  ```http title="Get Organization Logo"
+  GET /api/v1/org/logo
+  ```
+
+  **Headers:**
+  - `Authorization: Bearer YOUR_TOKEN`
+</CodeGroup>
+
+### Delete Organization Logo
+
+Removes the organization's logo.
+
+<CodeGroup>
+  ```http title="Delete Organization Logo"
+  DELETE /api/v1/org/logo
+  ```
+
+  **Headers:**
+  - `Authorization: Bearer YOUR_TOKEN`
+
+  ```json title="Response"
+  {
+    "orgId": "60d21b4667d0d8992e610c85",
+    "logo": null,
+    "mimeType": null
+  }
+  ```
+</CodeGroup>
+
+## Users API
+
+The Users API provides endpoints for managing users within an organization.
+
+### Get All Users
+
+Retrieves all users in the authenticated user's organization.
+
+<CodeGroup>
+  ```http title="Get All Users"
+  GET /api/v1/users
+  ```
+
+  **Headers:**
+  - `Authorization: Bearer YOUR_TOKEN`
+
+  ```json title="Response"
+  [
+    {
+      "_id": "60d21b4667d0d8992e610c86",
+      "fullName": "John Doe",
+      "email": "john.doe@example.com",
+      "hasLoggedIn": true,
+      "designation": "Manager",
+      "createdAt": "2025-04-27T12:00:00.000Z",
+      "updatedAt": "2025-04-27T12:05:00.000Z"
+    },
+    {
+      "_id": "60d21b4667d0d8992e610c87",
+      "fullName": "Jane Smith",
+      "email": "jane.smith@example.com",
+      "hasLoggedIn": true,
+      "designation": "Developer",
+      "createdAt": "2025-04-27T12:10:00.000Z",
+      "updatedAt": "2025-04-27T12:15:00.000Z"
+    }
+  ]
+  ```
+</CodeGroup>
+
+### Get All Users With Groups
+
+Retrieves all users along with their associated groups.
+
+<CodeGroup>
+  ```http title="Get All Users With Groups"
+  GET /api/v1/users/fetch/with-groups
+  ```
+
+  **Headers:**
+  - `Authorization: Bearer YOUR_TOKEN`
+
+  ```json title="Response"
+  [
+    {
+      "_id": "60d21b4667d0d8992e610c86",
+      "fullName": "John Doe",
+      "email": "john.doe@example.com",
+      "hasLoggedIn": true,
+      "groups": [
+        {
+          "name": "admin",
+          "type": "admin"
+        },
+        {
+          "name": "everyone",
+          "type": "everyone"
+        }
+      ]
+    },
+    {
+      "_id": "60d21b4667d0d8992e610c87",
+      "fullName": "Jane Smith",
+      "email": "jane.smith@example.com",
+      "hasLoggedIn": true,
+      "groups": [
+        {
+          "name": "everyone",
+          "type": "everyone"
+        },
+        {
+          "name": "standard",
+          "type": "standard"
+        }
+      ]
+    }
+  ]
+  ```
+</CodeGroup>
+
+### Get User by ID
+
+Retrieves a specific user by their ID.
+
+<CodeGroup>
+  ```http title="Get User by ID"
+  GET /api/v1/users/:id
+  ```
+
+  **Headers:**
+  - `Authorization: Bearer YOUR_TOKEN`
+
+  ```json title="Response"
+  {
+    "_id": "60d21b4667d0d8992e610c86",
+    "fullName": "John Doe",
+    "firstName": "John",
+    "lastName": "Doe",
+    "email": "john.doe@example.com",
+    "mobile": "+12345678901",
+    "hasLoggedIn": true,
+    "designation": "Manager",
+    "address": {
+      "addressLine1": "123 Main St",
+      "city": "San Francisco",
+      "state": "CA",
+      "postCode": "94105",
+      "country": "US"
+    },
+    "createdAt": "2025-04-27T12:00:00.000Z",
+    "updatedAt": "2025-04-27T12:05:00.000Z"
+  }
+  ```
+</CodeGroup>
+
+### Create User
+
+Creates a new user in the organization.
+
+<CodeGroup>
+  ```http title="Create User"
+  POST /api/v1/users
+  ```
+
+  **Headers:**
+  - `Authorization: Bearer YOUR_TOKEN`
+
+  **Request Body Parameters:**
+  
+  | Parameter | Type | Required | Description |
+  |-----------|------|----------|-------------|
+  | fullName | string | Yes | Full name of the user |
+  | email | string | Yes | Email address of the user |
+  | mobile | string | No | Mobile number of the user |
+  | designation | string | No | Job title or role |
+
+  ```json title="Response"
+  {
+    "_id": "60d21b4667d0d8992e610c88",
+    "fullName": "Alice Johnson",
+    "email": "alice.johnson@example.com",
+    "mobile": "+12345678902",
+    "designation": "Product Manager",
+    "orgId": "60d21b4667d0d8992e610c85",
+    "hasLoggedIn": false,
+    "createdAt": "2025-04-27T14:30:00.000Z",
+    "updatedAt": "2025-04-27T14:30:00.000Z"
+  }
+  ```
+</CodeGroup>
+
+### Update User
+
+Updates a user's information.
+
+<CodeGroup>
+  ```http title="Update User"
+  PUT /api/v1/users/:id
+  ```
+
+  **Headers:**
+  - `Authorization: Bearer YOUR_TOKEN`
+
+  **Request Body Parameters:**
+  
+  | Parameter | Type | Required | Description |
+  |-----------|------|----------|-------------|
+  | fullName | string | No | Full name of the user |
+  | email | string | Yes | Email address of the user |
+  | mobile | string | No | Mobile number of the user |
+  | designation | string | No | Job title or role |
+  | firstName | string | No | First name of the user |
+  | lastName | string | No | Last name of the user |
+  | address | object | No | User's address details |
+  | hasLoggedIn | boolean | No | Whether the user has logged in |
+
+  ```json title="Response"
+  {
+    "_id": "60d21b4667d0d8992e610c88",
+    "fullName": "Alice Johnson",
+    "firstName": "Alice",
+    "lastName": "Johnson",
+    "email": "alice.johnson@example.com",
+    "designation": "Senior Product Manager",
+    "orgId": "60d21b4667d0d8992e610c85",
+    "hasLoggedIn": false,
+    "updatedAt": "2025-04-27T14:45:00.000Z"
+  }
+  ```
+</CodeGroup>
+
+### Update User Specific Fields
+
+The following endpoints update specific user fields:
+
+#### Update Full Name
+
+<CodeGroup>
+  ```http title="Update Full Name"
+  PATCH /api/v1/users/:id/fullname
+  ```
+
+  **Headers:**
+  - `Authorization: Bearer YOUR_TOKEN`
+
+  **Request Body Parameters:**
+  
+  | Parameter | Type | Required | Description |
+  |-----------|------|----------|-------------|
+  | fullName | string | Yes | Full name of the user |
+</CodeGroup>
+
+#### Update First Name
+
+<CodeGroup>
+  ```http title="Update First Name"
+  PATCH /api/v1/users/:id/firstName
+  ```
+
+  **Headers:**
+  - `Authorization: Bearer YOUR_TOKEN`
+
+  **Request Body Parameters:**
+  
+  | Parameter | Type | Required | Description |
+  |-----------|------|----------|-------------|
+  | firstName | string | Yes | First name of the user |
+</CodeGroup>
+
+#### Update Last Name
+
+<CodeGroup>
+  ```http title="Update Last Name"
+  PATCH /api/v1/users/:id/lastName
+  ```
+
+  **Headers:**
+  - `Authorization: Bearer YOUR_TOKEN`
+
+  **Request Body Parameters:**
+  
+  | Parameter | Type | Required | Description |
+  |-----------|------|----------|-------------|
+  | lastName | string | Yes | Last name of the user |
+</CodeGroup>
+
+#### Update Designation
+
+<CodeGroup>
+  ```http title="Update Designation"
+  PATCH /api/v1/users/:id/designation
+  ```
+
+  **Headers:**
+  - `Authorization: Bearer YOUR_TOKEN`
+
+  **Request Body Parameters:**
+  
+  | Parameter | Type | Required | Description |
+  |-----------|------|----------|-------------|
+  | designation | string | Yes | Job title or role |
+</CodeGroup>
+
+#### Update Email
+
+<CodeGroup>
+  ```http title="Update Email"
+  PATCH /api/v1/users/:id/email
+  ```
+
+  **Headers:**
+  - `Authorization: Bearer YOUR_TOKEN`
+
+  **Request Body Parameters:**
+  
+  | Parameter | Type | Required | Description |
+  |-----------|------|----------|-------------|
+  | email | string | Yes | Email address of the user |
+</CodeGroup>
+
+### Bulk Invite Users
+
+Invites multiple users to the organization by email.
+
+<CodeGroup>
+  ```http title="Bulk Invite Users"
+  POST /api/v1/users/bulk/invite
+  ```
+
+  **Headers:**
+  - `Authorization: Bearer YOUR_TOKEN`
+
+  **Request Body Parameters:**
+  
+  | Parameter | Type | Required | Description |
+  |-----------|------|----------|-------------|
+  | emails | string[] | Yes | Array of email addresses to invite |
+  | groupIds | string[] | No | Array of group IDs to add users to |
+
+  ```json title="Response"
+  {
+    "message": "Invite sent successfully"
+  }
+  ```
+</CodeGroup>
+
+### Resend User Invite
+
+Resends an invitation to a specific user.
+
+<CodeGroup>
+  ```http title="Resend User Invite"
+  POST /api/v1/users/:id/resend-invite
+  ```
+
+  **Headers:**
+  - `Authorization: Bearer YOUR_TOKEN`
+
+  ```json title="Response"
+  {
+    "message": "Invite sent successfully"
+  }
+  ```
+</CodeGroup>
+
+### Delete User
+
+Soft-deletes a user from the organization.
+
+<CodeGroup>
+  ```http title="Delete User"
+  DELETE /api/v1/users/:id
+  ```
+
+  **Headers:**
+  - `Authorization: Bearer YOUR_TOKEN`
+
+  ```json title="Response"
+  {
+    "message": "User deleted successfully"
+  }
+  ```
+</CodeGroup>
+
+### Upload User Display Picture
+
+Uploads a profile picture for the authenticated user.
+
+<CodeGroup>
+  ```http title="Upload User Display Picture"
+  PUT /api/v1/users/dp
+  ```
+
+  **Headers:**
+  - `Authorization: Bearer YOUR_TOKEN`
+  - `Content-Type: multipart/form-data`
+
+  **Form Data:**
+  - `file`: Image file (PNG, JPEG, JPG, WebP, or GIF)
+</CodeGroup>
+
+### Get User Display Picture
+
+Retrieves the authenticated user's profile picture.
+
+<CodeGroup>
+  ```http title="Get User Display Picture"
+  GET /api/v1/users/dp
+  ```
+
+  **Headers:**
+  - `Authorization: Bearer YOUR_TOKEN`
+</CodeGroup>
+
+### Delete User Display Picture
+
+Removes the authenticated user's profile picture.
+
+<CodeGroup>
+  ```http title="Delete User Display Picture"
+  DELETE /api/v1/users/dp
+  ```
+
+  **Headers:**
+  - `Authorization: Bearer YOUR_TOKEN`
+
+  ```json title="Response"
+  {
+    "userId": "60d21b4667d0d8992e610c86",
+    "orgId": "60d21b4667d0d8992e610c85",
+    "pic": null,
+    "mimeType": null
+  }
+  ```
+</CodeGroup>
+
+## User Groups API
+
+The User Groups API manages group-based access control within organizations.
+
+### Create User Group
+
+Creates a new user group in the organization.
+
+<CodeGroup>
+  ```http title="Create User Group"
+  POST /api/v1/userGroups
+  ```
+
+  **Headers:**
+  - `Authorization: Bearer YOUR_TOKEN`
+
+  **Request Body Parameters:**
+  
+  | Parameter | Type | Required | Description |
+  |-----------|------|----------|-------------|
+  | name | string | Yes | Name of the group |
+  | type | string | Yes | Type of group ('standard', 'custom') |
+
+  ```json title="Response"
+  {
+    "_id": "60d21b4667d0d8992e610c91",
+    "name": "Developers",
+    "type": "custom",
+    "slug": "usergroup-1002",
+    "orgId": "60d21b4667d0d8992e610c85",
+    "users": [],
+    "createdAt": "2025-04-27T12:00:00.000Z",
+    "updatedAt": "2025-04-27T12:00:00.000Z"
+  }
+  ```
+</CodeGroup>
+
+### Get All User Groups
+
+Retrieves all user groups in the organization.
+
+<CodeGroup>
+  ```http title="Get All User Groups"
+  GET /api/v1/userGroups
+  ```
+
+  **Headers:**
+  - `Authorization: Bearer YOUR_TOKEN`
+
+  ```json title="Response"
+  [
+    {
+      "_id": "60d21b4667d0d8992e610c90",
+      "name": "admin",
+      "type": "admin",
+      "slug": "usergroup-1000",
+      "orgId": "60d21b4667d0d8992e610c85",
+      "users": ["60d21b4667d0d8992e610c86"],
+      "createdAt": "2025-04-27T12:00:00.000Z",
+      "updatedAt": "2025-04-27T12:00:00.000Z"
+    },
+    {
+      "_id": "60d21b4667d0d8992e610c91",
+      "name": "Developers",
+      "type": "custom",
+      "slug": "usergroup-1002",
+      "orgId": "60d21b4667d0d8992e610c85",
+      "users": [],
+      "createdAt": "2025-04-27T12:00:00.000Z",
+      "updatedAt": "2025-04-27T12:00:00.000Z"
+    }
+  ]
+  ```
+</CodeGroup>
+
+### Get User Group By ID
+
+Retrieves a specific user group by its ID.
+
+<CodeGroup>
+  ```http title="Get User Group By ID"
+  GET /api/v1/userGroups/:groupId
+  ```
+
+  **Headers:**
+  - `Authorization: Bearer YOUR_TOKEN`
+
+  ```json title="Response"
+  {
+    "_id": "60d21b4667d0d8992e610c91",
+    "name": "Developers",
+    "type": "custom",
+    "slug": "usergroup-1002",
+    "orgId": "60d21b4667d0d8992e610c85",
+    "users": [],
+    "createdAt": "2025-04-27T12:00:00.000Z",
+    "updatedAt": "2025-04-27T12:00:00.000Z"
+  }
+  ```
+</CodeGroup>
+
+### Update User Group
+
+Updates a user group's information.
+
+<CodeGroup>
+  ```http title="Update User Group"
+  PUT /api/v1/userGroups/:groupId
+  ```
+
+  **Headers:**
+  - `Authorization: Bearer YOUR_TOKEN`
+
+  **Request Body Parameters:**
+  
+  | Parameter | Type | Required | Description |
+  |-----------|------|----------|-------------|
+  | name | string | Yes | New name for the group |
+
+  ```json title="Response"
+  {
+    "_id": "60d21b4667d0d8992e610c91",
+    "name": "Senior Developers",
+    "type": "custom",
+    "slug": "usergroup-1002",
+    "orgId": "60d21b4667d0d8992e610c85",
+    "users": [],
+    "createdAt": "2025-04-27T12:00:00.000Z",
+    "updatedAt": "2025-04-27T14:30:00.000Z"
+  }
+  ```
+</CodeGroup>
+
+### Delete User Group
+
+Soft-deletes a user group.
+
+<CodeGroup>
+  ```http title="Delete User Group"
+  DELETE /api/v1/userGroups/:groupId
+  ```
+
+  **Headers:**
+  - `Authorization: Bearer YOUR_TOKEN`
+
+  ```json title="Response"
+  {
+    "_id": "60d21b4667d0d8992e610c91",
+    "name": "Senior Developers",
+    "type": "custom",
+    "isDeleted": true,
+    "deletedBy": "60d21b4667d0d8992e610c86",
+    "updatedAt": "2025-04-27T15:00:00.000Z"
+  }
+  ```
+</CodeGroup>
+
+### Add Users to Groups
+
+Adds multiple users to multiple groups.
+
+<CodeGroup>
+  ```http title="Add Users to Groups"
+  POST /api/v1/userGroups/add-users
+  ```
+
+  **Headers:**
+  - `Authorization: Bearer YOUR_TOKEN`
+
+  **Request Body Parameters:**
+  
+  | Parameter | Type | Required | Description |
+  |-----------|------|----------|-------------|
+  | userIds | string[] | Yes | Array of user IDs to add |
+  | groupIds | string[] | Yes | Array of group IDs to add users to |
+
+  ```json title="Response"
+  {
+    "message": "Users added to groups successfully"
+  }
+  ```
+</CodeGroup>
+
+### Remove Users from Groups
+
+Removes multiple users from multiple groups.
+
+<CodeGroup>
+  ```http title="Remove Users from Groups"
+  POST /api/v1/userGroups/remove-users
+  ```
+
+  **Headers:**
+  - `Authorization: Bearer YOUR_TOKEN`
+
+  **Request Body Parameters:**
+  
+  | Parameter | Type | Required | Description |
+  |-----------|------|----------|-------------|
+  | userIds | string[] | Yes | Array of user IDs to remove |
+  | groupIds | string[] | Yes | Array of group IDs to remove users from |
+
+  ```json title="Response"
+  {
+    "message": "Users removed from groups successfully"
+  }
+  ```
+</CodeGroup>
+
+### Get Users in Group
+
+Retrieves all users in a specific group.
+
+<CodeGroup>
+  ```http title="Get Users in Group"
+  GET /api/v1/userGroups/:groupId/users
+  ```
+
+  **Headers:**
+  - `Authorization: Bearer YOUR_TOKEN`
+
+  ```json title="Response"
+  {
+    "users": ["60d21b4667d0d8992e610c86", "60d21b4667d0d8992e610c87"]
+  }
+  ```
+</CodeGroup>
+
+### Get Groups for User
+
+Retrieves all groups that a specific user belongs to.
+
+<CodeGroup>
+  ```http title="Get Groups for User"
+  GET /api/v1/userGroups/users/:userId
+  ```
+
+  **Headers:**
+  - `Authorization: Bearer YOUR_TOKEN`
+
+  ```json title="Response"
+  [
+    {
+      "name": "admin",
+      "type": "admin"
+    },
+    {
+      "name": "everyone",
+      "type": "everyone"
+    }
+  ]
+  ```
+</CodeGroup>
+
+### Get Group Statistics
+
+Retrieves statistics about all groups in the organization.
+
+<CodeGroup>
+  ```http title="Get Group Statistics"
+  GET /api/v1/userGroups/stats/list
+  ```
+
+  **Headers:**
+  - `Authorization: Bearer YOUR_TOKEN`
+
+  ```json title="Response"
+  [
+    {
+      "_id": "admin",
+      "count": 1,
+      "totalUsers": 1,
+      "avgUsers": 1
+    },
+    {
+      "_id": "everyone",
+      "count": 1,
+      "totalUsers": 3,
+      "avgUsers": 3
+    },
+    {
+      "_id": "Developers",
+      "count": 1,
+      "totalUsers": 2,
+      "avgUsers": 2
+    }
+  ]
+  ```
+</CodeGroup>
+
+## Schema Definitions
+
+<AccordionGroup>
+  <Accordion title="Organization Schema">
+  ```typescript
+  interface IOrg extends Document {
+    slug: string;
+    registeredName: string;
+    shortName?: string;
+    domain: string;
+    contactEmail: string;
+    accountType: 'individual' | 'business';
+    phoneNumber?: string;
+    permanentAddress?: Address;
+    isDeleted: boolean;
+    deletedByUser?: string;
+    onBoardingStatus: 'configured' | 'notConfigured' | 'skipped';
+  }
+  ```
+  </Accordion>
+
+  <Accordion title="Organization Logo Schema">
+  ```typescript
+  interface IorgLogo extends Document {
+    orgId?: Types.ObjectId;
+    logo?: string | null;
+    logoUrl?: string | null;
+    mimeType?: string | null;
+  }
+  ```
+  </Accordion>
+
+  <Accordion title="User Schema">
+  ```typescript
+  interface User extends Document, Address {
+    slug?: string;
+    orgId: Types.ObjectId;
+    fullName?: string;
+    firstName?: string;
+    lastName?: string;
+    middleName?: string;
+    email: string;
+    mobile?: string;
+    hasLoggedIn?: boolean;
+    designation?: string;
+    address?: Address;
+    isDeleted?: boolean;
+    deletedBy?: string;
+  }
+  ```
+  </Accordion>
+
+  <Accordion title="User Display Picture Schema">
+  ```typescript
+  interface IuserDp extends Document {
+    userId?: Types.ObjectId;
+    orgId?: Types.ObjectId;
+    pic?: string | null;
+    picUrl?: string | null;
+    mimeType?: string | null;
+  }
+  ```
+  </Accordion>
+
+  <Accordion title="User Group Schema">
+  ```typescript
+  interface UserGroup extends Document {
+    slug?: string;
+    name: string;
+    type: 'admin' | 'standard' | 'custom' | 'everyone';
+    orgId: Types.ObjectId;
+    users: Array<Types.ObjectId>;
+    isDeleted?: boolean;
+    deletedBy?: Types.ObjectId;
+  }
+  ```
+  </Accordion>
+</AccordionGroup>
