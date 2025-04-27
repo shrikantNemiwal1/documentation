@@ -1,106 +1,4 @@
-### Authentication Endpoints
-
-<CodeGroup>
-  ```http title="Init Authentication"
-  POST /api/v1/userAccount/initAuth
-  ```
-
-  **Request Body Parameters:**
-  
-  | Parameter | Type | Required | Description |
-  |-----------|------|----------|-------------|
-  | email | string | Yes | The user's email address |
-
-  **Response Headers:**
-  
-  | Header | Description |
-  |--------|-------------|
-  | x-session-token | Session token to be used in subsequent authentication requests |
-
-  ```json title="Init Auth Response"
-  {
-    "currentStep": 0,
-    "allowedMethods": ["password", "otp", "google"],
-    "message": "Authentication initialized",
-    "authProviders": {
-      "google": {
-        "clientId": "your-google-client-id.apps.googleusercontent.com"
-      }
-    }
-  }
-  ```
-
-  **Important Note:**
-  The `x-session-token` is returned in the response headers, not in the response body. This token must be captured and passed in subsequent authenticate requests.
-</CodeGroup>
-
-### Authentication Process
-
-<CodeGroup>
-  ```http title="Authenticate"
-  POST /api/v1/userAccount/authenticate
-  ```
-  
-  **Headers:**
-  
-  | Header | Value | Required | Description |
-  |--------|-------|----------|-------------|
-  | x-session-token | string | Yes | Session token obtained from the initAuth response headers |
-
-  **Request Body Parameters:**
-  
-  | Parameter | Type | Required | Description |
-  |-----------|------|----------|-------------|
-  | method | string | Yes | Authentication method (password, otp, google, microsoft, azureAd, samlSso) |
-  | credentials | object | Yes | Credentials object for the specified method |
-
-  **Credentials by Method:**
-  
-  **For password authentication:**
-  ```json
-  {
-    "method": "password",
-    "credentials": {
-      "password": "your-secure-password"
-    }
-  }
-  ```
-  
-  **For OTP authentication:**
-  ```json
-  {
-    "method": "otp",
-    "credentials": {
-      "otp": "123456"
-    }
-  }
-  ```
-  
-  **For Google authentication:**
-  ```json
-  {
-    "method": "google",
-    "credentials": "google-id-token-string"
-  }
-  ```
-  
-  **For Microsoft/Azure AD authentication:**
-  ```json
-  {
-    "method": "microsoft",
-    "credentials": {
-      "accessToken": "microsoft-access-token",
-      "idToken": "microsoft-id-token"
-    }
-  }
-  ```
-
-  ```json title="Multi-Step Auth Response"
-  {
-    "status": "success",
-    "nextStep": 1,
-    "allowedMethods": ["otp"],
-    "authProviders": {}---
+---
 title: 'Authentication Service'
 description: 'Documentation for the Authentication Service'
 ---
@@ -142,40 +40,25 @@ The Auth Service employs a multi-step session-based authentication flow:
 
 Here's a sequence diagram of the flow:
 
-```
-Client                                             Server
-  |                                                  |
-  | POST /userAccount/initAuth {email}               |
-  |------------------------------------------------->|
-  |                          Creates Redis session   |
-  |                                                  |
-  | 200 OK + x-session-token header                  |
-  |<-------------------------------------------------|
-  |                                                  |
-  | POST /userAccount/authenticate                   |
-  | x-session-token: {token}                         |
-  | {method, credentials}                            |
-  |------------------------------------------------->|
-  |                            Validates credentials |
-  |                                                  |
-  | If more steps: 200 OK {nextStep, allowedMethods} |
-  |<-------------------------------------------------|
-  |                                                  |
-  | POST /userAccount/authenticate                   |
-  | x-session-token: {token}                         |
-  | {method, credentials}                            |
-  |------------------------------------------------->|
-  |                            Validates credentials |
-  |                                Clears Redis session |
-  |                                                  |
-  | If fully authenticated: 200 OK {accessToken, refreshToken} |
-  |<-------------------------------------------------|
-  |                                                  |
+```mermaid
+sequenceDiagram
+    participant Client
+    participant Server
+    
+    Client->>Server: POST /userAccount/initAuth {email}
+    Note over Server: Creates Redis session
+    Server->>Client: 200 OK + x-session-token header
+    
+    Client->>Server: POST /userAccount/authenticate<br/>x-session-token: {token}<br/>{method, credentials}
+    Note over Server: Validates credentials
+    Server->>Client: If more steps: 200 OK {nextStep, allowedMethods}
+    
+    Client->>Server: POST /userAccount/authenticate<br/>x-session-token: {token}<br/>{method, credentials}
+    Note over Server: Validates credentials<br/>Clears Redis session
+    Server->>Client: If fully authenticated: 200 OK {accessToken, refreshToken}
 ```
 
 ## Data Models
-
-### Conversations
 
 <AccordionGroup>
   <Accordion title="OrgAuthConfig Schema">
@@ -301,6 +184,12 @@ Both tokens are cryptographically signed with JWT secrets to ensure authenticity
   |-----------|------|----------|-------------|
   | email | string | Yes | The user's email address |
 
+  **Response Headers:**
+  
+  | Header | Description |
+  |--------|-------------|
+  | x-session-token | Session token to be used in subsequent authentication requests |
+
   ```json title="Init Auth Response"
   {
     "currentStep": 0,
@@ -313,6 +202,9 @@ Both tokens are cryptographically signed with JWT secrets to ensure authenticity
     }
   }
   ```
+
+  **Important Note:**
+  The `x-session-token` is returned in the response headers, not in the response body. This token must be captured and passed in subsequent authenticate requests.
 </CodeGroup>
 
 ### Authentication Process
@@ -326,14 +218,55 @@ Both tokens are cryptographically signed with JWT secrets to ensure authenticity
   
   | Header | Value | Required | Description |
   |--------|-------|----------|-------------|
-  | x-session-token | string | Yes | Session token from init request |
+  | x-session-token | string | Yes | Session token obtained from the initAuth response headers |
 
   **Request Body Parameters:**
   
   | Parameter | Type | Required | Description |
   |-----------|------|----------|-------------|
   | method | string | Yes | Authentication method (password, otp, google, microsoft, azureAd, samlSso) |
-  | credentials | object | Yes | Credentials for the specified method |
+  | credentials | object | Yes | Credentials object for the specified method |
+
+  **Credentials by Method:**
+  
+  **For password authentication:**
+  ```json
+  {
+    "method": "password",
+    "credentials": {
+      "password": "your-secure-password"
+    }
+  }
+  ```
+  
+  **For OTP authentication:**
+  ```json
+  {
+    "method": "otp",
+    "credentials": {
+      "otp": "123456"
+    }
+  }
+  ```
+  
+  **For Google authentication:**
+  ```json
+  {
+    "method": "google",
+    "credentials": "google-id-token-string"
+  }
+  ```
+  
+  **For Microsoft/Azure AD authentication:**
+  ```json
+  {
+    "method": "microsoft",
+    "credentials": {
+      "accessToken": "microsoft-access-token",
+      "idToken": "microsoft-id-token"
+    }
+  }
+  ```
 
   ```json title="Multi-Step Auth Response"
   {
