@@ -1,0 +1,183 @@
+---
+title: 'Mail Service'
+description: 'Documentation for the Mail Service'
+---
+
+# Mail Service
+
+The Mail Service provides email sending capabilities across your organization's applications, allowing users to send emails through a unified API. The service supports various email templates for different use cases such as login OTP, password reset, account creation, user invitations, and suspicious activity alerts.
+
+## Architecture Overview
+
+The Mail Service is built on a Node.js backend with MongoDB for data persistence. It leverages configurable SMTP settings to send emails through various providers. The service integrates with other components such as:
+
+- IAM Service - Handles user authentication and authorization
+- Configuration Manager - Manages SMTP settings 
+- Token Manager - Provides JWT authentication
+
+## Data Models
+
+### Mail Info
+
+Mail Info represents sent emails with their metadata:
+
+- Subject, sender, and recipients information
+- Email template type used
+- Timestamps for tracking
+
+### SMTP Configuration
+
+SMTP Configuration contains the settings required to connect to an email service:
+
+- Host and port information
+- Authentication credentials
+- Default sender email address
+
+## Email Templates
+
+The Mail Service supports various email templates for different use cases:
+
+- **Login with OTP** - Sends one-time passwords for authentication
+- **Reset Password** - Sends password reset links
+- **Account Creation** - Welcomes new users to the platform
+- **App User Invite** - Invites users to join the platform
+- **Suspicious Login Attempt** - Alerts users of potential security threats
+
+## Mail API
+
+The Mail API enables sending emails through a unified interface with templating support.
+
+### Send Email
+
+Sends an email using the configured SMTP settings and specified template.
+
+<CodeGroup>
+  ```http title="Send Email"
+  POST /api/v1/emails/sendEmail
+  ```
+
+  **Request Body Parameters:**
+  
+  | Parameter | Type | Required | Description |
+  |-----------|------|----------|-------------|
+  | emailTemplateType | string | Yes | Type of email template to use |
+  | sendEmailTo | string[] | Yes | List of recipient email addresses |
+  | subject | string | Yes | Email subject line |
+  | templateData | object | Yes | Data to populate the email template |
+  | sendCcTo | string[] | No | List of CC recipient email addresses |
+  | attachments | object[] | No | List of attachments |
+
+  ```json title="Response"
+  {
+    "data": {
+      "status": true,
+      "data": "Email sent"
+    }
+  }
+  ```
+</CodeGroup>
+
+### Update SMTP Configuration
+
+Updates the SMTP configuration used for sending emails.
+
+<CodeGroup>
+  ```http title="Update SMTP Config"
+  POST /api/v1/updateSmtpConfig
+  ```
+
+  **Request Body Parameters:**
+  
+  | Parameter | Type | Required | Description |
+  |-----------|------|----------|-------------|
+  | host | string | Yes | SMTP server host |
+  | port | number | Yes | SMTP server port |
+  | fromEmail | string | Yes | Default sender email address |
+  | username | string | No | SMTP authentication username |
+  | password | string | No | SMTP authentication password |
+
+  ```json title="Response"
+  {
+    "message": "SMTP configuration updated successfully",
+    "smtp": {
+      "host": "smtp.example.com",
+      "port": 587,
+      "fromEmail": "no-reply@example.com",
+      "username": "smtp-user"
+    }
+  }
+  ```
+</CodeGroup>
+
+## Authentication
+
+The Mail Service supports two authentication methods:
+
+1. **User Token Authentication** - For standard user operations
+2. **Scoped Token Authentication** - For service-to-service communication
+
+### Token Scopes
+
+The following token scopes are used for the Mail Service:
+
+- `SEND_MAIL` - Required to send emails
+- `FETCH_CONFIG` - Required to update SMTP configuration
+
+## Schema Definitions
+
+<AccordionGroup>
+  <Accordion title="Mail Info Schema">
+  ```typescript
+  interface MailInfo extends Document {
+    orgId: Types.ObjectId;
+    subject: string;
+    from: string;
+    to: string[];
+    cc?: string[];
+    emailTemplateType: string;
+    createdAt: Date;
+    updatedAt: Date;
+  }
+  ```
+  </Accordion>
+
+  <Accordion title="Mail Body Schema">
+  ```typescript
+  interface MailBody {
+    productName?: string;
+    emailTemplateType: string;
+    isAutoEmail?: boolean;
+    fromEmailDomain?: string;
+    sendEmailTo?: string[];
+    subject?: string;
+    templateData?: Record<string, any>;
+    sendCcTo?: string[];
+    attachments?: any[];
+  }
+  ```
+  </Accordion>
+
+  <Accordion title="SMTP Config Schema">
+  ```typescript
+  interface SmtpConfig {
+    username?: string;
+    password?: string;
+    host: string;
+    fromEmail: string;
+    port: number;
+  }
+  ```
+  </Accordion>
+
+  <Accordion title="Email Template Types">
+  ```typescript
+  enum EmailTemplateType {
+    LoginWithOtp = 'loginWithOTP',
+    ResetPassword = 'resetPassword',
+    AccountCreation = 'accountCreation',
+    AppuserInvite = 'appuserInvite',
+    SuspiciousLoginAttempt = 'suspiciousLoginAttempt'
+  }
+  ```
+  </Accordion>
+</AccordionGroup>

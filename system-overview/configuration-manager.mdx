@@ -1,0 +1,666 @@
+---
+title: 'Configuration Manager'
+description: 'Documentation for the Configuration Manager Service'
+---
+
+# Configuration Manager Service
+
+The Configuration Manager Service provides a centralized way to manage configuration settings across your organization's services. It securely stores various configuration parameters in a key-value store (ETCD by default) and provides APIs to manage these configurations.
+
+## Architecture Overview
+
+The Configuration Manager Service is built on a Node.js backend that leverages [ETCD](https://etcd.io/) (or other compatible key-value stores) for secure configuration storage. The service:
+
+- Securely encrypts sensitive configuration values
+- Provides a RESTful API for managing configurations
+- Integrates with other services via event-driven architecture
+- Controls access through authentication and authorization
+
+## Key Features
+
+- **Secure Storage**: All sensitive configurations are encrypted using AES-256-GCM algorithm
+- **Health Checks**: Built-in validation of configuration parameters
+- **Event Notifications**: Publishes events when critical configurations change
+- **Centralized Management**: Single service to control settings across the system
+
+## Supported Configurations
+
+The Configuration Manager handles various types of configurations:
+
+1. **Storage Configurations** - AWS S3, Azure Blob, or Local storage settings
+2. **Authentication Configurations** - Azure AD, Google, Microsoft, and SSO settings
+3. **Database Configurations** - MongoDB, ArangoDB, and Qdrant settings
+4. **Message Broker Configurations** - Kafka settings
+5. **Key-Value Store Configurations** - Redis settings
+6. **SMTP Configurations** - Email service settings
+7. **AI Models Configurations** - Settings for various AI model types
+8. **Connector Configurations** - Google Workspace and other integration settings
+9. **Public URL Configurations** - Frontend and connector URLs
+10. **Metrics Collection Configurations** - Settings for metrics gathering
+
+## Storage Configuration API
+
+The Storage Configuration API enables you to configure different storage backends for your application.
+
+### Set Storage Configuration
+
+Configure the storage service with specific backend details.
+
+<CodeGroup>
+  ```http title="Set Storage Config"
+  POST /api/v1/configurationManager/storageConfig
+  ```
+
+  **Request Body Parameters:**
+  
+  | Parameter | Type | Required | Description |
+  |-----------|------|----------|-------------|
+  | storageType | string | Yes | Type of storage ("s3", "azureBlob", or "local") |
+  | ... | ... | ... | Backend-specific parameters |
+
+  ```json title="S3 Storage Config"
+  {
+    "storageType": "s3",
+    "s3AccessKeyId": "YOUR_ACCESS_KEY_ID",
+    "s3SecretAccessKey": "YOUR_SECRET_ACCESS_KEY",
+    "s3Region": "us-west-2",
+    "s3BucketName": "your-bucket-name"
+  }
+  ```
+
+  ```json title="Azure Blob Storage Config"
+  {
+    "storageType": "azureBlob",
+    "accountName": "your-account-name",
+    "accountKey": "your-account-key",
+    "containerName": "your-container-name",
+    "endpointProtocol": "https",
+    "endpointSuffix": "core.windows.net"
+  }
+  ```
+
+  ```json title="Local Storage Config"
+  {
+    "storageType": "local",
+    "mountName": "PipesHub",
+    "baseUrl": "http://localhost:3000"
+  }
+  ```
+
+  ```json title="Response"
+  {
+    "message": "Storage configuration saved successfully"
+  }
+  ```
+</CodeGroup>
+
+### Get Storage Configuration
+
+Retrieve the current storage configuration.
+
+<CodeGroup>
+  ```http title="Get Storage Config"
+  GET /api/v1/configurationManager/storageConfig
+  ```
+
+  ```json title="S3 Response"
+  {
+    "storageType": "s3",
+    "accessKeyId": "YOUR_ACCESS_KEY_ID",
+    "secretAccessKey": "YOUR_SECRET_ACCESS_KEY",
+    "region": "us-west-2",
+    "bucketName": "your-bucket-name"
+  }
+  ```
+</CodeGroup>
+
+## Authentication Configuration API
+
+The Authentication Configuration API allows you to manage various authentication providers.
+
+### Azure AD Authentication
+
+<CodeGroup>
+  ```http title="Set Azure AD Config"
+  POST /api/v1/configurationManager/authConfig/azureAd
+  ```
+
+  **Request Body Parameters:**
+  
+  | Parameter | Type | Required | Description |
+  |-----------|------|----------|-------------|
+  | clientId | string | Yes | Azure AD client ID |
+  | tenantId | string | No | Azure AD tenant ID (defaults to "common") |
+
+  ```json title="Request Body"
+  {
+    "clientId": "your-client-id",
+    "tenantId": "your-tenant-id"
+  }
+  ```
+
+  ```json title="Response"
+  {
+    "message": "Azure AD config created successfully"
+  }
+  ```
+</CodeGroup>
+
+### Get Azure AD Config
+
+<CodeGroup>
+  ```http title="Get Azure AD Config"
+  GET /api/v1/configurationManager/authConfig/azureAd
+  ```
+
+  ```json title="Response"
+  {
+    "clientId": "your-client-id",
+    "tenantId": "your-tenant-id",
+    "authority": "https://login.microsoftonline.com/your-tenant-id"
+  }
+  ```
+</CodeGroup>
+
+### SSO Authentication
+
+<CodeGroup>
+  ```http title="Set SSO Config"
+  POST /api/v1/configurationManager/authConfig/sso
+  ```
+
+  **Request Body Parameters:**
+  
+  | Parameter | Type | Required | Description |
+  |-----------|------|----------|-------------|
+  | entryPoint | string | Yes | SSO entry point URL |
+  | certificate | string | Yes | SSO certificate |
+  | emailKey | string | Yes | Key for email in SSO response |
+
+  ```json title="Response"
+  {
+    "message": "Sso config created successfully"
+  }
+  ```
+</CodeGroup>
+
+## Database Configuration API
+
+Configure database connections for your application.
+
+### MongoDB Configuration
+
+<CodeGroup>
+  ```http title="Set MongoDB Config"
+  POST /api/v1/configurationManager/mongoDBConfig
+  ```
+
+  **Request Body Parameters:**
+  
+  | Parameter | Type | Required | Description |
+  |-----------|------|----------|-------------|
+  | uri | string | Yes | MongoDB connection URI |
+
+  ```json title="Request Body"
+  {
+    "uri": "mongodb://username:password@hostname:port/database"
+  }
+  ```
+
+  ```json title="Response"
+  {
+    "message": "Mongo DB config created successfully"
+  }
+  ```
+</CodeGroup>
+
+### ArangoDB Configuration
+
+<CodeGroup>
+  ```http title="Set ArangoDB Config"
+  POST /api/v1/configurationManager/arangoDBConfig
+  ```
+
+  **Request Body Parameters:**
+  
+  | Parameter | Type | Required | Description |
+  |-----------|------|----------|-------------|
+  | url | string | Yes | ArangoDB connection URL |
+  | username | string | No | ArangoDB username |
+  | password | string | No | ArangoDB password |
+
+  ```json title="Response"
+  {
+    "message": "Arango DB config created successfully"
+  }
+  ```
+</CodeGroup>
+
+### Qdrant Configuration
+
+<CodeGroup>
+  ```http title="Set Qdrant Config"
+  POST /api/v1/configurationManager/qdrantConfig
+  ```
+
+  **Request Body Parameters:**
+  
+  | Parameter | Type | Required | Description |
+  |-----------|------|----------|-------------|
+  | host | string | Yes | Qdrant server host |
+  | port | number | Yes | Qdrant HTTP port |
+  | grpcPort | number | No | Qdrant gRPC port |
+  | apiKey | string | No | Qdrant API key |
+
+  ```json title="Response"
+  {
+    "message": "Qdrant config created successfully"
+  }
+  ```
+</CodeGroup>
+
+## Message Broker Configuration API
+
+Configure message broker for event-driven architecture.
+
+### Kafka Configuration
+
+<CodeGroup>
+  ```http title="Set Kafka Config"
+  POST /api/v1/configurationManager/kafkaConfig
+  ```
+
+  **Request Body Parameters:**
+  
+  | Parameter | Type | Required | Description |
+  |-----------|------|----------|-------------|
+  | brokers | string[] | Yes | Array of Kafka broker URLs |
+  | sasl | object | No | SASL authentication details |
+
+  ```json title="Request Body"
+  {
+    "brokers": ["kafka-1:9092", "kafka-2:9092"],
+    "sasl": {
+      "mechanism": "plain",
+      "username": "your-username",
+      "password": "your-password"
+    }
+  }
+  ```
+
+  ```json title="Response"
+  {
+    "message": "Kafka config created successfully"
+  }
+  ```
+</CodeGroup>
+
+## SMTP Configuration API
+
+Configure email service settings.
+
+<CodeGroup>
+  ```http title="Set SMTP Config"
+  POST /api/v1/configurationManager/smtpConfig
+  ```
+
+  **Request Body Parameters:**
+  
+  | Parameter | Type | Required | Description |
+  |-----------|------|----------|-------------|
+  | host | string | Yes | SMTP server host |
+  | port | number | Yes | SMTP server port |
+  | username | string | No | SMTP username |
+  | password | string | No | SMTP password |
+  | fromEmail | string | Yes | Default sender email |
+
+  ```json title="Request Body"
+  {
+    "host": "smtp.example.com",
+    "port": 587,
+    "username": "your-username",
+    "password": "your-password",
+    "fromEmail": "no-reply@example.com"
+  }
+  ```
+
+  ```json title="Response"
+  {
+    "message": "SMTP config created successfully"
+  }
+  ```
+</CodeGroup>
+
+## AI Models Configuration API
+
+Configure AI models for various tasks.
+
+<CodeGroup>
+  ```http title="Set AI Models Config"
+  POST /api/v1/configurationManager/aiModelsConfig
+  ```
+
+  **Request Body Parameters:**
+  The body structure varies depending on AI model types (ocr, embedding, slm, llm, reasoning, multiModal).
+  
+  ```json title="Request Body Example"
+  {
+    "llm": [
+      {
+        "name": "gpt-4",
+        "provider": "openai",
+        "apiKey": "your-openai-key",
+        "modelId": "gpt-4"
+      }
+    ],
+    "embedding": [
+      {
+        "name": "text-embedding-ada-002",
+        "provider": "openai",
+        "apiKey": "your-openai-key",
+        "modelId": "text-embedding-ada-002"
+      }
+    ]
+  }
+  ```
+
+  ```json title="Response"
+  {
+    "message": "AI config created successfully"
+  }
+  ```
+</CodeGroup>
+
+## Connector Configuration API
+
+Configure connectors for integrating with external services.
+
+### Google Workspace Configuration
+
+<CodeGroup>
+  ```http title="Set Google Workspace OAuth Config"
+  POST /api/v1/configurationManager/connectors/googleWorkspaceOauthConfig
+  ```
+
+  **Request Body Parameters:**
+  
+  | Parameter | Type | Required | Description |
+  |-----------|------|----------|-------------|
+  | clientId | string | Yes | Google client ID |
+  | clientSecret | string | Yes | Google client secret |
+  | enableRealTimeUpdates | boolean | No | Enable real-time updates |
+  | topicName | string | No | Pub/Sub topic name (required if enableRealTimeUpdates is true) |
+
+  ```json title="Response"
+  {
+    "message": "Google Workspace credentials created successfully"
+  }
+  ```
+</CodeGroup>
+
+## Key-Value Store Configuration API
+
+Configure Redis as a key-value store.
+
+<CodeGroup>
+  ```http title="Set Redis Config"
+  POST /api/v1/configurationManager/redisConfig
+  ```
+
+  **Request Body Parameters:**
+  
+  | Parameter | Type | Required | Description |
+  |-----------|------|----------|-------------|
+  | host | string | Yes | Redis server host |
+  | port | number | Yes | Redis server port |
+  | password | string | No | Redis password |
+  | tls | boolean | No | Enable TLS for Redis connection |
+
+  ```json title="Request Body"
+  {
+    "host": "redis.example.com",
+    "port": 6379,
+    "password": "your-password",
+    "tls": true
+  }
+  ```
+
+  ```json title="Response"
+  {
+    "message": "Redis config created successfully"
+  }
+  ```
+</CodeGroup>
+
+## Public URL Configuration API
+
+Configure public URLs for frontend and connector services.
+
+<CodeGroup>
+  ```http title="Set Frontend URL"
+  POST /api/v1/configurationManager/frontendPublicUrl
+  ```
+
+  **Request Body Parameters:**
+  
+  | Parameter | Type | Required | Description |
+  |-----------|------|----------|-------------|
+  | url | string | Yes | Public URL for frontend service |
+
+  ```json title="Response"
+  {
+    "message": "Frontend Url saved successfully"
+  }
+  ```
+</CodeGroup>
+
+<CodeGroup>
+  ```http title="Set Connector URL"
+  POST /api/v1/configurationManager/connectorPublicUrl
+  ```
+
+  **Request Body Parameters:**
+  
+  | Parameter | Type | Required | Description |
+  |-----------|------|----------|-------------|
+  | url | string | Yes | Public URL for connector service |
+
+  ```json title="Response"
+  {
+    "message": "Connector Url saved successfully"
+  }
+  ```
+</CodeGroup>
+
+## Metrics Collection Configuration API
+
+Configure metrics collection settings.
+
+<CodeGroup>
+  ```http title="Toggle Metrics Collection"
+  PATCH /api/v1/configurationManager/metricsCollection/toggle
+  ```
+
+  **Request Body Parameters:**
+  
+  | Parameter | Type | Required | Description |
+  |-----------|------|----------|-------------|
+  | enableMetricCollection | boolean | Yes | Enable or disable metrics collection |
+
+  ```json title="Response"
+  {
+    "message": "Metrics collection toggled successfully"
+  }
+  ```
+</CodeGroup>
+
+## Schema Definitions
+
+<AccordionGroup>
+  <Accordion title="Authentication Config Schema">
+  ```typescript
+  // Azure AD Config
+  interface AzureAdConfig {
+    clientId: string;
+    tenantId: string;
+    authority: string;
+  }
+
+  // SSO Config
+  interface SsoConfig {
+    entryPoint: string;
+    certificate: string;
+    emailKey: string;
+  }
+
+  // Google Auth Config
+  interface GoogleAuthConfig {
+    clientId: string;
+  }
+
+  // Microsoft Auth Config
+  interface MicrosoftAuthConfig {
+    clientId: string;
+    tenantId: string;
+    authority: string;
+  }
+  ```
+  </Accordion>
+
+  <Accordion title="Storage Config Schema">
+  ```typescript
+  // S3 Storage Config
+  interface S3Config {
+    accessKeyId: string;
+    secretAccessKey: string;
+    region: string;
+    bucketName: string;
+  }
+
+  // Azure Blob Storage Config
+  interface AzureBlobConfig {
+    endpointProtocol: string;
+    accountName: string;
+    accountKey: string;
+    endpointSuffix: string;
+    containerName: string;
+  }
+
+  // Local Storage Config
+  interface LocalConfig {
+    mountName: string;
+    baseUrl: string;
+  }
+  ```
+  </Accordion>
+
+  <Accordion title="Database Config Schema">
+  ```typescript
+  // MongoDB Config
+  interface MongoDBConfig {
+    uri: string;
+    db: string;
+  }
+
+  // ArangoDB Config
+  interface ArangoDBConfig {
+    url: string;
+    username: string;
+    password: string;
+    db: string;
+  }
+
+  // Qdrant Config
+  interface QdrantConfig {
+    host: string;
+    port: number;
+    grpcPort?: number;
+    apiKey?: string;
+  }
+  ```
+  </Accordion>
+
+  <Accordion title="Message Broker Config Schema">
+  ```typescript
+  // Kafka Config
+  interface KafkaConfig {
+    brokers: string[];
+    sasl?: {
+      mechanism: string;
+      username: string;
+      password: string;
+    };
+  }
+  ```
+  </Accordion>
+
+  <Accordion title="Connector Config Schema">
+  ```typescript
+  // Google Workspace Individual Credentials
+  interface GoogleWorkspaceIndividualCredentials {
+    access_token: string;
+    refresh_token: string;
+    access_token_expiry_time: number;
+    refresh_token_expiry_time?: number;
+    enableRealTimeUpdates: boolean;
+    topicName: string;
+  }
+
+  // Google Workspace Business Credentials
+  interface GoogleWorkspaceBusinessCredentials {
+    type: string;
+    project_id: string;
+    private_key_id: string;
+    private_key: string;
+    client_email: string;
+    client_id: string;
+    auth_uri: string;
+    token_uri: string;
+    auth_provider_x509_cert_url: string;
+    client_x509_cert_url: string;
+    universe_domain: string;
+    adminEmail: string;
+    enableRealTimeUpdates: boolean;
+    topicName: string;
+  }
+
+  // Google Workspace OAuth Config
+  interface GoogleWorkspaceOAuthConfig {
+    clientId: string;
+    clientSecret: string;
+    enableRealTimeUpdates: boolean;
+    topicName: string;
+  }
+  ```
+  </Accordion>
+</AccordionGroup>
+
+## Encryption and Security
+
+The Configuration Manager Service uses AES-256-GCM encryption to protect sensitive configuration data. Key features include:
+
+- **Secret Key Hashing**: The secret key used for encryption is hashed using SHA-256 for added security
+- **Per-Configuration Encryption**: Each sensitive configuration is individually encrypted
+- **Fine-grained Access Control**: API endpoints require appropriate authentication and authorization
+
+## Event-Driven Architecture
+
+The Configuration Manager publishes events when critical configurations change:
+
+- **LLM Configured Event**: When AI models are configured
+- **Connector Public URL Changed Event**: When connector URLs are updated
+- **Gmail Updates Enabled/Disabled Event**: When Gmail real-time updates are toggled
+
+These events allow other services to react to configuration changes without polling.
+
+## Health Checks
+
+The service includes built-in health checks for various configurations:
+
+- **Kafka Health Check**: Verifies Kafka broker connectivity
+- **Redis Health Check**: Tests Redis connection
+- **Qdrant Health Check**: Ensures Qdrant vector database is accessible
+- **MongoDB Health Check**: Validates MongoDB connection
+- **ArangoDB Health Check**: Confirms ArangoDB connection
+
+These health checks are automatically performed before saving configurations to ensure validity.

@@ -1,0 +1,536 @@
+---
+title: 'Knowledge Base'
+description: 'Documentation for the Knowledge Base Service'
+---
+
+# Knowledge Base Service
+
+The Knowledge Base Service provides a centralized repository for managing and accessing personal data through files and documents. This service enables document storage, retrieval, and management while integrating with the AI backend for intelligent search capabilities.
+
+## Architecture Overview
+
+The Knowledge Base Service is built on a Node.js backend with ArangoDB for graph-based data persistence. The service consists of several key components:
+
+- **Record Management** - Core document storage and metadata handling
+- **File Storage Integration** - Connects with external storage services
+- **Event Broadcasting** - Kafka-based events for system integration
+- **AI Indexing** - Automatic content indexing for search capabilities
+
+The service integrates with these components:
+
+- **Storage Service** - Handles actual file storage and versioning
+- **AI Backend** - Processes and indexes content for search
+- **Enterprise Search** - Provides search capabilities across the knowledge base
+- **IAM Service** - Handles user authentication and authorization
+- **Configuration Manager** - Manages application settings
+
+## Data Models
+
+### Records
+
+Records represent the core entities in the knowledge base:
+
+- Metadata about stored content (name, type, source)
+- References to physical files in storage
+- Versioning information
+- Indexing status and history
+
+### File Records
+
+File Records contain file-specific metadata:
+
+- File format information (extension, MIME type)
+- Size and storage information
+- Access URLs and paths
+- Checksum and integrity information
+
+### Knowledge Base
+
+Knowledge Base represents a collection of records:
+
+- Organizational grouping of records
+- Permission structure
+- Metadata about the collection
+
+## Record API
+
+The Record API enables management of documents and files in the knowledge base.
+
+### Create Records
+
+Upload and create new records in the knowledge base.
+
+<CodeGroup>
+  ```http title="Create Records Endpoint"
+  POST /api/v1/kb
+  ```
+
+  **Request Body Parameters:**
+  
+  | Parameter | Type | Required | Description |
+  |-----------|------|----------|-------------|
+  | recordName | string | No | Custom name for the record (defaults to filename) |
+  | recordType | string | No | Type of record (default: 'FILE') |
+  | origin | string | No | Origin of the record (default: 'UPLOAD') |
+  | isVersioned | boolean | No | Whether the file should be versioned (default: true) |
+  | files | file[] | Yes | The file(s) to upload |
+
+  ```json title="Create Records Response"
+  {
+    "message": "Records created successfully",
+    "data": {
+      "recordCount": 1,
+      "knowledgeBase": {
+        "id": "kb123456",
+        "name": "Default"
+      },
+      "records": [
+        {
+          "id": "rec789012",
+          "name": "Company Policy.pdf",
+          "type": "FILE"
+        }
+      ]
+    },
+    "meta": {
+      "requestId": "req-123",
+      "timestamp": "2025-04-27T12:00:00.000Z"
+    }
+  }
+  ```
+</CodeGroup>
+
+### Get Records
+
+Retrieve all records in the knowledge base with filtering and pagination.
+
+<CodeGroup>
+  ```http title="Get Records Endpoint"
+  GET /api/v1/kb
+  ```
+
+  **Query Parameters:**
+  
+  | Parameter | Type | Default | Description |
+  |-----------|------|---------|-------------|
+  | page | number | 1 | Page number for pagination |
+  | limit | number | 20 | Number of items per page |
+  | search | string | - | Search term for filtering records |
+  | recordTypes | string | - | Comma-separated list of record types to filter by |
+  | origins | string | - | Comma-separated list of origins to filter by |
+  | indexingStatus | string | - | Comma-separated list of indexing statuses to filter by |
+  | dateFrom | number | - | Filter by creation timestamp (milliseconds) |
+  | dateTo | number | - | Filter by creation timestamp (milliseconds) |
+  | sortBy | string | createdAtTimestamp | Field to sort by (createdAtTimestamp, updatedAtTimestamp, recordName, recordType) |
+  | sortOrder | string | desc | Sort order (asc, desc) |
+
+  ```json title="Get Records Response"
+  {
+    "records": [
+      {
+        "id": "rec789012",
+        "externalRecordId": "doc123456",
+        "recordName": "Company Policy.pdf",
+        "recordType": "FILE",
+        "origin": "UPLOAD",
+        "indexingStatus": "COMPLETED",
+        "createdAtTimestamp": 1714208400000,
+        "updatedAtTimestamp": 1714208400000,
+        "fileRecord": {
+          "name": "Company Policy.pdf",
+          "extension": "pdf",
+          "mimeType": "application/pdf",
+          "sizeInBytes": 2048576,
+          "isFile": true,
+          "webUrl": "/record/rec789012"
+        }
+      }
+    ],
+    "pagination": {
+      "page": 1,
+      "limit": 20,
+      "totalCount": 45,
+      "totalPages": 3
+    },
+    "filters": {
+      "applied": {
+        "recordTypes": ["FILE"],
+        "search": "policy"
+      },
+      "available": {
+        "recordTypes": [
+          { "value": "FILE", "count": 40 },
+          { "value": "EMAIL", "count": 5 }
+        ],
+        "origins": [
+          { "value": "UPLOAD", "count": 30 },
+          { "value": "CONNECTOR", "count": 15 }
+        ],
+        "indexingStatus": [
+          { "value": "COMPLETED", "count": 42 },
+          { "value": "IN_PROGRESS", "count": 2 },
+          { "value": "FAILED", "count": 1 }
+        ]
+      }
+    },
+    "meta": {
+      "requestId": "req-456",
+      "timestamp": "2025-04-27T12:05:00.000Z"
+    }
+  }
+  ```
+</CodeGroup>
+
+### Get Record By ID
+
+Retrieve a specific record by its ID.
+
+<CodeGroup>
+  ```http title="Get Record By ID Endpoint"
+  GET /api/v1/kb/record/:recordId
+  ```
+
+  ```json title="Get Record By ID Response"
+  {
+    "record": {
+      "_key": "rec789012",
+      "orgId": "org123456",
+      "recordName": "Company Policy.pdf",
+      "externalRecordId": "doc123456",
+      "recordType": "FILE",
+      "origin": "UPLOAD",
+      "createdAtTimestamp": 1714208400000,
+      "updatedAtTimestamp": 1714208400000,
+      "isDeleted": false,
+      "isArchived": false,
+      "indexingStatus": "COMPLETED",
+      "version": 1,
+      "fileRecord": {
+        "name": "Company Policy.pdf",
+        "extension": "pdf",
+        "mimeType": "application/pdf",
+        "sizeInBytes": 2048576,
+        "isFile": true,
+        "webUrl": "/record/rec789012"
+      }
+    },
+    "knowledgeBase": {
+      "id": "kb123456",
+      "name": "Default",
+      "orgId": "org123456"
+    },
+    "permissions": "OWNER",
+    "relatedRecords": [],
+    "meta": {
+      "requestId": "req-789",
+      "timestamp": "2025-04-27T12:10:00.000Z"
+    }
+  }
+  ```
+</CodeGroup>
+
+### Update Record
+
+Update a record with new data or file content.
+
+<CodeGroup>
+  ```http title="Update Record Endpoint"
+  PUT /api/v1/kb/record/:recordId
+  ```
+
+  **Request Body Parameters:**
+  
+  | Parameter | Type | Required | Description |
+  |-----------|------|----------|-------------|
+  | recordName | string | No | New name for the record |
+  | file | file | No | New file content (creates a new version) |
+
+  ```json title="Update Record Response"
+  {
+    "message": "Record updated with new file version",
+    "record": {
+      "_key": "rec789012",
+      "recordName": "Updated Company Policy.pdf",
+      "externalRecordId": "doc123456",
+      "version": 2,
+      "updatedAtTimestamp": 1714294800000
+    },
+    "meta": {
+      "requestId": "req-101112",
+      "timestamp": "2025-04-27T12:15:00.000Z"
+    }
+  }
+  ```
+</CodeGroup>
+
+### Delete Record
+
+Soft-delete a record by setting its deleted flag.
+
+<CodeGroup>
+  ```http title="Delete Record Endpoint"
+  DELETE /api/v1/kb/record/:recordId
+  ```
+
+  ```json title="Delete Record Response"
+  {
+    "message": "Record deleted successfully",
+    "meta": {
+      "requestId": "req-131415",
+      "timestamp": "2025-04-27T12:20:00.000Z"
+    }
+  }
+  ```
+</CodeGroup>
+
+### Archive Record
+
+Archive a record to move it to archived state.
+
+<CodeGroup>
+  ```http title="Archive Record Endpoint"
+  PATCH /api/v1/kb/record/:recordId/archive
+  ```
+
+  ```json title="Archive Record Response"
+  {
+    "message": "Record archived successfully",
+    "record": {
+      "id": "rec789012",
+      "name": "Company Policy.pdf",
+      "isArchived": true,
+      "archivedAt": "2025-04-27T12:25:00.000Z",
+      "archivedBy": "user123456"
+    },
+    "meta": {
+      "requestId": "req-161718",
+      "timestamp": "2025-04-27T12:25:00.000Z"
+    }
+  }
+  ```
+</CodeGroup>
+
+### Unarchive Record
+
+Restore a record from archived state.
+
+<CodeGroup>
+  ```http title="Unarchive Record Endpoint"
+  PATCH /api/v1/kb/record/:recordId/unarchive
+  ```
+
+  ```json title="Unarchive Record Response"
+  {
+    "message": "Record unarchived successfully",
+    "record": {
+      "id": "rec789012",
+      "name": "Company Policy.pdf",
+      "isArchived": false,
+      "unarchivedAt": "2025-04-27T12:30:00.000Z",
+      "unarchivedBy": "user123456"
+    },
+    "meta": {
+      "requestId": "req-192021",
+      "timestamp": "2025-04-27T12:30:00.000Z"
+    }
+  }
+  ```
+</CodeGroup>
+
+### Stream Record Content
+
+Stream the actual file content of a record.
+
+<CodeGroup>
+  ```http title="Stream Record Endpoint"
+  GET /api/v1/kb/stream/record/:recordId
+  ```
+
+  **Response:**
+  Returns the file content with appropriate Content-Type and Content-Disposition headers for download.
+</CodeGroup>
+
+### Reindex Record
+
+Force reindexing of a record by the AI backend.
+
+<CodeGroup>
+  ```http title="Reindex Record Endpoint"
+  POST /api/v1/kb/reindex/record/:recordId
+  ```
+
+  ```json title="Reindex Record Response"
+  {
+    "reindexResponse": {
+      "success": true,
+      "recordId": "rec789012"
+    }
+  }
+  ```
+</CodeGroup>
+
+## Event System
+
+The Knowledge Base Service broadcasts events through Kafka to notify other services about record changes. These events trigger actions like content indexing, search updates, and audit logging.
+
+### Event Types
+
+| Event Type | Description |
+|------------|-------------|
+| `newRecord` | Triggered when a new record is created |
+| `updateRecord` | Triggered when a record is updated |
+| `deletedRecord` | Triggered when a record is deleted |
+| `reindexRecord` | Triggered when a record needs reindexing |
+
+### Event Payload Structure
+
+#### New Record Event
+```json
+{
+  "orgId": "org123456",
+  "recordId": "rec789012",
+  "recordName": "Company Policy.pdf",
+  "recordType": "FILE",
+  "version": 1,
+  "signedUrlRoute": "https://storage.example.com/api/v1/document/internal/doc123456/download",
+  "origin": "UPLOAD",
+  "extension": "pdf",
+  "createdAtTimestamp": "1714208400000",
+  "updatedAtTimestamp": "1714208400000",
+  "sourceCreatedAtTimestamp": "1714208400000"
+}
+```
+
+#### Update Record Event
+```json
+{
+  "orgId": "org123456",
+  "recordId": "rec789012",
+  "version": 2,
+  "signedUrlRoute": "https://storage.example.com/api/v1/document/internal/doc123456/download",
+  "updatedAtTimestamp": "1714294800000",
+  "sourceLastModifiedTimestamp": "1714294800000"
+}
+```
+
+#### Deleted Record Event
+```json
+{
+  "orgId": "org123456",
+  "recordId": "rec789012",
+  "version": 2
+}
+```
+
+## Integration with AI Indexing
+
+When a record is created or updated, the Knowledge Base Service:
+
+1. Stores the file metadata in ArangoDB
+2. Uploads the file content to the Storage Service
+3. Publishes a Kafka event with the file metadata and download URL
+4. The AI Backend consumes these events and:
+   - Downloads the file content
+   - Extracts text and structured data
+   - Processes the content for search indexing
+   - Updates the indexing status in the Knowledge Base
+
+This integration enables Enterprise Search to provide intelligent search capabilities across the entire knowledge base.
+
+## Schema Definitions
+
+<AccordionGroup>
+  <Accordion title="Record Schema">
+  ```typescript
+  interface IRecordDocument {
+    // Identifiers
+    _key: string;
+    orgId: string;
+    
+    // Core metadata
+    recordName: string;
+    externalRecordId: string;
+    externalRevisionId?: string;
+    recordType: RecordType; // 'FILE' | 'WEBPAGE' | 'MESSAGE' | 'EMAIL' | 'OTHERS'
+    origin: OriginType; // 'UPLOAD' | 'CONNECTOR'
+    
+    // Timestamps
+    createdAtTimestamp: number;
+    updatedAtTimestamp?: number;
+    lastSyncTimestamp?: number;
+    sourceCreatedAtTimestamp?: number;
+    sourceLastModifiedTimestamp?: number;
+    
+    // Status flags
+    isDeletedAtSource?: boolean;
+    deletedAtSourceTimestamp?: number;
+    isDeleted?: boolean;
+    isArchived?: boolean;
+    deletedByUserId?: string;
+    
+    // Indexing information
+    lastIndexTimestamp?: number;
+    lastExtractionTimestamp?: number;
+    indexingStatus?: IndexingStatus; // 'NOT_STARTED' | 'IN_PROGRESS' | 'FAILED' | 'COMPLETED'
+    
+    // Versioning
+    version?: number;
+    isLatestVersion?: boolean;
+    isDirty?: boolean;
+    
+    // Optional connector information
+    connectorName?: ConnectorName; // 'ONEDRIVE' | 'GOOGLE_DRIVE' | 'CONFLUENCE' | 'SLACK'
+  }
+  ```
+  </Accordion>
+
+  <Accordion title="File Record Schema">
+  ```typescript
+  interface IFileRecordDocument {
+    // Identifiers
+    _key?: string;
+    orgId: string;
+    
+    // Core metadata
+    name: string;
+    isFile?: boolean;
+    extension?: string | null;
+    mimeType?: string | null;
+    sizeInBytes?: number;
+    webUrl?: string;
+    path?: string;
+    
+    // Hash information for integrity
+    etag?: string | null;
+    ctag?: string | null;
+    quickXorHash?: string | null;
+    crc32Hash?: string | null;
+    sha1Hash?: string | null;
+    sha256Hash?: string | null;
+    
+    // External identifiers
+    externalFileId?: string;
+  }
+  ```
+  </Accordion>
+
+  <Accordion title="Knowledge Base Schema">
+  ```typescript
+  interface IKnowledgeBase {
+    // Identifiers
+    _key: string;
+    _id?: string;
+    orgId: string;
+    
+    // Metadata
+    name: string;
+    createdAtTimestamp: number;
+    updatedAtTimestamp: number;
+    
+    // Status flags
+    isDeleted: boolean;
+    isArchived: boolean;
+  }
+  ```
+  </Accordion>
+</AccordionGroup>
