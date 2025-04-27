@@ -29,7 +29,8 @@
                 "pages": [
                   "system-overview/enterprise-search",
                   "system-overview/configuration-manager",
-                  "system-overview/user-management"
+                  "system-overview/user-management",
+                  "system-overview/mail-service"
                 ]
               },
               {
