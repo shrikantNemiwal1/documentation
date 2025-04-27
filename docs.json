@@ -17,8 +17,25 @@
               "quickstart", 
               "development", 
               "onboarding",
-              "system-overview",
               "contact-us"
+            ]
+          },
+          {
+            "group": "System Overview",
+            "pages": [
+              "system-overview",
+              {
+                "group": "PipesHub Services",
+                "pages": [
+                  "system-overview/enterprise-search"
+                ]
+              },
+              {
+                "group": "External Services",
+                "pages": [
+                  "system-overview/external-services"
+                ]
+              }
             ]
           },
           {
