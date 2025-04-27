@@ -319,6 +319,7 @@ Delete a conversation by its id for the authenticated user. This is a soft delet
 </CodeGroup>
 
 ### Share Conversation
+Share the conversation within your organization.
 
 <CodeGroup>
   ```http title="Share Endpoint"
@@ -349,6 +350,7 @@ Delete a conversation by its id for the authenticated user. This is a soft delet
 </CodeGroup>
 
 ### Unshare Conversation
+Revoke the shared conversation access.
 
 <CodeGroup>
   ```http title="Unshare Endpoint"
@@ -374,6 +376,7 @@ Delete a conversation by its id for the authenticated user. This is a soft delet
 </CodeGroup>
 
 ### Regenerate Answer
+Regenerate the answer.
 
 <CodeGroup>
   ```http title="Regenerate Endpoint"
@@ -415,6 +418,7 @@ Delete a conversation by its id for the authenticated user. This is a soft delet
 </CodeGroup>
 
 ### Update Title
+Update the Title of a conversation thread.
 
 <CodeGroup>
   ```http title="Title Endpoint"
@@ -461,6 +465,7 @@ Delete a conversation by its id for the authenticated user. This is a soft delet
 </CodeGroup>
 
 ### Add Feedback
+Provide the feedback to the AI Service.
 
 <CodeGroup>
   ```http title="Feedback Endpoint"
@@ -493,6 +498,7 @@ Delete a conversation by its id for the authenticated user. This is a soft delet
 </CodeGroup>
 
 ### Archive Conversation
+Archive a conversation thread.
 
 <CodeGroup>
   ```http title="Archive Endpoint"
@@ -511,6 +517,7 @@ Delete a conversation by its id for the authenticated user. This is a soft delet
 </CodeGroup>
 
 ### Unarchive Conversation
+Unarchive archived conversation thread.
 
 <CodeGroup>
   ```http title="Unarchive Endpoint"
@@ -528,6 +535,7 @@ Delete a conversation by its id for the authenticated user. This is a soft delet
 </CodeGroup>
 
 ### List Archived Conversations
+List all the archived conversation.
 
 <CodeGroup>
   ```http title="List Archived Endpoint"
@@ -548,3 +556,402 @@ Delete a conversation by its id for the authenticated user. This is a soft delet
   }
   ```
 </CodeGroup>
+
+## Semantic Search API
+
+The Semantic Search API allows for direct search queries across your organization's content.
+
+### Search
+
+Performs a semantic search across indexed content.
+
+<CodeGroup>
+  ```http title="Search Endpoint"
+  POST /api/v1/search
+  ```
+
+  **Request Body Parameters:**
+  
+  | Parameter | Type | Required | Description |
+  |-----------|------|----------|-------------|
+  | query | string | Yes | The search query text |
+  | limit | number | No | Maximum number of results (default: 10) |
+  | filters | object | No | Additional filters to narrow the search |
+  ```json title="Search Response"
+  {
+    "searchId": "61f30c988a4e2e001b3c7d1a",
+    "searchResponse": {
+      "searchResults": [
+        {
+          "content": "The vacation policy approval process requires employees to submit requests at least 14 days in advance...",
+          "chunkIndex": 4,
+          "metadata": {
+            "recordId": "doc123",
+            "recordName": "Company Policy Handbook.pdf",
+            "pageNum": [12],
+            "mimeType": "application/pdf",
+            "recordVersion": 1,
+            "score": 0.92
+          },
+          "citationType": "document"
+        },
+        // More search results...
+      ],
+      "records": {
+        "doc123": "{\"_id\":\"doc123\",\"name\":\"Company Policy Handbook.pdf\",\"type\":\"document\",\"created\":\"2024-10-15T09:45:00.000Z\"}"
+        // More record details...
+      }
+    }
+  }
+  ```
+</CodeGroup>
+
+### Search History
+Retrieves all of the search history in pagination.
+<CodeGroup>
+  ```http title="Search History Endpoint"
+  GET /api/v1/search
+  ```
+  
+  **Query Parameters:**
+  - `page` - Page number for pagination
+  - `limit` - Items per page
+  - `sortBy` - Field to sort by
+  - `sortOrder` - Sort order
+
+  ```json title="Search History Response"
+  {
+    "searchHistory": [...],
+    "pagination": {...},
+    "filters": {...},
+    "meta": {...}
+  }
+  ```
+</CodeGroup>
+
+### Get Search By ID
+Retrieve a particular search id.
+
+<CodeGroup>
+  ```http title="Get By Id Endpoint"
+  GET /api/v1/search/:searchId
+  ```
+
+  ```json title="Get By Id Response"
+  {
+    "_id": "61f30c...",
+    "query": "vacation policy approval process",
+    "limit": 10,
+    "citationIds": [...],
+    "isShared": false,
+    "createdAt": "2025-04-26T09:30:00.000Z",
+    ...
+  }
+  ```
+</CodeGroup>
+
+### Delete Search
+Delete a particular search id.
+
+<CodeGroup>
+  ```http title="Delete Search Endpoint"
+  DELETE /api/v1/search/:searchId
+  ```
+  ```json title="Delete Search Response"
+  {
+    "message": "Search deleted successfully"
+  }
+  ```
+</CodeGroup>
+
+### Delete Search History
+Clean all search history.
+
+<CodeGroup>
+  ```http title="Delete Search History Endpoint"
+  DELETE /api/v1/search
+  ```
+
+  ```json title="Delete Search History Response"
+  {
+    "message": "Search history deleted successfully"
+  }
+  ```
+</CodeGroup>
+
+### Share Search
+Share the search result within organization.
+
+<CodeGroup>
+  ```http title="Share Endpoint"
+  PATCH /api/v1/search/:searchId/share
+  ```
+  
+  ```json title="Share Request Body"
+  {
+    "userIds": ["5fb3b7..."],
+    "accessLevel": "read" // Optional, default: "read"
+  }
+  ```
+  ```json title="Share Response"
+  {
+    "_id": "61f30c...",
+    "isShared": true,
+    "shareLink": "...",
+    "sharedWith": [...],
+    ...
+  }
+  ```
+</CodeGroup>
+
+### Unshare Search
+Unshare the shared search.
+
+<CodeGroup>
+  ```http title="Unshare Endpoint"
+  PATCH /api/v1/search/:searchId/unshare
+  ```
+  
+  ```json title="Unshare Request Body"
+  {
+    "userIds": ["5fb3b7..."]
+  }
+  ```
+  
+  ```json title="Unshare Response"
+  {
+    "id": "61f30c...",
+    "isShared": true, // false if no more shares exist
+    "shareLink": "...",
+    "sharedWith": [...],
+    "unsharedUsers": ["5fb3b7..."],
+    "meta": {...}
+  }
+  ```
+</CodeGroup>
+
+### Archive Search
+Archive a search result.
+
+<CodeGroup>
+  ```http title="Archive Endpoint"
+  PATCH /api/v1/search/:searchId/archive
+  ```
+
+  ```json title="Archive Response"
+  {
+    "id": "61f30c...",
+    "status": "archived",
+    "archivedBy": "5fb3b7...",
+    "archivedAt": "2025-04-27T12:25:00.000Z",
+    "meta": {...}
+  }
+  ```
+</CodeGroup>
+
+### Unarchive Search
+Unarchive a search result.
+
+<CodeGroup>
+  ```http title="Unarchive Endpoint"
+  PATCH /api/v1/search/:searchId/unarchive
+  ```
+
+  ```json title="Unarchive Response"
+  {
+    "id": "61f30c...",
+    "status": "unarchived",
+    "unarchivedBy": "5fb3b7...",
+    "unarchivedAt": "2025-04-27T12:30:00.000Z",
+    "meta": {...}
+  }
+  ```
+</CodeGroup>
+
+## Schema Definitions
+
+<AccordionGroup>
+  <Accordion title="Conversation Schema">
+  ```typescript
+  interface IConversation {
+    // User and organization identifiers
+    userId: Types.ObjectId;
+    orgId: Types.ObjectId;
+    
+    // Conversation metadata
+    title?: string;
+    initiator: Types.ObjectId;
+    messages: IMessageDocument[];
+    
+    // Sharing settings
+    isShared?: boolean;
+    shareLink?: string;
+    sharedWith?: Array<{
+      userId: Types.ObjectId;
+      accessLevel: 'read' | 'write';
+    }>;
+    
+    // State flags
+    isDeleted?: boolean;
+    deletedBy?: Types.ObjectId;
+    isArchived?: boolean;
+    archivedBy?: Types.ObjectId;
+    
+    // Activity tracking
+    lastActivityAt?: Date;
+    tags?: Types.ObjectId[];
+    
+    // Source information
+    conversationSource:
+      | 'enterprise_search'
+      | 'records'
+      | 'connectors'
+      | 'internet_search'
+      | 'personal_kb_search';
+    conversationSourceRecordId?: Types.ObjectId;
+    conversationSourceConnectorIds?: Types.ObjectId[];
+    conversationSourceRecordType?: string;
+    
+    // Timestamps
+    createdAt?: Date;
+    updatedAt?: Date;
+  }
+  ```
+  </Accordion>
+
+  <Accordion title="Message Schema">
+  ```typescript
+  interface IMessage {
+    // Message type and content
+    messageType: 'user_query' | 'bot_response' | 'error' | 'feedback' | 'system';
+    content: string;
+    contentFormat?: 'MARKDOWN' | 'JSON' | 'HTML';
+    
+    // Citations and follow-ups
+    citations?: IMessageCitation[];
+    confidence?: string;
+    followUpQuestions?: IFollowUpQuestion[];
+    
+    // User feedback
+    feedback?: IFeedback[];
+    
+    // Processing metadata
+    metadata?: {
+      processingTimeMs?: number;
+      modelVersion?: string;
+      aiTransactionId?: string;
+      reason?: string;
+    };
+    
+    // Timestamps
+    createdAt?: Date;
+    updatedAt?: Date;
+  }
+  
+  interface IFollowUpQuestion {
+    question: string;
+    confidence: string;
+    reasoning?: string;
+  }
+  
+  interface IMessageCitation {
+    citationId?: Types.ObjectId;
+    relevanceScore?: number;
+    excerpt?: string;
+    context?: string;
+  }
+  ```
+  </Accordion>
+
+  <Accordion title="Citation Schema">
+  ```typescript
+  interface ICitation extends Document {
+    // Core citation data
+    content: string;
+    chunkIndex: number;
+    metadata: ICitationMetadata;
+    citationType: string;
+    
+    // Timestamps
+    createdAt: Date;
+    updatedAt: Date;
+  }
+  
+  interface ICitationMetadata {
+    // Document position information
+    blockNum?: number[];
+    pageNum?: number[];
+    sheetNum?: number;
+    sheetName?: string;
+    
+    // Categorization
+    subcategoryLevel1?: string;
+    subcategoryLevel2?: string;
+    subcategoryLevel3?: string;
+    categories?: string;
+    departments?: string[];
+    topics?: string[];
+    languages?: string[];
+    
+    // Source information
+    connector?: string;
+    recordType?: string;
+    orgId: string;
+    blockType?: string;
+    mimeType: string;
+    recordId: string;
+    recordVersion: number;
+    recordName: string;
+    origin: string;
+    extension: string;
+    
+    // Positioning (for visual documents)
+    bounding_box?: Array<{
+      x: number;
+      y: number;
+    }>;
+    
+    // Search relevance
+    score?: number;
+    
+    // Additional identifiers
+    _id?: string;
+    _collection_name?: string;
+  }
+  ```
+  </Accordion>
+
+  <Accordion title="Search Schema">
+  ```typescript
+  interface IEnterpriseSemanticSearch extends Document {
+    // Search parameters
+    query: string;
+    limit: number;
+    
+    // Sharing settings
+    isShared: boolean;
+    shareLink: string;
+    sharedWith: {
+      userId: mongoose.Types.ObjectId;
+      accessLevel: string;
+    }[];
+    
+    // State flags
+    isArchived: boolean;
+    archivedBy: mongoose.Types.ObjectId;
+    
+    // User and organization identifiers
+    orgId: mongoose.Types.ObjectId;
+    userId: mongoose.Types.ObjectId;
+    
+    // Search results
+    citationIds: mongoose.Types.ObjectId[]; // References to citation documents
+    records: Record<string, any>; // Map of record details
+    
+    // Timestamps
+    createdAt: Date;
+    updatedAt: Date;
+  }
+  ```
+  </Accordion>
+</AccordionGroup>
