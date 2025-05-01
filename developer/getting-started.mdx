@@ -4,13 +4,14 @@ description: "Guide for the developers to get started and contribute into our pl
 icon: "code"
 ---
 
-# Contributing to PipesHub Workplace AI 
+# Contributing to PipesHub Workplace AI
 
 Welcome to our open source project! We're excited that you're interested in contributing. This document provides guidelines and instructions to help you get started as a contributor.
 
 ## 💻 Developer Contribution Build
 
 ## Table of Contents
+
 - [Setting Up the Development Environment](#setting-up-the-development-environment)
 - [Project Architecture](#project-architecture)
 - [Contribution Workflow](#contribution-workflow)
@@ -24,6 +25,7 @@ Welcome to our open source project! We're excited that you're interested in cont
 ### System Dependencies
 
 #### Linux
+
 ```bash
 sudo apt update
 sudo apt install python3.10-venv
@@ -32,6 +34,7 @@ sudo apt install ocrmypdf tesseract-ocr ghostscript unpaper qpdf
 ```
 
 #### Mac
+
 ```bash
 # Install Homebrew if not already installed
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
@@ -47,6 +50,7 @@ brew install tesseract
 ```
 
 #### Windows
+
 ```bash
 - Install Python 3.10
 - Install Tesseract OCR if you need to test OCR functionality
@@ -54,6 +58,7 @@ brew install tesseract
 ```
 
 ### Application Dependencies
+
 ```bash
 1. **Docker** - Install Docker for your platform
 2. **Python 3.10** - Install as shown above
@@ -65,16 +70,19 @@ brew install tesseract
 ### Starting Required Docker Containers
 
 **Redis:**
+
 ```bash
 docker run -d --name redis --restart always -p 6379:6379 redis:bookworm
 ```
 
 **Qdrant:** (API Key must match with .env)
+
 ```bash
 docker run -p 6333:6333 -p 6334:6334 -e QDRANT__SERVICE__API_KEY=your_qdrant_api_key qdrant/qdrant:v1.13.6
 ```
 
 **ETCD Server:**
+
 ```bash
 docker run -d --name etcd-server --restart always -p 2379:2379 -p 2380:2380 quay.io/coreos/etcd:v3.5.17 /usr/local/bin/etcd \
   --name etcd0 \
@@ -85,11 +93,13 @@ docker run -d --name etcd-server --restart always -p 2379:2379 -p 2380:2380 quay
 ```
 
 **ArangoDB:** (Password must match with .env)
+
 ```bash
 docker run -e ARANGO_ROOT_PASSWORD=your_arango_password -p 8529:8529 --name arango --restart always -d arangodb:3.12.4
 ```
 
 **MongoDB:** (Password must match with .env MONGO URI)
+
 ```bash
 docker run -d --name mongodb --restart always -p 27017:27017 \
   -e MONGO_INITDB_ROOT_USERNAME=admin \
@@ -98,6 +108,7 @@ docker run -d --name mongodb --restart always -p 27017:27017 \
 ```
 
 **Zookeeper:**
+
 ```bash
 docker run -d --name zookeeper --restart always -p 2181:2181 \
   -e ZOOKEEPER_CLIENT_PORT=2181 \
@@ -106,6 +117,7 @@ docker run -d --name zookeeper --restart always -p 2181:2181 \
 ```
 
 **Apache Kafka:**
+
 ```bash
 docker run -d --name kafka --restart always --link zookeeper:zookeeper -p 9092:9092 \
   -e KAFKA_BROKER_ID=1 \
@@ -118,6 +130,7 @@ docker run -d --name kafka --restart always --link zookeeper:zookeeper -p 9092:9
 ```
 
 ### Starting Node.js Backend Service
+
 ```bash
 cd services/nodejs/apps
 cp ../../env.template .env  # Create .env file from template
@@ -126,6 +139,7 @@ npm run dev
 ```
 
 ### Starting Python Backend Services
+
 ```bash
 cd services/python
 cp ../env.template .env
@@ -147,6 +161,7 @@ python -m app.query_main
 ```
 
 ### Setting Up Frontend
+
 ```bash
 cd frontend
 cp env.template .env  # Modify port if Node.js backend uses a different one
