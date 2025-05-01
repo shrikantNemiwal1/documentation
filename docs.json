@@ -9,147 +9,141 @@
   },
   "favicon": "/favicon.svg",
   "navigation": {
-        "groups": [
+    "groups": [
+      {
+        "group": "Welcome To PipesHub",
+        "pages": [
+          "introduction",
+          "quickstart",
+          "development",
+          "onboarding",
+          "contact-us"
+        ]
+      },
+      {
+        "group": "System Overview",
+        "pages": [
+          "system-overview",
           {
-            "group": "Welcome To PipesHub",
+            "group": "PipesHub Services",
             "pages": [
-              "introduction", 
-              "quickstart", 
-              "development", 
-              "onboarding",
-              "contact-us"
+              "system-overview/authentication",
+              "system-overview/user-management",
+              "system-overview/token-manager",
+              "system-overview/configuration-manager",
+              "system-overview/storage",
+              "system-overview/knowledge-base",
+              "system-overview/enterprise-search",
+              "system-overview/mail-service"
             ]
           },
           {
-            "group": "System Overview",
-            "pages": [
-              "system-overview",
-              {
-                "group": "PipesHub Services",
-                "pages": [
-                  "system-overview/authentication",
-                  "system-overview/user-management",
-                  "system-overview/token-manager",
-                  "system-overview/configuration-manager",
-                  "system-overview/storage",
-                  "system-overview/knowledge-base",
-                  "system-overview/enterprise-search",
-                  "system-overview/mail-service"
-                ]
-              },
-              {
-                "group": "External Services",
-                "pages": [
-                  "system-overview/external-services"
-                ]
-              }
-            ]
+            "group": "External Services",
+            "pages": ["system-overview/external-services"]
           },
           {
-            "group": "Authentication",
-            "pages": [
-              "auth",
-              {
-                "group": "Methods",
-                "pages": [
-                  "auth/password",
-                  "auth/otp",
-                  "auth/google",
-                  "auth/microsoft-azureAd",
-                  "auth/saml"
-                ]
-              }
-            ]
-          },
+            "group": "Internal Services",
+            "pages": ["system-overview/internal-services"]
+          }
+        ]
+      },
+      {
+        "group": "Authentication",
+        "pages": [
+          "auth",
           {
-            "group": "Mail Configuration",
+            "group": "Methods",
             "pages": [
-              "smtp"
-            ]
-          },
-          {
-            "group": "AI Providers",
-            "pages": [
-              "ai-models/overview",
-              {
-                "group": "Providers",
-                "pages": [
-                  "ai-models/openai",
-                  "ai-models/azure-openai",
-                  "ai-models/anthropic",
-                  "ai-models/vertex-ai",
-                  "ai-models/ollama",
-                  "ai-models/deepseek"
-                ]
-              }
-            ]
-          },
-          {
-            "group": "Enterprise",
-            "pages": [
-              {
-                "group": "Account",
-                "pages": [
-                  "enterprise/account/users",
-                  "enterprise/account/userGroups"
-                ]
-              },
-              {
-                "group": "Connectors",
-                "pages": [
-                  "enterprise/connectors/overview",
-                  "enterprise/connectors/googleWorkspace"
-                ]
-              }
-            ]
-          },
-
-          {
-            "group": "Individual",
-            "pages": [
-              {
-                "group": "Connectors",
-                "pages": [
-                  "individual/connectors/overview",
-                  "individual/connectors/googleWorkspace"
-                ]
-              }
-            ]
-          },
-          {
-            "group": "Deployment",
-            "pages": [
-              "deployment/overview",
-              {
-                "group": "Vendor",
-                "pages": [
-                  "deployment/vendor/aws",
-                  "deployment/vendor/azure",
-                  "deployment/vendor/gcp",
-                  "deployment/vendor/private"
-                ]
-              }
-            ]
-          },
-          {
-            "group": "Services",
-            "pages": ["services/internalServices", "services/externalServices"]
-          },
-          {
-            "group": "Developer",
-            "pages": [
-              "developer/getting-started",
-              "developer/api-reference"
-            ]
-          },
-          {
-            "group": "Additional Resources",
-            "pages": [
-              "additional-resources/changelog",
-              "additional-resources/telemetry",
-              "additional-resources/faq"
+              "auth/password",
+              "auth/otp",
+              "auth/google",
+              "auth/microsoft-azureAd",
+              "auth/saml"
             ]
           }
+        ]
+      },
+      {
+        "group": "Mail Configuration",
+        "pages": ["smtp"]
+      },
+      {
+        "group": "AI Providers",
+        "pages": [
+          "ai-models/overview",
+          {
+            "group": "Providers",
+            "pages": [
+              "ai-models/openai",
+              "ai-models/azure-openai",
+              "ai-models/anthropic",
+              "ai-models/vertex-ai",
+              "ai-models/ollama",
+              "ai-models/deepseek"
+            ]
+          }
+        ]
+      },
+      {
+        "group": "Enterprise",
+        "pages": [
+          {
+            "group": "Account",
+            "pages": [
+              "enterprise/account/users",
+              "enterprise/account/userGroups"
+            ]
+          },
+          {
+            "group": "Connectors",
+            "pages": [
+              "enterprise/connectors/overview",
+              "enterprise/connectors/googleWorkspace"
+            ]
+          }
+        ]
+      },
+
+      {
+        "group": "Individual",
+        "pages": [
+          {
+            "group": "Connectors",
+            "pages": [
+              "individual/connectors/overview",
+              "individual/connectors/googleWorkspace"
+            ]
+          }
+        ]
+      },
+      {
+        "group": "Deployment",
+        "pages": [
+          "deployment/overview",
+          {
+            "group": "Vendor",
+            "pages": [
+              "deployment/vendor/aws",
+              "deployment/vendor/azure",
+              "deployment/vendor/gcp",
+              "deployment/vendor/private"
+            ]
+          }
+        ]
+      },
+
+      {
+        "group": "Developer",
+        "pages": ["developer/getting-started", "developer/api-reference"]
+      },
+      {
+        "group": "Additional Resources",
+        "pages": [
+          "additional-resources/changelog",
+          "additional-resources/telemetry",
+          "additional-resources/faq"
+        ]
+      }
     ],
     "global": {
       "anchors": [
