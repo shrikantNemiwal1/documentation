@@ -20,11 +20,33 @@ Before proceeding with the setup, configuring an AI model is mandatory.
   width="100%"
 />
 
-### For more info, refer to [AI models Configuration Guide](/smtp).
+### For more info, refer to [AI models Configuration Guide](/ai-models/overview).
 
 <Info>AI model configuration is required to enable AI-powered features.</Info>
 
-## Step 2: Configure Storage (Optional)
+## Step 2: Configure Embeddings Model (Optional)
+
+The Embeddings Configuration section is part of the System Setup workflow for
+enabling semantic search and document retrieval features in your application.
+This configuration step allows you to define the embedding provider and
+specify the model used for generating vector representations of textual
+content.
+
+1. Select the Embeddings Provider (OpenAI, Azure OpenAI or Sentence Tranformer).
+2. Enter the Endpoint (if applicable).
+3. Provide the API Key to authenticate the AI model (if applicable).
+4. Specify the Model Name (e.g., gpt-4-turbo).
+5. Click **Continue** to proceed.
+
+<img
+  src="/images/onboarding/embeddings.png"
+  alt="Embeddings onboarding"
+  width="100%"
+/>
+
+<Info>You can skip this step.</Info>
+
+## Step 3: Configure Storage (Optional)
 
 Setting up storage allows the system to save and retrieve data efficiently.
 By default, local storage (local machine) will be used to store the files.
@@ -49,7 +71,25 @@ Click **Continue** to save the configuration.
 
 <Info>You can skip this step. By default Local storage will be chosen.</Info>
 
-## Step 3: Configure Connectors (Optional)
+## Step 4: Configure Public URLs (Optional)
+
+The Public URL Configuration step allows you to define the publicly accessible URLs for your frontend and connector services. These URLs are critical for operations like OAuth authentication, redirect flows, and webhook callbacks in your system.
+
+1. Enter the Frontend Endpoint (if applicable).
+2. Enter the Connector Endpoint (if applicable).
+3. Click **Continue** to save the configuration.
+
+<img
+  src="/images/onboarding/publicUrls.png"
+  alt="Public Urls onboarding"
+  width="100%"
+/>
+
+### For more info, refer to [Internal Services Configuration Guide](/system-overview/internal-services).
+
+<Info>You can skip this step.</Info>
+
+## Step 5: Configure Connectors (Optional)
 
 Connectors help integrate third-party services with the system.
 Enter the necessary API credentials to authenticate the connection.
@@ -78,7 +118,7 @@ Click **Continue** to save the configuration.
   You can skip this step and later configure them in settings under profile tab.
 </Info>
 
-## Step 4: Configure SMTP (Optional)
+## Step 6: Configure SMTP (Optional)
 
 SMTP configuration allows the system to send emails (invite new users, forgot password etc).
 
