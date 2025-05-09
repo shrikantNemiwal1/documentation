@@ -1,11 +1,76 @@
 ---
-title: Vertex AI
-description: "Configure PipesHub Workplace AI to use different Vertex AI models"
+title: Google Vertex AI
+description: "Configure PipesHub Workplace AI to use different Google Vertex AI models"
 ---
 
-<div className="flex flex-col items-center justify-center text-center pt-10">
-  <h1 className=" font-bold">🚧 Coming Soon</h1>
-  <h3 className="text-xl mt-2">
-    We are working hard to bring you this content. Please check back shortly!
-  </h3>
-</div>
+# Google Vertex AI Configuration
+
+![Google Vertex AI Configuration Interface](/images/ai-models/Gemini_LLMConfig.png)
+
+*The Google Vertex AI configuration screen in PipesHub where you'll enter your API Key and Model Name*
+
+PipesHub allows you to integrate with Google's Vertex AI platform to enable sophisticated AI features in your workspace, with access to Google's powerful Gemini models.
+
+## Required Fields
+
+### API Key *
+
+The API Key is required to authenticate your requests to Google's Vertex AI services.
+
+**How to obtain an API Key:**
+1. Log in to the [Google Cloud Console](https://console.cloud.google.com/)
+2. Create or select a Google Cloud project
+3. Enable the Vertex AI API for your project
+4. Navigate to "APIs & Services" > "Credentials"
+5. Click "Create credentials" and select "API key"
+6. Copy the generated API key
+
+**Security Note:** Your API key should be kept secure and never shared publicly. PipesHub securely stores your API key and uses it only for authenticating requests to Google Vertex AI services.
+
+### Model Name *
+
+The Model Name field defines which Google Vertex AI model you want to use with PipesHub.
+
+**Popular Google Vertex AI models include:**
+- `gemini-1.5-pro` - Most advanced model with strong reasoning abilities
+- `gemini-1.5-flash` - Faster model with good performance for most tasks
+- `gemini-1.0-pro` - Earlier version with comprehensive capabilities
+
+**How to choose a model:**
+- For complex reasoning and advanced features, select `gemini-1.5-pro`
+- For routine tasks and lower latency, select `gemini-1.5-flash`
+- Check Google's [Vertex AI model documentation](https://cloud.google.com/vertex-ai/docs/generative-ai/learn/models) for the most up-to-date options
+
+## Configuration Steps
+
+As shown in the image above:
+
+1. Select "Gemini" as your Provider from the dropdown
+2. Enter your Google Cloud API Key in the designated field (marked with *)
+3. Specify your desired Model Name (marked with *)
+4. Click "Continue" to proceed with setup
+
+``Both the API Key and Model Name are required fields to successfully configure Google Vertex 
+AI integration. You must complete these fields to proceed with the setup.``
+
+
+## Usage Considerations
+
+- API usage will count against your Google Cloud project's quota and billing
+- Different models have different pricing - check Google Cloud's pricing page for details
+- Model capabilities vary - more powerful models may provide better results but at higher cost
+- Google Vertex AI provides:
+  - Deep integration with other Google Cloud services
+  - Enterprise-grade security and compliance
+  - Scalable performance for production workloads
+  - Regional availability to meet data residency requirements
+
+## Troubleshooting
+
+- If you encounter authentication errors, verify your API key is correct and has not expired
+- Ensure your Google Cloud project has billing enabled
+- Check that the Vertex AI API is properly enabled for your project
+- Verify that the model name is spelled correctly and available in your region
+- Ensure your Google Cloud project has sufficient quota for the selected model
+
+For additional support, refer to the [Google Vertex AI documentation](https://cloud.google.com/vertex-ai/docs) or contact PipesHub support.

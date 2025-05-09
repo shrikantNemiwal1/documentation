@@ -3,9 +3,63 @@ title: OpenAI
 description: "Configure PipesHub Workplace AI to use different OpenAI models"
 ---
 
-<div className="flex flex-col items-center justify-center text-center pt-10">
-  <h1 className=" font-bold">🚧 Coming Soon</h1>
-  <h3 className="text-xl mt-2">
-    We are working hard to bring you this content. Please check back shortly!
-  </h3>
-</div>
+# OpenAI Configuration
+
+![OpenAI Configuration Interface](/images/ai-models/OpenAI_LLMConfig.png)
+
+*The OpenAI configuration screen in PipesHub where you'll enter your API Key and Model Name*
+
+PipesHub allows you to integrate with OpenAI's powerful language models to enable AI features in your workspace.
+
+## Required Fields
+
+### API Key
+
+The OpenAI API Key is required to authenticate your requests to OpenAI's services.
+
+**How to obtain an API Key:**
+1. Log in to your [OpenAI account](https://platform.openai.com/account/api-keys)
+2. Navigate to the API section
+3. Create a new secret key
+4. Copy the key immediately (it will only be shown once)
+
+**Security Note:** Your API key should be kept secure and never shared publicly. PipesHub securely stores your API key and uses it only for authenticating requests to OpenAI.
+
+### Model Name
+
+The Model Name field defines which OpenAI model you want to use with PipesHub.
+
+**Popular OpenAI models include:**
+- `gpt-4o` - OpenAI's latest model with improved capabilities
+- `gpt-4-turbo` - Powerful model balancing cost and capability
+- `gpt-3.5-turbo` - Faster, more cost-effective option for many use cases
+
+**How to choose a model:**
+- For complex reasoning and advanced features, select `gpt-4o` or `gpt-4-turbo`
+- For routine tasks and lower latency, select `gpt-3.5-turbo`
+- Check OpenAI's [model documentation](https://platform.openai.com/docs/models) for the most up-to-date options
+
+## Configuration Steps
+
+As shown in the image above:
+
+1. Select "OpenAI" as your Provider from the dropdown
+2. Enter your OpenAI API Key in the designated field (marked with *)
+3. Specify your desired Model Name (marked with *)
+4. Click "Continue" to proceed with setup
+
+``The system configuration interface clearly indicates which fields are required with an asterisk (*). Both the API Key and Model Name are required fields to successfully configure OpenAI integration.
+``
+## Usage Considerations
+
+- API usage will count against your OpenAI account's quota and billing
+- Different models have different pricing - check OpenAI's pricing page for details
+- Model capabilities vary - more powerful models may provide better results but at higher cost
+
+## Troubleshooting
+
+- If you encounter authentication errors, verify your API key is correct and has not expired
+- Ensure your OpenAI account has billing set up if you're using paid models
+- Check that the model name is spelled correctly and is available on your OpenAI account tier
+
+For additional support, refer to the [OpenAI documentation](https://platform.openai.com/docs) or contact PipesHub support.
