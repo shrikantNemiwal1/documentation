@@ -77,6 +77,7 @@
               "ai-models/openai",
               "ai-models/azure-openai",
               "ai-models/anthropic",
+              "ai-models/gemini",
               "ai-models/vertex-ai",
               "ai-models/ollama",
               "ai-models/deepseek"
