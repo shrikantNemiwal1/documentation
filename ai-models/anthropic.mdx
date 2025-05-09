@@ -1,11 +1,71 @@
 ---
 title: Anthropic
-description: "Configure PipesHub Workplace AI to use different Anthropic models"
+description: "Configure PipesHub Workplace AI to use different Anthropic Claude models"
 ---
 
-<div className="flex flex-col items-center justify-center text-center pt-10">
-  <h1 className=" font-bold">🚧 Coming Soon</h1>
-  <h3 className="text-xl mt-2">
-    We are working hard to bring you this content. Please check back shortly!
-  </h3>
-</div>
+# Anthropic Configuration
+
+![Anthropic Configuration Interface](/images/ai-models/Anthropic_LLMConfig.png)
+
+*The Anthropic configuration screen in PipesHub where you'll enter your API Key and Model Name*
+
+PipesHub allows you to integrate with Anthropic's Claude models to enable powerful AI features in your workspace, providing sophisticated natural language understanding and generation capabilities.
+
+## Required Fields
+
+### API Key *
+
+The Anthropic API Key is required to authenticate your requests to Anthropic's services.
+
+**How to obtain an API Key:**
+1. Log in to your [Anthropic Console](https://console.anthropic.com/)
+2. Navigate to the "API Keys" section
+3. Create a new API key
+4. Copy the key immediately (it will only be shown once)
+
+**Security Note:** Your API key should be kept secure and never shared publicly. PipesHub securely stores your API key and uses it only for authenticating requests to Anthropic.
+
+### Model Name *
+
+The Model Name field defines which Anthropic Claude model you want to use with PipesHub.
+
+**Popular Anthropic models include:**
+- `claude-3-5-sonnet` - Latest and most capable Claude model
+- `claude-3-opus` - Most powerful model for complex reasoning
+- `claude-3-haiku` - Fastest model with lower latency
+
+**How to choose a model:**
+- For complex reasoning and advanced features, select `claude-3-5-sonnet` or `claude-3-opus`
+- For routine tasks and lower latency, select `claude-3-haiku`
+- Check Anthropic's [model documentation](https://docs.anthropic.com/claude/docs/models-overview) for the most up-to-date options
+
+## Configuration Steps
+
+As shown in the image above:
+
+1. Select "Anthropic" as your Provider from the dropdown
+2. Enter your Anthropic API Key in the designated field (marked with *)
+3. Specify your desired Model Name (marked with *)
+4. Click "Continue" to proceed with setup
+
+``Both the API Key and Model Name are required fields to successfully configure Anthropic integration. You must complete these fields to proceed with the setup.``
+
+## Usage Considerations
+
+- API usage will count against your Anthropic account's quota and billing
+- Different models have different pricing - check Anthropic's pricing page for details
+- Model capabilities vary - more powerful models may provide better results but at higher cost
+- Claude models excel at:
+  - Nuanced content generation
+  - Detailed reasoning
+  - Following complex instructions
+  - Maintaining consistency in long conversations
+
+## Troubleshooting
+
+- If you encounter authentication errors, verify your API key is correct and has not expired
+- Ensure your Anthropic account has billing set up if you're using paid models
+- Check that the model name is spelled correctly and matches Anthropic's naming conventions
+- Verify that your account has access to the model you've selected
+
+For additional support, refer to the [Anthropic documentation](https://docs.anthropic.com/) or contact PipesHub support.
