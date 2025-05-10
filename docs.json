@@ -95,35 +95,26 @@
         ]
       },
       {
+        "group": "Connectors",
+        "pages": [
+          "connectors/google-workspace/overview",
+          {
+            "group": "Enterprise",
+            "pages": [
+              "connectors/google-workspace/enterprise/google-workspace"
+            ]
+          },
+          {
+            "group": "Individual",
+            "pages": ["connectors/google-workspace/individual/google-workspace"]
+          }
+        ]
+      },
+      {
         "group": "User Management",
         "pages": [
           "user-management/user",
           "user-management/user-group"
-        ]
-      },
-      {
-        "group": "Enterprise",
-        "pages": [
-          {
-            "group": "Connectors",
-            "pages": [
-              "enterprise/connectors/overview",
-              "enterprise/connectors/googleWorkspace"
-            ]
-          }
-        ]
-      },
-
-      {
-        "group": "Individual",
-        "pages": [
-          {
-            "group": "Connectors",
-            "pages": [
-              "individual/connectors/overview",
-              "individual/connectors/googleWorkspace"
-            ]
-          }
         ]
       },
       {
