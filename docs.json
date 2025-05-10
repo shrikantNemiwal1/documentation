@@ -95,15 +95,15 @@
         ]
       },
       {
+        "group": "User Management",
+        "pages": [
+          "user-management/user",
+          "user-management/user-group"
+        ]
+      },
+      {
         "group": "Enterprise",
         "pages": [
-          {
-            "group": "Account",
-            "pages": [
-              "enterprise/account/users",
-              "enterprise/account/userGroups"
-            ]
-          },
           {
             "group": "Connectors",
             "pages": [
