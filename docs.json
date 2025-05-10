@@ -72,14 +72,24 @@
         "pages": [
           "ai-models/overview",
           {
-            "group": "Providers",
+            "group": "LLM Providers",
             "pages": [
-              "ai-models/openai",
-              "ai-models/azure-openai",
-              "ai-models/anthropic",
-              "ai-models/vertex-ai",
-              "ai-models/ollama",
-              "ai-models/deepseek"
+              "ai-models/llm/openai",
+              "ai-models/llm/azure-openai",
+              "ai-models/llm/anthropic",
+              "ai-models/llm/gemini",
+              "ai-models/llm/vertex-ai",
+              "ai-models/llm/ollama",
+              "ai-models/llm/deepseek"
+            ]
+          },
+          {
+            "group": "Embedding Providers",
+            "pages": [
+              "ai-models/embedding/BAAI",
+              "ai-models/embedding/openai",
+              "ai-models/embedding/azure-openai",
+              "ai-models/embedding/sentence-transformer"
             ]
           }
         ]

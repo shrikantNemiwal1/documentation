@@ -1,0 +1,80 @@
+---
+title: OpenAI
+description: "Configure PipesHub Workplace AI to use OpenAI's embedding models"
+---
+
+# OpenAI Embeddings Configuration
+
+![OpenAI Embeddings Configuration Interface](/images/ai-models/OpenAI_EmbeddingConfig.png)
+
+*The OpenAI embeddings configuration screen in PipesHub where you'll enter your API Key and Embedding Model*
+
+PipesHub allows you to integrate with OpenAI's powerful embedding models to enable vector search, semantic similarity, and other AI features in your workspace.
+
+## Required Fields
+
+### API Key
+
+The OpenAI API Key is required to authenticate your requests to OpenAI's embedding services.
+
+**How to obtain an API Key:**
+1. Log in to your [OpenAI account](https://platform.openai.com/account/api-keys)
+2. Navigate to the API section
+3. Create a new secret key
+4. Copy the key immediately (it will only be shown once)
+
+**Security Note:** Your API key should be kept secure and never shared publicly. PipesHub securely stores your API key and uses it only for authenticating requests to OpenAI.
+
+### Embedding Model
+
+The Embedding Model field defines which OpenAI embedding model you want to use with PipesHub.
+
+**Available OpenAI embedding models:**
+- `text-embedding-3-small` - Cost-effective model with excellent performance for most use cases
+- `text-embedding-3-large` - Higher dimensional embeddings for tasks requiring maximum accuracy
+
+**How to choose an embedding model:**
+- For most applications and cost efficiency, select `text-embedding-3-small`
+- For specialized applications requiring maximum performance, select `text-embedding-3-large`
+- Check OpenAI's [embedding documentation](https://platform.openai.com/docs/guides/embeddings) for the most up-to-date options
+
+## Configuration Steps
+
+As shown in the image above:
+
+1. Select "OpenAI" as your Embedding Provider from the dropdown
+2. Enter your OpenAI API Key in the designated field (marked with *)
+3. Specify your desired Embedding Model (marked with *)
+4. Click "Continue" to proceed with setup
+
+The system configuration interface clearly indicates which fields are required with an asterisk (*). Both the API Key and Embedding Model are required fields to successfully configure OpenAI embedding integration.
+
+## Model Specifications
+
+| Model | Dimensions | Tokens | Performance | Cost |
+|-------|-----------|--------|-------------|------|
+| text-embedding-3-small | 1536 | 8191 | Very High | Lower |
+| text-embedding-3-large | 3072 | 8191 | Highest | Higher |
+
+## Advanced Parameters
+
+OpenAI's embedding models support parameters to control the output:
+
+- **Dimensions** - Control the size of embedding vectors (smaller dimensions = smaller storage requirements)
+- **Encoding Format** - Choose between "float" and "base64" for different precision and size tradeoffs
+
+## Usage Considerations
+
+- API usage will count against your OpenAI account's quota and billing
+- Different models have different pricing - check OpenAI's pricing page for details
+- Embedding models are optimized for different languages and use cases
+- Consider storage requirements based on the embedding dimensions you select
+
+## Troubleshooting
+
+- If you encounter authentication errors, verify your API key is correct and has not expired
+- Ensure your OpenAI account has billing set up
+- Check that the embedding model name is spelled correctly
+- For large document collections, consider batching embedding requests
+
+For additional support, refer to the [OpenAI Embeddings documentation](https://platform.openai.com/docs/guides/embeddings) or contact PipesHub support.
