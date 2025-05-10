@@ -1,11 +1,213 @@
 ---
-title: "AI Overview"
-description: "Overview of the AI Models functionality in PipesHub Workplace AI platform"
+title: "AI Models Overview"
+description: "Integrate powerful AI models in your PipesHub workspace"
 ---
 
-<div className="flex flex-col items-center justify-center text-center pt-10">
-  <h1 className=" font-bold">🚧 Coming Soon</h1>
-  <h3 className="text-xl mt-2">
-    We are working hard to bring you this content. Please check back shortly!
-  </h3>
-</div>
+PipesHub seamlessly integrates with leading AI providers to enhance your workspace with advanced artificial intelligence capabilities. Configure your preferred models to power intelligent features throughout your workflow.
+
+## Model Types
+
+<CardGroup cols={2}>
+  <Card title="Large Language Models (LLMs)" icon="brain" href="#llm-overview">
+    Powerful AI models that understand and generate human language for conversations, content creation, and complex reasoning
+  </Card>
+  <Card title="Embedding Models" icon="network-wired" href="#embedding-models-overview">
+    Specialized models that convert text into numerical vectors for semantic search, similarity matching, and vector database operations
+  </Card>
+</CardGroup>
+
+<a id="llm-overview"></a>
+## Large Language Models (LLMs) Overview
+
+LLMs provide natural language understanding and generation capabilities, enabling sophisticated AI interactions throughout your workflow.
+
+### Supported LLM Providers
+
+<CardGroup cols={2}>
+  <Card title="Anthropic Claude" icon="brain" href="/ai-models/llm/anthropic">
+    Advanced language models with strong reasoning capabilities and nuanced understanding
+  </Card>
+  <Card title="OpenAI" icon="sparkles" href="/ai-models/llm/openai">
+    Powerful language models with robust capabilities across various tasks
+  </Card>
+  <Card title="Azure OpenAI" icon="microsoft" href="/ai-models/llm/azure-openai">
+    Enterprise-grade OpenAI models with Azure's security and compliance features
+  </Card>
+  <Card title="Google Gemini" icon="google" href="/ai-models/llm/gemini">
+    Google's multimodal AI models with advanced reasoning and comprehension
+  </Card>
+</CardGroup>
+
+### Key LLM Features
+
+<CardGroup cols={3}>
+  <Card title="Natural Language Understanding" icon="comment">
+    Process and comprehend human language with remarkable accuracy
+  </Card>
+  <Card title="Content Generation" icon="pen-to-square">
+    Create high-quality written content for various purposes
+  </Card>
+  <Card title="Reasoning & Problem Solving" icon="lightbulb">
+    Tackle complex problems with sophisticated logical reasoning
+  </Card>
+  <Card title="Contextual Awareness" icon="circle-nodes">
+    Maintain coherent understanding throughout conversations
+  </Card>
+  <Card title="Multimodal Capabilities" icon="images">
+    Some models can process and understand both text and visual information
+  </Card>
+  <Card title="Code Understanding" icon="code">
+    Assist with programming tasks and code generation
+  </Card>
+</CardGroup>
+
+### LLM Configuration Requirements
+
+<Note>
+  Each LLM provider requires specific credentials and configuration details:
+</Note>
+
+<Tabs>
+  <Tab title="API Keys">
+    Every provider requires an API key for authentication. These can be obtained from your provider's developer console or dashboard.
+  </Tab>
+  <Tab title="Model Selection">
+    You'll need to specify which specific model you want to use from the provider's available options.
+  </Tab>
+  <Tab title="Endpoint Information">
+    Some providers (like Azure OpenAI) require additional endpoint details for your specific deployment.
+  </Tab>
+</Tabs>
+
+<a id="embedding-models-overview"></a>
+## Embedding Models Overview
+
+Embedding models transform text into numerical vector representations, enabling semantic search, document retrieval, and similarity matching capabilities.
+
+### Supported Embedding Providers
+
+<CardGroup cols={2}>
+  <Card title="OpenAI Embeddings" icon="sparkles" href="/ai-models/embedding/openai">
+    High-performance embedding models with excellent semantic understanding
+  </Card>
+  <Card title="Azure OpenAI Embeddings" icon="microsoft" href="/ai-models/embedding/azure-openai">
+    Enterprise-grade embedding models with Azure security and compliance
+  </Card>
+  <Card title="Sentence Transformer" icon="layer-group" href="/ai-models/embedding/sentence-transformer">
+    Self-contained embedding models with multilingual support and no API requirements
+  </Card>
+  <Card title="BAAI/bge Models" icon="globe" href="/ai-models/embedding/BAAI">
+    State-of-the-art embedding models optimized for various languages and tasks
+  </Card>
+</CardGroup>
+
+### Key Embedding Features
+
+<CardGroup cols={3}>
+  <Card title="Semantic Search" icon="magnifying-glass">
+    Find conceptually similar content beyond keyword matching
+  </Card>
+  <Card title="Vector Databases" icon="database">
+    Power efficient similarity-based retrieval systems
+  </Card>
+  <Card title="Document Clustering" icon="folder-tree">
+    Group similar documents automatically based on content
+  </Card>
+  <Card title="Cross-lingual Capabilities" icon="language">
+    Some models support similarity matching across multiple languages
+  </Card>
+  <Card title="Dimensionality Control" icon="arrows-to-dot">
+    Adjust embedding size to balance performance and storage needs
+  </Card>
+  <Card title="Self-hosted Options" icon="server">
+    Run embedding models locally for privacy and cost control
+  </Card>
+</CardGroup>
+
+### Embedding Model Configuration Requirements
+
+<Note>
+  Each embedding provider has specific configuration requirements:
+</Note>
+
+<Tabs>
+  <Tab title="API-based Models">
+    OpenAI and Azure OpenAI require API keys and endpoint information for authentication.
+  </Tab>
+  <Tab title="Self-hosted Models">
+    Sentence Transformer models require only the model name selection and run locally.
+  </Tab>
+  <Tab title="Model Selection">
+    Consider dimensions, performance, and language support when choosing an embedding model.
+  </Tab>
+</Tabs>
+
+## Getting Started
+
+Setting up AI models in your PipesHub workspace is a straightforward process:
+
+<Steps>
+  <Step title="Select Model Type">
+    Decide whether you need a Language Model (LLM) or an Embedding Model based on your use case
+  </Step>
+  <Step title="Choose Provider">
+    Select your preferred AI provider from the dropdown menu in the AI configuration section
+  </Step>
+  <Step title="Enter Credentials">
+    Add your API key and any other required provider-specific information
+  </Step>
+  <Step title="Select Specific Model">
+    Choose the specific AI model that best suits your needs and use case
+  </Step>
+  <Step title="Apply Configuration">
+    Save your settings to enable AI features across your PipesHub workspace
+  </Step>
+</Steps>
+
+## Choosing the Right Models
+
+Consider these key factors when selecting AI models for your needs:
+
+<CardGroup cols={2}>
+  <Card title="Task Complexity">
+    More powerful models excel at complex reasoning, while lighter models handle routine tasks efficiently
+  </Card>
+  <Card title="Response Speed">
+    Smaller models typically offer lower latency, making them ideal for real-time interactions
+  </Card>
+  <Card title="Cost Efficiency">
+    Model pricing varies significantly - match your model choice to your budget and usage patterns
+  </Card>
+  <Card title="Context Length">
+    For LLMs, longer context support enables understanding throughout extended conversations
+  </Card>
+  <Card title="Vector Dimensions">
+    For embedding models, higher dimensions often provide better semantic accuracy but require more storage
+  </Card>
+  <Card title="Language Support">
+    Ensure your chosen models support all languages needed for your application
+  </Card>
+</CardGroup>
+
+<Warning>
+  Keep your API keys secure. PipesHub stores these credentials securely, but you should never share them publicly.
+</Warning>
+
+## Usage Considerations
+
+<Tip>
+  Start with smaller, more cost-effective models for routine tasks, and use more powerful models selectively for complex requirements.
+</Tip>
+
+API usage counts toward your quota and billing with each respective provider. Monitor your usage to manage costs effectively.
+
+## Learn More
+
+<CardGroup cols={2}>
+  <Card title="LLM Documentation" icon="brain" href="/ai-models/llm">
+    Detailed configuration instructions for Language Models
+  </Card>
+  <Card title="Embedding Documentation" icon="network-wired" href="/ai-models/embedding">
+    Implementation guides for Embedding Models
+  </Card>
+</CardGroup>
