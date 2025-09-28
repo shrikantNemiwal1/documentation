@@ -98,16 +98,23 @@
       {
         "group": "Connectors",
         "pages": [
-          "connectors/google-workspace/overview",
+          "connectors/overview",
           {
-            "group": "Enterprise",
+            "group": "Google Workspace",
             "pages": [
-              "connectors/google-workspace/enterprise/google-workspace"
+              {
+                "group": "Enterprise",
+                "pages": [
+                  "connectors/google-workspace/enterprise/google-workspace"
+                ]
+              },
+              {
+                "group": "Individual",
+                "pages": [
+                  "connectors/google-workspace/individual/google-workspace"
+                ]
+              }
             ]
-          },
-          {
-            "group": "Individual",
-            "pages": ["connectors/google-workspace/individual/google-workspace"]
           }
         ]
       },
