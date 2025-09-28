@@ -163,6 +163,11 @@
           "anchor": "Blog",
           "href": "https://blog.pipeshub.com/",
           "icon": "blog"
+        },
+        {
+          "anchor": "PipesHub",
+          "href": "https://pipeshub.com",
+          "icon": "globe"
         }
       ]
     }
