@@ -115,7 +115,29 @@
                 ]
               }
             ]
-          }
+          },
+          {
+            "group": "Microsoft 365",
+            "pages": [
+              "connectors/microsoft-365/one-drive",
+              "connectors/microsoft-365/outlook",
+              "connectors/microsoft-365/one-note",
+              "connectors/microsoft-365/teams",
+              "connectors/microsoft-365/sharepoint"
+            ]
+          },
+          "connectors/jira/jira",
+          "connectors/confluence/confluence",
+          "connectors/slack/slack",
+          "connectors/zendesk/zendesk",
+          "connectors/linear/linear",
+          "connectors/notion/notion",
+          "connectors/airtable/airtable",
+          "connectors/github/github",
+          "connectors/box/box",
+          "connectors/dropbox/dropbox",
+          "connectors/s3/s3",
+          "connectors/azure-blob/azure-blob"
         ]
       },
       {
