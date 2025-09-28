@@ -746,7 +746,9 @@ The API includes built-in rate limiting and concurrency controls:
 5. **Failed** - Job failed after all retry attempts
 6. **Paused** - Job execution is paused (manual action)
 
+<Note>
 **Paused Jobs:** When a job is paused, its configuration is stored in memory and the active job is removed from the queue. Resuming recreates the job with the stored configuration. Paused jobs persist only during the service runtime and are lost on restart.
+</Note>
 </Tab>
 
 <Tab title="Sync Events">
