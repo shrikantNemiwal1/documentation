@@ -102,18 +102,15 @@
           {
             "group": "Google Workspace",
             "pages": [
-              {
-                "group": "Enterprise",
-                "pages": [
-                  "connectors/google-workspace/enterprise/google-workspace"
-                ]
-              },
-              {
-                "group": "Individual",
-                "pages": [
-                  "connectors/google-workspace/individual/google-workspace"
-                ]
-              }
+              "connectors/google-workspace/drive/drive",
+              "connectors/google-workspace/gmail/gmail",
+              "connectors/google-workspace/calendar/calendar",
+              "connectors/google-workspace/docs/docs",
+              "connectors/google-workspace/sheets/sheets",
+              "connectors/google-workspace/slides/slides",
+              "connectors/google-workspace/forms/forms",
+              "connectors/google-workspace/meet/meet",
+              "connectors/google-workspace/admin/admin"
             ]
           },
           {
