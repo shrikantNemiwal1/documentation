@@ -347,7 +347,7 @@ The Google Workspace connector uses OAuth 2.0 for authentication. This requires 
 2. Access the Google Cloud Console: Go to the [Google Cloud Console](https://console.cloud.google.com/).
 3. Create a project (if you don't have one) - Configure
    OAuth consent screen - Create OAuth client ID (Web application) - Note your Client ID and Client Secret
-4. Redirect Uri must be (http://your-frontend-dns/account/individual/settings/connector/googleWorkspace)
+4. Redirect Uri must be http://your-frontend-dns/account/individual/settings/connector/googleWorkspace
 5. In the Data access Tab in google cloud console , add the scopes for gmail,calendar and google drive.
    <Info>
      Redirect Uri must match exactly frontend url. For example: if you app is
@@ -393,7 +393,7 @@ The Google Workspace connector uses OAuth 2.0 for authentication. This requires 
      />
    </div>
 
-<Info>Give consent will the same email as used for email in pipeshub.</Info>
+<Info>Give consent with the same email as used for email in PipesHub.</Info>
 
 <Info>
   For setting up Google PubSub notifications, please refer to the [Google PubSub Configuration Guide](/enterprise/connectors/googleWorkspace#google-pubsub-configuration) in the Enterprise documentation.
