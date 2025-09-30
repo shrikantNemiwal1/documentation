@@ -1,6 +1,6 @@
-# Token Manager API
+# Connector Manager API
 
-The Token Manager Service provides centralized management of authentication tokens and connector configurations for third-party integrations. This service handles OAuth flows, token lifecycle management, and connector configurations for various external services like Google Workspace, OneDrive, SharePoint, Confluence, and more.
+The Connector Manager Service provides centralized management of authentication tokens and connector configurations for third-party integrations. This service handles OAuth flows, token lifecycle management, and connector configurations for various external services like Google Workspace, OneDrive, SharePoint, Confluence, and more.
 
 ## Base URL
 
@@ -19,7 +19,7 @@ Authorization: Bearer YOUR_TOKEN
 
 ## Architecture Overview
 
-The Token Manager Service is built on a Node.js backend with MongoDB for data persistence, Redis for caching, and ETCD for secure configuration storage. The service consists of several key components:
+The Connector Manager Service is built on a Node.js backend with MongoDB for data persistence, Redis for caching, and ETCD for secure configuration storage. The service consists of several key components:
 
 - **Token Management** - Handles OAuth token lifecycle including creation, refresh, and revocation
 - **Connector Configuration** - Manages connector settings and credentials
@@ -106,13 +106,205 @@ Retrieve all currently active/enabled connectors.
 
 ```json
 {
-  "activeConnectors": [
-    {
-      "name": "google_workspace",
-      "type": "oauth",
-      "status": "connected"
-    }
-  ]
+    "success": true,
+    "connectors": [
+        {
+            "name": "OneDrive",
+            "appGroup": "Microsoft 365",
+            "authType": "OAUTH_ADMIN_CONSENT",
+            "appDescription": "Sync files and folders from OneDrive",
+            "appCategories": [
+                "Storage"
+            ],
+            "iconPath": "/assets/icons/connectors/onedrive.svg",
+            "supportsRealtime": false,
+            "supportsSync": true,
+            "config": {
+                "iconPath": "/assets/icons/connectors/onedrive.svg",
+                "supportsRealtime": false,
+                "supportsSync": true,
+                "documentationLinks": [
+                    {
+                        "title": "Azure AD App Registration Setup",
+                        "url": "https://docs.microsoft.com/en-us/azure/active-directory/develop/quickstart-register-app",
+                        "type": "setup"
+                    }
+                ],
+                "auth": {
+                    "type": "OAUTH",
+                    "displayRedirectUri": false,
+                    "redirectUri": "http://localhost:3000/OneDrive/oauth/callback",
+                    "schema": {
+                        "fields": [
+                            {
+                                "name": "clientId",
+                                "displayName": "Application (Client) ID",
+                                "placeholder": "Enter your Azure AD Application ID",
+                                "description": "The Application (Client) ID from Azure AD App Registration",
+                                "fieldType": "TEXT",
+                                "required": true,
+                                "defaultValue": "",
+                                "validation": {
+                                    "minLength": 10,
+                                    "maxLength": 1000
+                                },
+                                "isSecret": false
+                            },
+                            {
+                                "name": "clientSecret",
+                                "displayName": "Client Secret",
+                                "placeholder": "Enter your Azure AD Client Secret",
+                                "description": "The Client Secret from Azure AD App Registration",
+                                "fieldType": "PASSWORD",
+                                "required": true,
+                                "defaultValue": "",
+                                "validation": {
+                                    "minLength": 10,
+                                    "maxLength": 1000
+                                },
+                                "isSecret": true
+                            },
+                            {
+                                "name": "tenantId",
+                                "displayName": "Directory (Tenant) ID",
+                                "placeholder": "Enter your Azure AD Tenant ID",
+                                "description": "The Directory (Tenant) ID from Azure AD",
+                                "fieldType": "TEXT",
+                                "required": true,
+                                "defaultValue": "",
+                                "validation": {
+                                    "minLength": 10,
+                                    "maxLength": 1000
+                                },
+                                "isSecret": false
+                            },
+                            {
+                                "name": "hasAdminConsent",
+                                "displayName": "Has Admin Consent",
+                                "placeholder": "",
+                                "description": "Check if admin consent has been granted for the application",
+                                "fieldType": "CHECKBOX",
+                                "required": true,
+                                "defaultValue": false,
+                                "validation": {
+                                    "minLength": 10,
+                                    "maxLength": 1000
+                                },
+                                "isSecret": false
+                            },
+                            {
+                                "name": "redirectUri",
+                                "displayName": "Redirect URI",
+                                "placeholder": "http://localhost:3000/OneDrive/oauth/callback",
+                                "description": "The redirect URI for OAuth authentication",
+                                "fieldType": "URL",
+                                "required": false,
+                                "defaultValue": "",
+                                "validation": {
+                                    "minLength": 10,
+                                    "maxLength": 2000
+                                },
+                                "isSecret": false
+                            }
+                        ]
+                    },
+                    "values": {},
+                    "customFields": [],
+                    "customValues": {},
+                    "conditionalDisplay": {
+                        "redirectUri": {
+                            "showWhen": {
+                                "field": "hasAdminConsent",
+                                "operator": "equals",
+                                "value": false
+                            }
+                        }
+                    }
+                },
+                "sync": {
+                    "supportedStrategies": [
+                        "SCHEDULED",
+                        "MANUAL"
+                    ],
+                    "selectedStrategy": "MANUAL",
+                    "webhookConfig": {
+                        "supported": false,
+                        "webhookUrl": "",
+                        "events": [],
+                        "verificationToken": "",
+                        "secretKey": ""
+                    },
+                    "scheduledConfig": {
+                        "intervalMinutes": 60,
+                        "cronExpression": "",
+                        "timezone": "UTC",
+                        "startTime": 0,
+                        "nextTime": 0,
+                        "endTime": 0,
+                        "maxRepetitions": 0,
+                        "repetitionCount": 0
+                    },
+                    "realtimeConfig": {
+                        "supported": false,
+                        "connectionType": "WEBSOCKET"
+                    },
+                    "customFields": [],
+                    "customValues": {},
+                    "values": {}
+                },
+                "filters": {
+                    "schema": {
+                        "fields": [
+                            {
+                                "name": "fileTypes",
+                                "displayName": "File Types",
+                                "description": "Select the types of files to sync",
+                                "fieldType": "MULTISELECT",
+                                "required": false,
+                                "defaultValue": [],
+                                "options": [
+                                    "document",
+                                    "spreadsheet",
+                                    "presentation",
+                                    "pdf",
+                                    "image",
+                                    "video"
+                                ],
+                                "operators": [
+                                    "IN",
+                                    "NOT_IN"
+                                ]
+                            },
+                            {
+                                "name": "folders",
+                                "displayName": "Folders",
+                                "description": "Select folders to sync from",
+                                "fieldType": "MULTISELECT",
+                                "required": false,
+                                "defaultValue": [],
+                                "options": [],
+                                "operators": [
+                                    "IN",
+                                    "NOT_IN"
+                                ]
+                            }
+                        ]
+                    },
+                    "values": {},
+                    "customFields": [],
+                    "customValues": {},
+                    "endpoints": {
+                        "fileTypes": "static",
+                        "folders": "https://graph.microsoft.com/v1.0/me/drive/root/children"
+                    }
+                }
+            },
+            "isActive": true,
+            "isConfigured": true,
+            "createdAtTimestamp": 1759184704366,
+            "updatedAtTimestamp": 1759184917316
+        }
+    ]
 }
 ```
 </Tab>
@@ -136,13 +328,106 @@ Retrieve all currently inactive/disabled connectors.
 
 ```json
 {
-  "inactiveConnectors": [
-    {
-      "name": "onedrive",
-      "type": "oauth",
-      "status": "disconnected"
-    }
-  ]
+    "success": true,
+    "connectors": [
+        {
+            "name": "Linear",
+            "appGroup": "Linear",
+            "authType": "OAUTH_ADMIN_CONSENT",
+            "appDescription": "Modern issue tracking and project management",
+            "appCategories": [
+                "Ticket Management"
+            ],
+            "iconPath": "/assets/icons/connectors/linear.svg",
+            "supportsRealtime": false,
+            "supportsSync": true,
+            "config": {
+                "iconPath": "/assets/icons/connectors/linear.svg",
+                "supportsRealtime": false,
+                "supportsSync": true,
+                "documentationLinks": [
+                    {
+                        "title": "Linear Registration Setup",
+                        "url": "https://linear.app/developers",
+                        "type": "setup"
+                    }
+                ],
+                "auth": {
+                    "type": "OAUTH",
+                    "displayRedirectUri": false,
+                    "redirectUri": "http://localhost:3000/linear/oauth/callback",
+                    "schema": {
+                        "fields": [
+                            // fields for auth
+                        ]
+                    },
+                    "values": {},
+                    "customFields": [],
+                    "customValues": {},
+                    "conditionalDisplay": {
+                        "redirectUri": {
+                            "showWhen": {
+                                "field": "hasAdminConsent",
+                                "operator": "equals",
+                                "value": false
+                            }
+                        }
+                    }
+                },
+                "sync": {
+                    "supportedStrategies": [
+                        "SCHEDULED",
+                        "MANUAL"
+                    ],
+                    "selectedStrategy": "MANUAL",
+                    "webhookConfig": {
+                        "supported": false,
+                        "webhookUrl": "",
+                        "events": [],
+                        "verificationToken": "",
+                        "secretKey": ""
+                    },
+                    "scheduledConfig": {
+                        "intervalMinutes": 60,
+                        "cronExpression": "",
+                        "timezone": "UTC",
+                        "startTime": 0,
+                        "nextTime": 0,
+                        "endTime": 0,
+                        "maxRepetitions": 0,
+                        "repetitionCount": 0
+                    },
+                    "realtimeConfig": {
+                        "supported": false,
+                        "connectionType": "WEBSOCKET"
+                    },
+                    "customFields": [],
+                    "customValues": {},
+                    "values": {}
+                },
+                "filters": {
+                    "schema": {
+                        "fields": [
+                            {
+                              // types of documents to fetch
+                            }
+                        ]
+                    },
+                    "values": {},
+                    "customFields": [],
+                    "customValues": {},
+                    "endpoints": {
+                        "fileTypes": "static",
+                        "folders": "https://api.linear.app/graphql"
+                    }
+                }
+            },
+            "isActive": false,
+            "isConfigured": true,
+            "createdAtTimestamp": 1759184704366,
+            "updatedAtTimestamp": 1759184917316
+        }
+    ]
 }
 ```
 </Tab>
@@ -162,7 +447,7 @@ Retrieve configuration for a specific connector.
 **Access Control:** Admin privileges required
 
 ```http
-GET /api/v1/connectors/config/google_workspace
+GET /api/v1/connectors/config/OneDrive
 ```
 </Tab>
 
@@ -173,12 +458,27 @@ GET /api/v1/connectors/config/google_workspace
 
 ```json
 {
-  "connectorName": "google_workspace",
-  "config": {
-    "clientId": "CLIENT_ID",
-    "clientSecret": "CLIENT_SECRET",
-    "scopes": ["drive", "gmail"]
-  }
+    "success": true,
+    "config": {
+        "name": "OneDrive",
+        "appGroupId": null,
+        "appGroup": "Microsoft 365",
+        "authType": "OAUTH_ADMIN_CONSENT",
+        "appDescription": "Sync files and folders from OneDrive",
+        "appCategories": [
+            "Storage"
+        ],
+        "supportsRealtime": false,
+        "supportsSync": true,
+        "iconPath": "/assets/icons/connectors/onedrive.svg",
+        "config": {
+            "auth": {},
+            "sync": {},
+            "filters": {}
+        },
+        "isActive": false,
+        "isConfigured": false
+    }
 }
 ```
 </Tab>
@@ -207,18 +507,18 @@ Update configuration for a specific connector.
 
 ```json
 {
-  "auth": {
-    "clientId": "NEW_CLIENT_ID",
-    "clientSecret": "NEW_CLIENT_SECRET"
-  },
-  "sync": {
-    "enabled": true,
-    "interval": "daily"
-  },
-  "filters": {
-    "fileTypes": ["pdf", "docx"]
-  },
-  "baseUrl": "https://api.connector.example.com"
+    "auth": {
+        "clientId": "xxxxxxx",
+        "clientSecret": "xxxxxxxx",
+        "tenantId": "xxxxxxx",
+        "hasAdminConsent": true,
+        "redirectUri": ""
+    },
+    "sync": {
+        "selectedStrategy": "SCHEDULED",
+        "scheduledConfig": {}
+    },
+    "filters": {}
 }
 ```
 </Tab>
@@ -230,8 +530,22 @@ Update configuration for a specific connector.
 
 ```json
 {
-  "message": "Configuration updated successfully",
-  "connectorName": "google_workspace"
+    "success": true,
+    "config": {
+        "auth": {
+            "clientId": ".....",
+            "clientSecret": "your-oauth-secret",
+            "hasAdminConsent": true,
+            "redirectUri": ""
+        },
+        "sync": {
+            "selectedStrategy": "SCHEDULED",
+            "scheduledConfig": {}
+        },
+        "filters": {},
+        "credentials": null,
+        "oauth": null
+    }
 }
 ```
 </Tab>
@@ -258,19 +572,187 @@ Retrieve the configuration schema for a specific connector type.
 
 ```json
 {
-  "schema": {
-    "type": "object",
-    "properties": {
-      "clientId": {
-        "type": "string",
-        "required": true
-      },
-      "clientSecret": {
-        "type": "string",
-        "required": true
-      }
+    "success": true,
+    "schema": {
+        "iconPath": "/assets/icons/connectors/onedrive.svg",
+        "supportsRealtime": false,
+        "supportsSync": true,
+        "documentationLinks": [
+            {
+                "title": "Azure AD App Registration Setup",
+                "url": "https://docs.microsoft.com/en-us/azure/active-directory/develop/quickstart-register-app",
+                "type": "setup"
+            }
+        ],
+        "auth": {
+            "type": "OAUTH",
+            "displayRedirectUri": false,
+            "redirectUri": "http://localhost:3000/OneDrive/oauth/callback",
+            "schema": {
+                "fields": [
+                    {
+                        "name": "clientId",
+                        "displayName": "Application (Client) ID",
+                        "placeholder": "Enter your Azure AD Application ID",
+                        "description": "The Application (Client) ID from Azure AD App Registration",
+                        "fieldType": "TEXT",
+                        "required": true,
+                        "defaultValue": "",
+                        "validation": {
+                            "minLength": 10,
+                            "maxLength": 1000
+                        },
+                        "isSecret": false
+                    },
+                    {
+                        "name": "clientSecret",
+                        "displayName": "Client Secret",
+                        "placeholder": "Enter your Azure AD Client Secret",
+                        "description": "The Client Secret from Azure AD App Registration",
+                        "fieldType": "PASSWORD",
+                        "required": true,
+                        "defaultValue": "",
+                        "validation": {
+                            "minLength": 10,
+                            "maxLength": 1000
+                        },
+                        "isSecret": true
+                    },
+                    {
+                        "name": "tenantId",
+                        "displayName": "Directory (Tenant) ID",
+                        "placeholder": "Enter your Azure AD Tenant ID",
+                        "description": "The Directory (Tenant) ID from Azure AD",
+                        "fieldType": "TEXT",
+                        "required": true,
+                        "defaultValue": "",
+                        "validation": {
+                            "minLength": 10,
+                            "maxLength": 1000
+                        },
+                        "isSecret": false
+                    },
+                    {
+                        "name": "hasAdminConsent",
+                        "displayName": "Has Admin Consent",
+                        "placeholder": "",
+                        "description": "Check if admin consent has been granted for the application",
+                        "fieldType": "CHECKBOX",
+                        "required": true,
+                        "defaultValue": false,
+                        "validation": {
+                            "minLength": 10,
+                            "maxLength": 1000
+                        },
+                        "isSecret": false
+                    },
+                    {
+                        "name": "redirectUri",
+                        "displayName": "Redirect URI",
+                        "placeholder": "http://localhost:3000/OneDrive/oauth/callback",
+                        "description": "The redirect URI for OAuth authentication",
+                        "fieldType": "URL",
+                        "required": false,
+                        "defaultValue": "",
+                        "validation": {
+                            "minLength": 10,
+                            "maxLength": 2000
+                        },
+                        "isSecret": false
+                    }
+                ]
+            },
+            "values": {},
+            "customFields": [],
+            "customValues": {},
+            "conditionalDisplay": {
+                "redirectUri": {
+                    "showWhen": {
+                        "field": "hasAdminConsent",
+                        "operator": "equals",
+                        "value": false
+                    }
+                }
+            }
+        },
+        "sync": {
+            "supportedStrategies": [
+                "SCHEDULED",
+                "MANUAL"
+            ],
+            "selectedStrategy": "MANUAL",
+            "webhookConfig": {
+                "supported": false,
+                "webhookUrl": "",
+                "events": [],
+                "verificationToken": "",
+                "secretKey": ""
+            },
+            "scheduledConfig": {
+                "intervalMinutes": 60,
+                "cronExpression": "",
+                "timezone": "UTC",
+                "startTime": 0,
+                "nextTime": 0,
+                "endTime": 0,
+                "maxRepetitions": 0,
+                "repetitionCount": 0
+            },
+            "realtimeConfig": {
+                "supported": false,
+                "connectionType": "WEBSOCKET"
+            },
+            "customFields": [],
+            "customValues": {},
+            "values": {}
+        },
+        "filters": {
+            "schema": {
+                "fields": [
+                    {
+                        "name": "fileTypes",
+                        "displayName": "File Types",
+                        "description": "Select the types of files to sync",
+                        "fieldType": "MULTISELECT",
+                        "required": false,
+                        "defaultValue": [],
+                        "options": [
+                            "document",
+                            "spreadsheet",
+                            "presentation",
+                            "pdf",
+                            "image",
+                            "video"
+                        ],
+                        "operators": [
+                            "IN",
+                            "NOT_IN"
+                        ]
+                    },
+                    {
+                        "name": "folders",
+                        "displayName": "Folders",
+                        "description": "Select folders to sync from",
+                        "fieldType": "MULTISELECT",
+                        "required": false,
+                        "defaultValue": [],
+                        "options": [],
+                        "operators": [
+                            "IN",
+                            "NOT_IN"
+                        ]
+                    }
+                ]
+            },
+            "values": {},
+            "customFields": [],
+            "customValues": {},
+            "endpoints": {
+                "fileTypes": "static",
+                "folders": "https://graph.microsoft.com/v1.0/me/drive/root/children"
+            }
+        }
     }
-  }
 }
 ```
 </Tab>
@@ -297,9 +779,8 @@ Enable or disable a specific connector.
 
 ```json
 {
-  "message": "Connector toggled successfully",
-  "connectorName": "google_workspace",
-  "isEnabled": false
+  "success":true,
+  "message":"Connector OneDrive toggled successfully"
 }
 ```
 </Tab>
@@ -595,7 +1076,7 @@ Refresh an expired access token using a refresh token (Google Workspace specific
 </Accordion>
 
 <Accordion title="POST /updateAppConfig - Update Application Config">
-Update the application configuration for the token manager service.
+Update the application configuration for the connector manager service.
 
 <Tabs>
 <Tab title="Request">
@@ -630,7 +1111,7 @@ Update the application configuration for the token manager service.
 </Accordion>
 
 <Accordion title="Health Monitoring">
-Monitor the health and status of the Token Manager Service and its dependencies.
+Monitor the health and status of the Connector Manager Service and its dependencies.
 
 <AccordionGroup>
 
@@ -699,7 +1180,7 @@ Retrieve the health status of the service and all its dependencies.
 
 ## Event System
 
-The Token Manager Service broadcasts events through Kafka to notify other services about token and connector state changes. These events trigger actions like connector synchronization, indexing updates, and audit logging.
+The Connector Manager Service broadcasts events through Kafka to notify other services about token and connector state changes. These events trigger actions like connector synchronization, indexing updates, and audit logging.
 
 ### Event Topics
 
@@ -1006,7 +1487,7 @@ const handleOAuthCallbackSchema = z.object({
 
 ## Configuration Management
 
-The Token Manager Service uses ETCD as a key-value store for managing configurations securely. All sensitive information, such as OAuth client IDs/secrets and access tokens, are encrypted using AES-256 before storage.
+The Connector Manager Service uses ETCD as a key-value store for managing configurations securely. All sensitive information, such as OAuth client IDs/secrets and access tokens, are encrypted using AES-256 before storage.
 
 ### Configuration Types
 
@@ -1074,18 +1555,18 @@ All endpoints return structured error responses with specific HTTP status codes:
 
 ### Backend Connector Service Integration
 
-The Token Manager Service acts as a proxy to a Python-based Backend Connector Service that handles the actual connector implementations. Most endpoints forward requests to this backend service and return the responses.
+The Connector Manager Service acts as a proxy to a Python-based Backend Connector Service that handles the actual connector implementations. Most endpoints forward requests to this backend service and return the responses.
 
 **Request Flow:**
-1. Client sends request to Token Manager Service
-2. Token Manager validates authentication and authorization
+1. Client sends request to Connector Manager Service
+2. Connector Manager validates authentication and authorization
 3. Request is forwarded to Backend Connector Service
 4. Backend Connector Service processes the request
-5. Response is returned through Token Manager to client
+5. Response is returned through Connector Manager to client
 
 ### Configuration Manager Integration
 
-The Token Manager Service integrates closely with the Configuration Manager for:
+The Connector Manager Service integrates closely with the Configuration Manager for:
 
 1. **Secure Credential Storage** - OAuth client IDs, secrets, and tokens
 2. **Service Discovery** - Endpoint URLs for backend services

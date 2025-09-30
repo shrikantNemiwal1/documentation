@@ -29,12 +29,12 @@
             "pages": [
               "system-overview/authentication",
               "system-overview/configuration-manager",
+              "system-overview/connector-manager",
               "system-overview/crawling-manager",
               "system-overview/enterprise-search",
               "system-overview/knowledge-base",
               "system-overview/mail-service",
               "system-overview/storage",
-              "system-overview/token-manager",
               "system-overview/user-management"
             ]
           },
