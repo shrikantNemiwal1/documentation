@@ -131,6 +131,7 @@
           "connectors/notion/notion",
           "connectors/airtable/airtable",
           "connectors/github/github",
+          "connectors/gitlab/gitlab",
           "connectors/box/box",
           "connectors/dropbox/dropbox",
           "connectors/s3/s3",
