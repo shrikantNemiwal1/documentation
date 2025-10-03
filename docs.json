@@ -130,6 +130,7 @@
           "connectors/linear/linear",
           "connectors/notion/notion",
           "connectors/airtable/airtable",
+          "connectors/bookstack/bookstack",
           "connectors/github/github",
           "connectors/gitlab/gitlab",
           "connectors/box/box",
