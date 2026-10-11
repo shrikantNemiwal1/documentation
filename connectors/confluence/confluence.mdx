@@ -440,7 +440,7 @@ Available sync filters:
 5. **Created Date** — filter by creation date. Same operators.
 
 <Info>
-  Date filters apply exactly as you set them, to the minute. A **Modified Date** or **Created Date** of `Is Before` 1 June keeps content up to 1 June, and `Is After` 1 March starts at 1 March. Confluence compares these dates in your site's time zone, so on a site that isn't set to UTC the edge can move by that time-zone difference.
+  Date filters use the exact date and time you set, to the minute, and that minute itself is not included. The time defaults to midnight, so a **Modified Date** or **Created Date** of `Is Before` 1 June keeps content up to the end of 31 May, and `Is After` 1 March starts just after midnight on 1 March. To keep 1 June, choose `Is Before` 2 June. Confluence compares these dates in your site's time zone, so on a site that isn't set to UTC the edge can move by that time-zone difference.
 </Info>
 
 **Indexing filters** — control what synced data gets processed for AI search. All data is synced, but only enabled content types are indexed.
@@ -565,7 +565,7 @@ Available sync filters:
 5. **Created Date** — filter by creation date. Same operators.
 
 <Info>
-  Date filters apply exactly as you set them, to the minute. A **Modified Date** or **Created Date** of `Is Before` 1 June keeps content up to 1 June, and `Is After` 1 March starts at 1 March. Confluence compares these dates in your site's time zone, so on a site that isn't set to UTC the edge can move by that time-zone difference.
+  Date filters use the exact date and time you set, to the minute, and that minute itself is not included. The time defaults to midnight, so a **Modified Date** or **Created Date** of `Is Before` 1 June keeps content up to the end of 31 May, and `Is After` 1 March starts just after midnight on 1 March. To keep 1 June, choose `Is Before` 2 June. Confluence compares these dates in your site's time zone, so on a site that isn't set to UTC the edge can move by that time-zone difference.
 </Info>
 
 **Indexing filters** — control what synced data gets processed for AI search.
