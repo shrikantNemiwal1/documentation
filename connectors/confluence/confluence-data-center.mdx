@@ -268,6 +268,10 @@ Available sync filters:
 5. **Created Date** — filter by creation date. Same operators.
 
 <Info>
+  Date filters apply exactly as you set them, to the minute. A **Modified Date** or **Created Date** of `Is Before` 1 June keeps content up to 1 June, and `Is After` 1 March starts at 1 March. Confluence compares these dates in your site's time zone, so on a site that isn't set to UTC the edge can move by that time-zone difference.
+</Info>
+
+<Info>
   In the Confluence Cloud connector you type space keys and page IDs by hand. Here you pick them from dropdowns instead. The lists are loaded from your instance, so you do not need to find keys or IDs in the URL.
 </Info>
 
@@ -409,6 +413,7 @@ Each sync runs these steps in order:
 ### Later syncs
 - Uses timestamps to find changed content
 - Only syncs pages and blog posts that are new or changed since the last sync
+- Each sync also re-checks the 24 hours before the previous sync, so an edit made around that time is not missed. This look-back never reaches past a **Modified Date** `Is After` date you set
 - A separate audit log pass catches permission and restriction changes, because those do not change a page's last-modified time
 
 ### How permissions work
