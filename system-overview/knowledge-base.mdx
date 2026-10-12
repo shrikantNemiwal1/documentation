@@ -502,7 +502,7 @@ Update a record with new metadata or file content.
 - Supported MIME types: Based on extensionToMimeType mapping
 - File extension must match existing record's extension for versioned updates
 
-**Duplicate names:** within one folder (or the knowledge base root), a file can't have the same name as another file of the same type. Names are compared without regard to case, so `Report.pdf` and `report.pdf` count as the same name. Renaming a file to a name that another file of the same type already uses there is refused with `409 Conflict`, and the file keeps its old name. A file of a different type may use the same name.
+**Duplicate names:** a rename is refused with `409 Conflict`, and the file keeps its old name, when another file of the same type in the same folder (or the knowledge base root) already has the new name. Names are compared ignoring case, so `Report.pdf` and `report.pdf` count as the same. A file of a different type may use the same name.
 
 ```bash
 curl -X PUT \
@@ -563,7 +563,10 @@ Move a file or folder to another folder in the same knowledge base, or to the kn
 }
 ```
 
-**Duplicate names:** a file can't be moved into a folder (or the knowledge base root) that already holds a file with the same name, ignoring case, and the same type. A folder can't be moved next to another folder with the same name. Such a move is refused with `409 Conflict`, and the record stays where it was. A file of a different type may share the name.
+**Duplicate names:** a move is refused with `409 Conflict`, and the record stays where it was, when the destination folder (or the knowledge base root) already holds:
+
+- for a file, a file with the same name (ignoring case) and the same type. A file of a different type may share the name.
+- for a folder, a folder with the same name.
 </Tab>
 
 <Tab title="Response">
@@ -706,7 +709,7 @@ Upload files directly to a knowledge base, creating records and folder structure
 - Maximum file size: 30MB per file
 - Supported MIME types: Based on extensionToMimeType mapping
 - File paths must be unique and not contain invalid characters
-- A file isn't added when its name (ignoring case) and type match a file already in the folder it's going to, or another file in the same upload that's going to the same folder. Files with the same name going to different folders, such as `docs/Report.pdf` and `archive/Report.pdf`, are both created. In the upload's event stream (`text/event-stream`), a skipped file gets a `file:failed` event with `reason: "DUPLICATE_NAME"`, `stage: "index"` and `errors: ["A file named \"<name>\" already exists in this location; it was skipped."]`. The other files in the upload still go ahead, each with its own event (`file:succeeded` when it's added), and the stream ends with `done`.
+- A file is skipped when its name (ignoring case) and type match a file already in its destination folder, or another file in the same upload going to that folder. Files with the same name going to different folders, such as `docs/Report.pdf` and `archive/Report.pdf`, are both created. In the upload's event stream (`text/event-stream`), a skipped file gets a `file:failed` event with `reason: "DUPLICATE_NAME"`, `stage: "index"` and `errors: ["A file named \"<name>\" already exists in this location; it was skipped."]`. The rest of the upload goes ahead, each file with its own event (`file:succeeded` when added), and the stream ends with `done`.
 
 ```bash
 curl -X POST \
@@ -1380,7 +1383,7 @@ All endpoints return structured error responses with specific HTTP status codes:
 - Unsupported MIME types
 - File size exceeds 30MB limit
 - Invalid file path characters
-- A file with the same name and type as one already in its destination folder, or as another file in the same upload going to that folder, is skipped: it gets a `file:failed` stream event with reason `DUPLICATE_NAME` (the rest of the upload goes ahead)
+- Duplicate name: a file whose name and type match a file in its destination folder, or another file in the same upload going there, is skipped with a `file:failed` stream event, reason `DUPLICATE_NAME`. The rest of the upload goes ahead.
 
 ## Integration with AI Indexing
 
