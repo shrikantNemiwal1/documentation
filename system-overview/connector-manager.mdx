@@ -1,6 +1,6 @@
 # Connector Manager API
 
-The Connector Manager API is how PipesHub creates, configures, signs in, turns on and deletes connectors, and how admins manage the OAuth apps that connectors sign in with. The Node.js API receives each request, checks who is calling, validates the request and forwards it to the Python connectors service, which holds the connector logic and does the work.
+Use the Connector Manager API to create, configure, sign in, turn on and delete connectors, and to manage the OAuth apps that connectors sign in with. The Node.js API checks the caller, validates each request and forwards it to the Python connectors service, which does the work.
 
 ## Base URLs
 
@@ -12,14 +12,14 @@ The Connector Manager API is how PipesHub creates, configures, signs in, turns o
 
 A **connector type** is a kind of source PipesHub can sync from, such as `Confluence`, `Drive` or `OneDrive`. The **registry** lists the types and the setup form each one needs.
 
-A **connector instance** (usually just "connector") is one configured copy of a type. An organization can have several instances of the same type. Every instance has its own ID, the `connectorId`, which the instance endpoints take in the path. A `connectorId` is 1 to 64 letters, digits, underscores or hyphens; anything else is refused with `400`.
+A **connector instance** (usually just "connector") is one configured copy of a type. An organization can have several instances of one type. Each instance has its own ID, the `connectorId`, which the instance endpoints take in the path. A `connectorId` is 1 to 64 letters, digits, underscores or hyphens; anything else is refused with `400`.
 
 Each instance has a **scope**:
 
 - `team`: set up by an admin for the whole organization. Every member sees team connectors in the connector lists.
 - `personal`: set up by one person for their own data. Only that person sees it.
 
-An instance moves through these states, which the responses report as fields:
+Responses report an instance's state in these fields:
 
 | Field | Meaning |
 |-------|---------|
@@ -38,7 +38,7 @@ Every endpoint except the health checks needs a bearer token:
 Authorization: Bearer YOUR_TOKEN
 ```
 
-The token can be a signed-in session token, an OAuth access token or a personal access token. OAuth access tokens and personal access tokens must also carry at least one of the scopes listed for the endpoint (for example `connector:read`); without one, the request is refused with `403`. Session tokens are not checked for scopes.
+The token can be a session token from signing in, an OAuth access token or a personal access token. OAuth and personal access tokens must also carry one of the scopes listed for the endpoint, such as `connector:read`, or the request is refused with `403`. Session tokens aren't checked for scopes.
 
 | Scope | Allows |
 |-------|--------|
@@ -50,7 +50,7 @@ The token can be a signed-in session token, an OAuth access token or a personal 
 
 ## Who can do what
 
-The connectors service decides access from the caller's role in the organization. A refusal for lack of permission is `403`. A connector the caller may not see at all is reported as `404`, so the API doesn't confirm that it exists.
+Access depends on the caller's role in the organization. A caller without permission gets `403`. A connector the caller may not see at all is reported as `404`, so the API doesn't confirm that it exists.
 
 | Action | Team connector | Personal connector |
 |--------|----------------|--------------------|
@@ -63,19 +63,19 @@ The connectors service decides access from the caller's role in the organization
 | Create, update or delete an OAuth app | An admin | An admin |
 | Start a vector store cleanup or reindex | An admin | An admin |
 
-Only its creator can read a personal connector's configuration, because the configuration carries the creator's credentials.
+A personal connector's configuration carries its creator's credentials, so only the creator can read it.
 
-When beta connectors are turned off in the platform settings, the registry leaves beta connector types out, and requests for a beta connector are refused with `403`. Enterprise and business accounts also can't create a beta connector with team scope (`403`).
+When beta connectors are turned off in the platform settings, the registry leaves out beta connector types and requests for a beta connector get `403`. Enterprise and business accounts can't create a team-scope beta connector either (`403`).
 
 ### Locked connectors
 
-While a sync or another operation runs, a connector is locked. Requests that change it (configuration, name, filters, toggle, reindex, resync and delete) are refused with `409 Conflict` until the sync finishes. The message says what is running, for example "A sync is already in progress. Please wait and try again."
+A connector is locked while a sync or another operation runs. Until it finishes, requests that change the connector (configuration, name, filters, toggle, reindex, resync and delete) are refused with `409 Conflict`. The message says what is running, for example "A sync is already in progress. Please wait and try again."
 
-To end a sync early instead of waiting, call `POST /:connectorId/sync/stop` (under Sync and indexing below). It is allowed while the connector is locked, and it also clears a lock or a syncing status left behind when no sync is running.
+To end a sync early, call `POST /api/v1/connectors/:connectorId/sync/stop`. It works while the connector is locked, and it also clears a lock or syncing status left behind when no sync is running.
 
 ## API Endpoints
 
-The paths below are relative to `/api/v1/connectors` unless they start with `/api/v1/`.
+Endpoint titles give paths relative to `/api/v1/connectors`, unless they start with `/api/v1/`.
 
 <AccordionGroup>
 
@@ -137,7 +137,7 @@ List the connector types that can be set up. Beta types are left out when beta c
 }
 ```
 
-Only types that support the requested scope are listed. The example is shortened; each type carries more display fields. `registryCountsByScope` counts all the types available for each scope, before `search` is applied.
+Only types that support the requested scope are listed. The example is shortened; each type has more display fields. `registryCountsByScope` counts all the types available for each scope, before `search` is applied.
 </Tab>
 </Tabs>
 </Accordion>
@@ -282,7 +282,7 @@ Create a connector instance. It starts out not authenticated and with sync off.
 }
 ```
 
-**OAuth connectors:** an admin can either pick an existing OAuth app with `config.auth.oauthConfigId` or pass the OAuth credentials in `config.auth`, which creates an OAuth app. A member must pick an existing OAuth app; a member who sends OAuth credentials is refused with `403`, and one who picks no app is refused with `400`.
+**OAuth connectors:** an admin either picks an existing OAuth app with `config.auth.oauthConfigId` or passes OAuth credentials in `config.auth`, which creates an OAuth app. A member must pick an existing OAuth app: sending OAuth credentials is refused with `403`, and picking no app with `400`.
 </Tab>
 
 <Tab title="Response">
@@ -476,7 +476,7 @@ Get one connector with its state and the type's display metadata.
 </Accordion>
 
 <Accordion title="DELETE /:connectorId - Delete a connector">
-Delete a connector and everything synced from it. The request returns as soon as the deletion has started; the deletion itself runs in the background. See [Deleting a connector](#deleting-a-connector) for what is removed.
+Permanently delete a connector and everything synced from it. The request returns once the deletion starts, and the deletion runs in the background. [Deleting a connector](#deleting-a-connector) lists what is removed.
 
 <Tabs>
 <Tab title="Request">
@@ -606,7 +606,7 @@ Turn sync off first: the connector must not be active. Changing the credentials 
 </Accordion>
 
 <Accordion title="PUT /:connectorId/config/auth - Update sign-in settings">
-Save the `auth` section only. The connector is then marked configured but not authenticated, and sync is turned off, so it has to be signed in and turned on again.
+Save only the `auth` section. The connector is then marked configured but not authenticated, and sync is turned off, so sign it in and turn it on again.
 
 <Tabs>
 <Tab title="Request">
@@ -720,7 +720,7 @@ GET /api/v1/connectors/3f1c9a52-7d0e-4b8a-9c1e-2a6b5d4e7f80/oauth/authorize?base
 
 `state` carries the connector ID, so the callback knows which connector is signing in.
 
-**Errors:** `400` when the connector doesn't use OAuth or has no OAuth app configured; `403` for a team connector and a member caller.
+**Errors:** `400` when the connector doesn't use OAuth or has no OAuth app configured; `403` when a member calls it for a team connector.
 </Tab>
 </Tabs>
 </Accordion>
@@ -742,7 +742,7 @@ Exchange the code the provider returned for tokens and mark the connector authen
 | error | string | No | Error code from the provider |
 | baseUrl | string | No | The address of your PipesHub web app |
 
-A request without `code` or `state` is refused with `400` ("Code and state are required") in the standard [error shape](#error-handling), before it reaches the connectors service. That includes a sign-in the user declined at the provider: the provider then sends `error` and `state` but no `code`.
+A request without `code` or `state` is refused with `400` ("Code and state are required") in the standard [error shape](#error-handling). That includes a sign-in the user declined at the provider, which sends `error` and `state` but no `code`.
 </Tab>
 
 <Tab title="Response">
@@ -844,6 +844,8 @@ Page through the options for one filter field whose options are fetched from the
 </Accordion>
 
 <Accordion title="POST /:connectorId/filters - Save filter selections">
+Saving selections here doesn't change what the connector syncs or indexes. To change that, use `PUT /:connectorId/config/filters-sync`.
+
 <Tabs>
 <Tab title="Request">
 **Endpoint:** `POST /api/v1/connectors/:connectorId/filters`
@@ -858,7 +860,7 @@ Page through the options for one filter field whose options are fetched from the
 }
 ```
 
-The selections are stored under the connector's `filters.values`. Syncs read their filters from `filters.sync.values` and `filters.indexing.values`, which `PUT /:connectorId/config/filters-sync` sets, so use that endpoint to change what a connector syncs and indexes.
+The selections are stored under the connector's `filters.values`, but syncs read `filters.sync.values` and `filters.indexing.values`.
 </Tab>
 
 <Tab title="Response">
@@ -969,9 +971,9 @@ If the sync request can't be queued, the answer is still `200`, with `resyncConn
 </Accordion>
 
 <Accordion title="POST /:connectorId/sync/stop - Stop a running sync">
-Ask the sync running for a connector to stop. The call returns at once and the sync halts shortly after. This request is allowed while the connector is locked.
+Stop a connector's running sync. The call returns at once and the sync halts shortly after. It works while the connector is locked.
 
-When no sync is running but the connector still shows a syncing status or is locked, for example after a crash, the call puts it back to idle and unlocked, as long as PipesHub can tell that no sync is running anywhere.
+If no sync is running but the connector still shows a syncing status or is locked, for example after a crash, the call resets it to idle and unlocked, as long as PipesHub can tell that no sync is running anywhere.
 
 <Tabs>
 <Tab title="Request">
@@ -1009,7 +1011,7 @@ No request body.
 </Accordion>
 
 <Accordion title="POST /:connectorId/reindex - Reindex a connector's records">
-Index a connector's records again from their stored content. A knowledge base is a connector instance too, so this also reindexes a knowledge base.
+Reindex a connector's records from their stored content. A knowledge base is also a connector instance, so this reindexes knowledge bases too.
 
 <Tabs>
 <Tab title="Request">
@@ -1072,7 +1074,7 @@ Get record counts by indexing status for a connector.
 </Accordion>
 
 <Accordion title="POST /vector-store/cleanup and POST /vector-store/reindex - Rebuild the vector store">
-Admin-only jobs for the whole organization. `cleanup` drops and recreates the shared vector collection; `reindex` embeds every connector's records again from stored content without dropping it. Both are available only when vector store rebuild is turned on in the platform settings.
+Admin-only jobs for the whole organization. `cleanup` drops and recreates the shared vector collection. `reindex` embeds every connector's records again from stored content, without dropping the collection. Both work only when vector store rebuild is turned on in the platform settings.
 
 <Tabs>
 <Tab title="Request">
@@ -1102,7 +1104,7 @@ Admin-only jobs for the whole organization. `cleanup` drops and recreates the sh
 </Accordion>
 
 <Accordion title="Records and the knowledge graph">
-These read-only endpoints are under the same prefix and are used by agents and the web app.
+Agents and the web app use these read-only endpoints.
 
 - `GET /api/v1/connectors/record/:recordId/content` - A record's full parsed content and metadata. Scope `connector:read`.
 - `GET /api/v1/connectors/navigate` - Walk the knowledge graph from a connector to its record groups, records and children. Query parameters: `nodeId` (a record ID, URL or issue key), `page`, `limit` (50 to 200), `depth` (1 to 3), `nodeTypes`, and `createdAfter`, `createdBefore`, `modifiedAfter`, `modifiedBefore`. Scope `kb:read` or `connector:read`.
@@ -1374,7 +1376,7 @@ Send `oauthInstanceName`, `config`, or both, and optionally `baseUrl`.
 </Accordion>
 
 <Accordion title="Legacy endpoints">
-These endpoints remain for backward compatibility and are deprecated. New integrations should use the endpoints above.
+These endpoints are deprecated and kept for backward compatibility. Don't use them in new integrations.
 
 - `POST /api/v1/connectors/getTokenFromCode` - The old Google Workspace sign-in for individual accounts. Body: `{ "tempCode": "..." }`. Admins only: a member is refused with `403`. Answers `200` when the connector existed and `201` when it was created.
 - `POST /api/v1/connectors/internal/refreshIndividualConnectorToken` - Service-to-service only (a scoped token with `FETCH_CONFIG`). Refreshes the old Google Workspace individual token, trying up to three times. Answers `{ "message": "Access token updated successfully" }`.
@@ -1424,7 +1426,7 @@ These endpoints remain for backward compatibility and are deprecated. New integr
 }
 ```
 
-`serviceNames` gives the product actually deployed for each role, since the message broker, graph database and vector database can each be one of several. When the key-value store is etcd, `services` also has `KVStoreservice`. Each service is `healthy`, `unhealthy`, `unknown`, or `pending` while the connectors service hasn't yet reported which graph or vector database is in use.
+`serviceNames` names the product deployed for each role, because the message broker, graph database and vector database each have several options. When the key-value store is etcd, `services` also has `KVStoreservice`. Each service is `healthy`, `unhealthy`, `unknown`, or `pending` (the connectors service hasn't yet reported which graph or vector database is in use).
 </Tab>
 </Tabs>
 </Accordion>
@@ -1469,9 +1471,13 @@ These endpoints remain for backward compatibility and are deprecated. New integr
 Deleting a connector is permanent. Its records don't go to the trash, even when the trash is turned on, and they can't be restored.
 
 1. The request is checked: the caller must be the creator or an admin, no deletion may already be running, no sync may be running, and no agent may use the connector as a knowledge source.
-2. The connector is marked `DELETING` before any event is published, so a deletion that finishes quickly can't race the request that started it.
+2. The connector is marked `DELETING`.
 3. An `appDisabled` event stops any running sync, and a `<type>.delete` event (for example `confluence.delete`) starts the deletion. If that event can't be published, the `DELETING` mark is cleared, nothing is deleted, and the request fails.
-4. The request answers `202 Accepted`. The connectors service then deletes, in the background, the connector and its records, record groups, permissions and relations from the graph database; asks the indexing service to remove its embeddings; deletes its stored configuration and credentials; and deletes its stored files, keeping any content another connector still uses.
+4. The request answers `202 Accepted`. In the background, the connectors service then:
+   - deletes the connector and its records, record groups, permissions and relations from the graph database;
+   - asks the indexing service to remove its embeddings;
+   - deletes its stored configuration and credentials;
+   - deletes its stored files, keeping any content another connector still uses.
 5. If the deletion fails, the `DELETING` mark is cleared and the connector's sync setting is put back to what it was, so the connector can be deleted again.
 
 ## Events
@@ -1519,11 +1525,7 @@ An `appDisabled` event from the toggle has the same payload.
 
 ## Error Handling
 
-Most errors share this shape. Three answers differ:
-
-- [Local FS refusals](#local-fs-refusals) put `code` and `details` at the top level.
-- A failed OAuth callback answers `200` with `success: false` and a top-level `error` string.
-- A resync that can't be queued answers `200` with `resyncConnectorResponse` set to `{ "success": false, "error": "..." }`.
+Most errors have this shape:
 
 ```json
 {
@@ -1535,7 +1537,13 @@ Most errors share this shape. Three answers differ:
 }
 ```
 
-A request that fails validation has the code `VALIDATION_ERROR` and status `400`. A refusal from the connectors service keeps its own message, and its status is passed on: `400`, `401`, `403`, `404`, `409`, `422` and `429` as they are. A server failure in the connectors service becomes `500` with a plain message naming what failed, without internal details.
+Three answers differ:
+
+- [Local FS refusals](#local-fs-refusals) put `code` and `details` at the top level.
+- A failed OAuth callback answers `200` with `success: false` and a top-level `error` string.
+- A resync that can't be queued answers `200` with `resyncConnectorResponse` set to `{ "success": false, "error": "..." }`.
+
+A request that fails validation answers `400` with the code `VALIDATION_ERROR`. A refusal from the connectors service keeps its own message and status: `400`, `401`, `403`, `404`, `409`, `422` or `429`. A server failure in the connectors service becomes `500`, with a plain message that names what failed and no internal details.
 
 **Common HTTP Status Codes:**
 - `200` - Success
