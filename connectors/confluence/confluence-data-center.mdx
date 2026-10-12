@@ -271,7 +271,7 @@ Available sync filters:
   In the Confluence Cloud connector you type space keys and page IDs by hand. Here you pick them from dropdowns instead. The lists are loaded from your instance, so you do not need to find keys or IDs in the URL.
 </Info>
 
-**Changing the filters later.** Saving narrower filters doesn't start a sync by itself. The next sync is a full sync, and it removes from PipesHub what the new filters leave out, together with its search results. A page picked in **Page Name** covers the pages below it, so leaving it out removes those too. A date filter only removes an item that falls well outside it (by more than two days), so an item right at the edge is never removed and brought back again. Leaving a space out removes the space and everything in it.
+**Changing the filters later.** When you narrow the filters, the next sync is a full sync, and it removes from PipesHub what they now leave out, search results included. Saving the filters doesn't start that sync. Leaving a space out removes the space and everything in it. A page picked in **Page Name** covers the pages below it, so leaving it out removes those too. A date filter removes an item only when it falls more than 24 hours outside the filter, so an item right at the edge isn't removed and then brought back.
 
 **Indexing filters** — these decide what gets prepared for AI search. Everything is synced, but only what you enable here is indexed.
 
@@ -318,15 +318,14 @@ The Confluence Data Center connector syncs:
 
 ### Deleted, trashed and hidden content
 
-Each sync checks, for every synced space and separately for pages and blog posts, what the connector's account can see in Confluence: current and archived pages, and current blog posts. This works the same whether the connector is set up for your whole organization or just for you.
+Each sync lists what the connector's account can see in every synced space, separately for pages and blog posts: current and archived pages, and current blog posts. This works the same for a connector set up for your whole organization and one set up just for you.
 
-- **Removed:** a stored page or blog post that isn't there any more is removed from PipesHub, with its attachments, comments and replies. That covers content that was deleted, moved to the trash, purged, or restricted so the account can't see it.
-- **Moved to another space:** if that space is synced too, the page or blog post moves there in PipesHub on the same sync, with its attachments and comments. If it isn't, the page or blog post is removed.
-- **Kept:** archived pages the account can see, as long as their space is still current.
-- **Child pages:** when a page is removed, its child pages stay, and PipesHub lists them at the top of the space.
+- **Deleted or hidden in Confluence:** a stored page or blog post missing from that list is removed from PipesHub, with its attachments, comments and replies. That covers content that was deleted, moved to the trash, purged, or restricted so the account can't see it.
+- **Moved to another space:** if that space is synced too, the page or blog post moves there in PipesHub on the same sync, with its attachments and comments. Otherwise it is removed.
+- **Kept:** archived pages the account can see, as long as their space is still current. When a page is removed, its child pages stay, and PipesHub lists them at the top of the space.
 - **Coming back:** content the account can see again returns on the next sync, even if nobody edited it.
-- **Spaces:** a space that was archived or deleted, that the account can no longer see, or that the **Space Name** filter now leaves out, is removed with everything in it. If it comes back, it is synced again in full.
-- **When Confluence can't be read:** if a space's list can't be read to the end, or PipesHub can't read what it has stored, nothing is removed for that space and content type. If one removal fails, only that page or blog post stays, and the rest still go ahead. In both cases the next sync repeats what's left. A space list that can't be read, or that comes back with no spaces at all, removes no space.
+- **Spaces:** a space that was archived or deleted, that the account can no longer see, or that the **Space Name** filter now leaves out is removed with everything in it. If it comes back, it is synced again in full.
+- **When Confluence can't be read:** if a space's list can't be read to the end, or PipesHub can't read what it has stored, nothing is removed for that space and content type. If one removal fails, only that page or blog post stays; the rest still go ahead. Either way, the next sync repeats what's left. A space list that can't be read, or that comes back with no spaces at all, removes no space.
 
 <Info>
   **Want agents to act in Confluence?** This connector only syncs data into PipesHub. To let agents create and update pages, set up the [Confluence Data Center toolset](/toolsets/confluence/confluence-data-center) as well.
