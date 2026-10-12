@@ -311,6 +311,12 @@ The connector preserves these permissions:
 - Ensure the API token user has access to the groups being synced
 - Review sync logs for specific error messages
 
+**Missing knowledge base answers:**
+- Check what the API token's user can see in Zammad's knowledge base. The connector syncs exactly that; the token's own permission checkboxes don't change it.
+- Drafts and archived answers sync only from categories where the user is an editor, which is the case when any of the user's roles is an editor there.
+- If an answer can't be saved, the sync logs a warning and the next sync tries it again.
+- Releases before 0.10.0 synced no knowledge base answers from Zammad 6.0 to 6.4. After you update PipesHub, the first sync reads the whole knowledge base, so no extra step is needed.
+
 **Missing tickets:**
 - Verify group filters aren't excluding the desired content
 - Check that the API token user has access to those groups
@@ -367,6 +373,12 @@ The connector syncs data in the following order:
 **Tickets**: Number, title, state, priority, group assignment, owner, customer, all articles (messages, replies, notes), attachments
 
 **Knowledge Base**: Categories hierarchy, answers/articles with full content and translations, associated attachments
+
+On Zammad 6.0 and later, each sync reads the whole knowledge base listing and writes only the answers changed since the last sync. It syncs the answers the API token's user can see, by category:
+
+- **Editor** (any of the user's roles is an editor in the category): every answer, including drafts and archived answers.
+- **Reader only:** internal and published answers.
+- **Any other category:** published answers only.
 
 **Attachments**: Files attached to ticket articles and knowledge base answers
 
