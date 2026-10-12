@@ -522,7 +522,7 @@ A connector's configuration has three sections: `auth` (how it signs in), `sync`
 
 **Scope:** `connector:read`
 
-**Access Control:** as for `GET /:connectorId`. For a personal connector, only its creator; anyone else is refused.
+**Access Control:** as for `GET /:connectorId`. For a personal connector, only its creator. Anyone who can see the connector but didn't create it gets `403` ("Only the person who created this connector can view its configuration"); anyone who can't see it gets `404`.
 </Tab>
 
 <Tab title="Response">
