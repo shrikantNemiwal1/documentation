@@ -10,7 +10,7 @@ All endpoints are prefixed with `/api/v1/crawlingManager`
 
 All endpoints require **authentication** via `Authorization` header with valid JWT token. In addition:
 - **Endpoints for one connector** check that the caller may manage it: a team connector's schedule only by an admin, and a personal connector's only by the person who created it
-- **Admin privileges** for `GET /schedule/all` and `DELETE /schedule/all`, because they list or remove the schedules of every connector in the organization, including other members' personal connectors. Any other caller gets `403` with the message "You need admin access to do this. Ask an admin in your organisation."
+- **Admin privileges** for `GET /schedule/all` and `DELETE /schedule/all`, because they list or remove the schedules of every connector in the organization, including other members' personal connectors. A non-admin gets `403` with the message "You need admin access to do this. Ask an admin in your organisation."
 
 **Headers:**
 ```
@@ -510,7 +510,7 @@ Errors use the standard error shape (see [Error Handling](#error-handling)):
 </Accordion>
 
 <Accordion title="GET /stats - Get Queue Statistics">
-Retrieve statistics about the crawling job queue for your organization. Every count covers only your organization's jobs and schedules, never another organization's that share the same queue. Any signed-in member can call it; it isn't limited to admins.
+Retrieve statistics about your organization's crawling jobs. The counts cover only your organization's jobs and schedules, not those of other organizations sharing the queue. Any signed-in member can call it, not just admins.
 
 **Endpoint:** `GET /api/v1/crawlingManager/stats`
 
