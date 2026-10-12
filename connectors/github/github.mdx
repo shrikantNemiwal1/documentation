@@ -556,13 +556,11 @@ A repository holds more than source code, so PipesHub reads each file with the r
 A file that isn't indexed keeps its record and stays findable by name and path. It shows
 **File Type Not Supported**, with one of two reasons you'll see most:
 
-- For `package-lock.json`, `pnpm-lock.yaml`, and minified files: "This is a generated file (a lock
+- For lock files, minified files, source maps and test snapshots: "This is a generated file (a lock
   file, minified bundle, source map or test snapshot), so PipesHub skips it to keep search results
   useful. Nothing needs fixing."
-- For a file type PipesHub has no reader for, such as `yarn.lock`, a `.map` file, or
-  `events.ndjson`: "PipesHub can't read .ndjson files yet. Convert the file to PDF, DOCX or TXT to
-  make it searchable." (with that file's own extension). For a lock file or a source map there is
-  nothing to convert, and nothing needs fixing.
+- For `.ndjson` and `.jsonl` files: "PipesHub can't read .ndjson files yet. Convert the file to PDF,
+  DOCX or TXT to make it searchable." (with that file's own extension).
 
 Lock files, minified bundles, and source maps are left out because they are written by tools, not
 people, and their contents would crowd real results out of search.
