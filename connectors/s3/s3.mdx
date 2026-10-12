@@ -259,7 +259,7 @@ Still on the same tab, scroll down to **Indexing & sync filters**. Filters let y
 <Info>
   You can change filters any time later. New filters take effect on the next sync. When you narrow them, PipesHub removes the files they now leave out, search results included:
 
-  - **Folders:** files outside the new folders are removed on the next sync.
+  - **Folders:** files the new **Folders** filter leaves out are removed on the next sync: outside the named folders with **In**, inside them with **Not In**.
   - **File Extensions** and dates: files left out are removed once a sync has listed everything in scope from start to finish (the whole bucket, or each included folder when **Folders** is set to **In**).
   - **Bucket Names:** with *In*, only the buckets you pick sync; with *Not In*, every bucket except those. A bucket the filter newly leaves out stops syncing, and the files already synced from it are removed on the next sync.
 </Info>
@@ -443,7 +443,7 @@ After the initial sync, each sync still lists every object in scope (the whole b
 - **Pagination Resume**: Uses continuation tokens to resume an interrupted listing.
 - **Deletions**: After a complete listing of everything in scope, files that are no longer there, and files a **File Extensions** or date filter now leaves out, are removed from PipesHub.
 - **Safe Removal**: If a listing failed, or resumed partway from an earlier interrupted sync, those files aren't removed on that sync, even if the listing reached the last page. The next complete listing removes them.
-- **Narrowed Folders**: Files outside a narrowed **Folders** filter are removed on the next sync, even if its listing is incomplete.
+- **Narrowed Folders**: Files a narrowed **Folders** filter leaves out are removed on the next sync, even if its listing is incomplete.
 
 **How It Works:**
 
@@ -452,7 +452,7 @@ After the initial sync, each sync still lists every object in scope (the whole b
 3. It processes objects that are new or changed since `last_sync_time`, and skips the rest.
 4. It saves the newest timestamp it saw as the next sync point.
 5. After a complete listing, it removes the records of objects the listing no longer returned, and of objects an extension or date filter now leaves out (these are still listed, but skipped before they count as kept).
-6. If the **Folders** filter was narrowed, it also removes the records outside the new folders, whether or not the listing was complete.
+6. If the **Folders** filter was narrowed, it also removes the records of files the filter now leaves out, whether or not the listing was complete.
 
 <Info>
   Sync time depends on how many objects are listed (the whole bucket, or only the included folders when **Folders** is set to **In**) and how many changed, since only those are downloaded and indexed.
@@ -764,7 +764,7 @@ This connector is designed for **Amazon S3** and uses the AWS S3 API. It support
 <Accordion title="How do I sync only specific folders in a bucket?">
   Add a **Folders** filter with the folder's path from the bucket root, for example `reports`, and set it to **In**. Subfolders are included. Set it to **Not In** to sync everything except that folder.
   
-  If you narrow the folders later, files outside them are removed from PipesHub on the next sync.
+  If you change the folders later, files the filter now leaves out are removed from PipesHub on the next sync.
 </Accordion>
 
 </AccordionGroup>
