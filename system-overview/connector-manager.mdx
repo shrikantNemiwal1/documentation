@@ -1055,7 +1055,7 @@ Start a sync of a connector that has sync turned on.
 }
 ```
 
-**Errors:** `400` when `connectorName` is missing or sync is off for the connector ("Connector ... not allowed"); `409` while a sync is already running, or for a Local FS connector whose desktop device can't sync (see [Local FS refusals](#local-fs-refusals)); `503` with the code `SERVICE_UNAVAILABLE` when the sync can't be queued ("We couldn't start this sync because PipesHub couldn't queue it. Nothing was synced. Try again in a minute; if it keeps happening, ask your admin to check the services page.").
+**Errors:** `400` when `connectorName` is missing or sync is off for the connector ("Connector ... not allowed"); `409` while a sync is already running, or for a Local FS connector whose desktop device can't sync (see [Local FS refusals](#local-fs-refusals)); `503` with the code `HTTP_SERVICE_UNAVAILABLE` when the sync can't be queued ("We couldn't start this sync because PipesHub couldn't queue it. Nothing was synced. Try again in a minute; if it keeps happening, ask your admin to check the services page.").
 </Tab>
 </Tabs>
 </Accordion>
@@ -1622,7 +1622,7 @@ Most errors have this shape:
 ```json
 {
   "error": {
-    "code": "FORBIDDEN",
+    "code": "HTTP_FORBIDDEN",
     "message": "Only the creator or an administrator can toggle this connector",
     "requestId": "req-1234"
   }
@@ -1646,7 +1646,7 @@ A request that fails validation answers `400` with the code `VALIDATION_ERROR`. 
 - `404` - The connector, type or OAuth app doesn't exist, or the caller may not see it
 - `409` - Conflict: the connector is locked, already being deleted, or in use by an agent
 - `500` - Server failure
-- `503` - Service unavailable, with the code `SERVICE_UNAVAILABLE`, in two cases:
+- `503` - Service unavailable, with the code `HTTP_SERVICE_UNAVAILABLE`, in two cases:
   - PipesHub couldn't reach the connectors service: "PipesHub is having trouble reaching one of its services. Try again in a minute; if it continues, ask your admin to check the services page."
   - A resync couldn't be queued: "We couldn't start this sync because PipesHub couldn't queue it. Nothing was synced. Try again in a minute; if it keeps happening, ask your admin to check the services page."
 
