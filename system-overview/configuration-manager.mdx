@@ -882,7 +882,7 @@ CRUD operations for individual AI model providers.
 }
 ```
 
-**Default reasoning effort.** For a reasoning model (`isReasoning: true`), set `configuration.defaultReasoningEffort` to `low`, `medium`, `high` or `max` when your provider rejects `high`, for example some hosted Qwen models that accept only `low` and `medium`. The Add Model dialog doesn't have this setting.
+**Default reasoning effort.** For a reasoning model (`isReasoning: true`), set `configuration.defaultReasoningEffort` to a level your provider accepts. The valid levels are `low`, `medium`, `high` and `max`. When the provider rejects `high`, the platform default, choose `low`, `medium` or `max`; some hosted Qwen models, for example, accept only `low` and `medium`. The Add Model dialog doesn't have this setting.
 
 - It applies whenever a chat or agent request doesn't choose an effort, and to the check PipesHub runs when you save the model. An effort chosen in the chat or on the agent wins.
 - Leave it out, or send an empty string, to use the platform default, `high`. `none` is accepted and treated as `low`.
