@@ -561,14 +561,14 @@ On Workspace, a file deleted or moved to the trash in Google Drive is removed fr
 
 - **Another synced user's regular sync** sees the same change and its check succeeds. This works only until the next full sync. Regular syncs after a full sync don't see changes made before it.
 - **A full sync, if the file is still in the trash.** The full sync removes it while listing files, even when it skips its cleanup.
-- **A full sync that finishes listing every file, if the file was deleted for good.** If that sync skips its cleanup (see below), the file stays until a full sync whose cleanup runs. That may not be the next one: a cleanup skipped because more than half the files and folders are missing is skipped again on each full sync while that stays true.
+- **A full sync that finishes listing every file, if the file was deleted for good.** If that sync skips its cleanup (see below), the file stays until a full sync whose cleanup runs. That may not be the next one: a cleanup skipped because more than half the files and folders are missing, or because the sync recorded nothing, is skipped again on each full sync while that stays true.
 
 **When a full sync skips its cleanup.** At the end of a full sync, PipesHub removes the files and folders that the sync didn't find in Google Drive. It removes none of them when:
 
 - The listing is incomplete: a file, drive or user couldn't be read, a user's sync failed, Google reported that its results were incomplete, or the contents of a folder in **Folder IDs** are still unknown (see **When a listed folder can't be read**, below).
-- The sync found no files: the listing came back empty, or every file in it was outside the sync filters.
+- The sync recorded no file or folder at all, for example because the listing came back empty. A listing whose files were all outside the sync filters still records its folders, so the cleanup runs.
 - PipesHub couldn't read the records it already holds for the connector.
-- More than half of the files and folders PipesHub holds for the connector are missing from the listing. Stand-in folders, which PipesHub keeps only to show the path to a synced file, don't count. Each later full sync checks again, so the missing files stay until no more than half are missing, or until something else removes them, such as a regular sync that sees the delete or a filter change that leaves them out.
+- More than half of the files and folders PipesHub holds for the connector are missing from the listing. Stand-in folders, which PipesHub keeps only to show the path to a synced file, don't count. Each later full sync checks again, so the missing files stay until no more than half are missing, or until a filter change leaves them out.
 
 This cleanup is separate from removing the files that a filter change leaves out. That removal still runs when this cleanup is skipped (see **Changing the filters later**, below).
 
