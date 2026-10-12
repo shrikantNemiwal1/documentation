@@ -266,6 +266,11 @@ The response does not include the knowledge base. Call `GET /:kbId` to read the 
 <Accordion title="DELETE /:kbId - Delete Knowledge Base">
 Delete a knowledge base, with all its folders and records. Only the knowledge base's owner can delete it, and it can't be undone.
 
+- **First,** PipesHub lists the knowledge base's uploaded files and schedules their removal. If either step fails, nothing is deleted and the request returns `503`; try again.
+- **A `200`** means the folders and records are gone from the graph. The indexing service then removes their search index (embeddings) and stored files.
+- **Retries.** If storage can't remove a file, or the file's record can't be checked, the removal is retried until it succeeds, with no time limit. If a record still lists the file, the removal is retried for up to one day, then the file is kept, because that record was never deleted (see the **Deletion** note on the [Storage page](/system-overview/storage#important-notes)).
+- **Shared content.** If a record in another knowledge base or connector has identical content, that record's uploaded file and the shared search index stay. If the processed copy of that content was filed under the deleted knowledge base, it is moved to the surviving record's storage location and keeps its document ID, so the surviving record isn't re-indexed. If that handover fails, nothing is deleted from the knowledge base's storage, and the release is retried until it succeeds.
+
 <Tabs>
 <Tab title="Request">
 **Endpoint:** `DELETE /api/v1/knowledgeBase/:kbId`
@@ -446,8 +451,12 @@ Delete a file from a knowledge base. Only files uploaded to a knowledge base can
 
 The result depends on the Labs setting **Move Deleted Records to the Trash**:
 
-- **Off (the default):** the record is removed from the graph database and can't be restored, and its stored file is cleaned up in the background.
-- **On:** the record goes to the trash. It disappears from search, chat and listings at once. Until the scheduled cleanup removes it, it can be restored with `POST /record/:recordId/restore` or from the collection's **Recently deleted** page; see [How long items stay](/trash#how-long-items-stay). The response has `softDeleted: true` and the delete's `batchId`.
+- **Off (the default):** the record is removed from the graph database and can't be restored.
+  - **First,** PipesHub schedules the removal of the record's uploaded file. If that fails, nothing is deleted and the request returns `503`; try again.
+  - **A `200`** means the record is gone from the graph. The indexing service then removes its search index (embeddings) and uploaded file.
+  - **Retries.** If storage can't remove a file, or the file's record can't be checked, the removal is retried until it succeeds, with no time limit. If a record still lists the file, the removal is retried for up to one day, then the file is kept, because that record was never deleted (see the **Deletion** note on the [Storage page](/system-overview/storage#important-notes)).
+  - **Shared content.** If another record has identical content, the shared search index and processed content stay until the last copy is deleted.
+- **On:** the record goes to the trash. It disappears from search, chat and listings at once, and its uploaded file is kept until the scheduled cleanup. Until then, it can be restored with `POST /record/:recordId/restore` or from the collection's **Recently deleted** page; see [How long items stay](/trash#how-long-items-stay). The response has `softDeleted: true` and the delete's `batchId`.
 
 <Tabs>
 <Tab title="Request">
@@ -814,7 +823,10 @@ Update folder properties such as name.
 </Accordion>
 
 <Accordion title="DELETE /:kbId/folder/:folderId - Delete Folder">
-Delete a folder and all its contents. With **Move Deleted Records to the Trash** on in Labs, the folder and its contents go to the trash as one item, which can be restored from the collection's **Recently deleted** page. With the setting off, they are removed for good.
+Delete a folder and all its contents, including sub-folders. Nothing outside the folder is touched.
+
+- **With Move Deleted Records to the Trash off (the default):** PipesHub first schedules the removal of every uploaded file in the folder; if that fails, nothing is deleted and the request returns `503`. A `200` means the folder and its contents are gone from the graph for good. Their embeddings and stored files are removed afterwards, with the same retries as `DELETE /record/:recordId`.
+- **With Move Deleted Records to the Trash on in Labs:** the folder and its contents go to the trash as one item, which can be restored from the collection's **Recently deleted** page. Their uploaded files are kept until the scheduled cleanup.
 
 <Tabs>
 <Tab title="Request">
@@ -912,9 +924,14 @@ The Knowledge Base Service broadcasts events through Kafka to notify other servi
   "recordId": "rec789012",
   "version": 2,
   "extension": "pdf",
-  "mimeType": "application/pdf"
+  "mimeType": "application/pdf",
+  "summaryDocumentId": null,
+  "virtualRecordId": "vr-3f2a9c1b",
+  "connectorId": "kb345678"
 }
 ```
+
+This event removes the record's search index and processed content. If the event is lost, the indexing service's periodic orphan sweep removes them. The uploaded file is removed by a separate event, scheduled before the record is deleted.
 </Accordion>
 
 </AccordionGroup>
