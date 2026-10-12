@@ -42,8 +42,8 @@ The token can be a session token from signing in, an OAuth access token or a per
 
 | Scope | Allows |
 |-------|--------|
-| `connector:read` | Reading connectors, the registry, filters and OAuth apps |
-| `connector:write` | Creating and changing connectors and OAuth apps, and OAuth sign-in |
+| `connector:read` | Reading connectors, the registry, filters, OAuth apps and the connectors' IP addresses |
+| `connector:write` | Creating and changing connectors and OAuth apps, testing a connection, and OAuth sign-in |
 | `connector:sync` | Turning sync on and off, stopping a sync, reindexing, and the vector store jobs |
 | `connector:delete` | Deleting connectors and OAuth apps |
 | `kb:read`, `kb:write` | Accepted instead of the `connector:*` scope on a few endpoints: `kb:read` for stats, navigate and lookup, `kb:write` for reindex and resync |
@@ -167,7 +167,8 @@ Get the form definition for one connector type: its sign-in fields for each supp
     "filters": { "...": "sync and indexing filter definitions" },
     "documentationLinks": [
       { "title": "Setup guide", "url": "https://docs.pipeshub.com/...", "type": "setup" }
-    ]
+    ],
+    "supportsConnectionCheck": false
   }
 }
 ```
@@ -175,6 +176,84 @@ Get the form definition for one connector type: its sign-in fields for each supp
 OAuth endpoints and scopes are not part of the schema; they come from the connector's OAuth app.
 
 **Errors:** `404` when the type doesn't exist.
+</Tab>
+</Tabs>
+</Accordion>
+
+<Accordion title="POST /registry/:connectorType/test-connection - Test sign-in settings before saving">
+Try the `auth` settings from a connector type's setup form without creating or changing a connector. Only types whose schema has `supportsConnectionCheck: true` can be tested.
+
+<Tabs>
+<Tab title="Request">
+**Endpoint:** `POST /api/v1/connectors/registry/:connectorType/test-connection`
+
+**Scope:** `connector:write`
+
+**Path Parameters:**
+- `connectorType`: Connector type name, for example `PostgreSQL` (string, required)
+
+**Request Body Parameters:**
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| auth | object | Yes | The sign-in settings to test, keyed by the fields of the type's `auth` form |
+| connectorId | string | No | A connector of this type that you're editing. Its stored `auth` fills in any field you leave out. 1 to 64 letters, digits, `_` or `-`. |
+
+```json
+{
+  "auth": {
+    "host": "db.example.com",
+    "port": "5432",
+    "database": "analytics",
+    "username": "reader",
+    "password": "your-password"
+  }
+}
+```
+
+With `connectorId`, the caller must be allowed to change that connector's configuration. Every field you send is tested as sent, `••••••••` included, so leave a stored secret out to test with its stored value.
+</Tab>
+
+<Tab title="Response">
+**Status:** `200 OK`
+
+```json
+{
+  "success": false,
+  "message": "PostgreSQL rejected the login for user \"reader\". Check the username and password."
+}
+```
+
+A failed check isn't an error: it answers `200` with `success: false` and a `message` to show the user. A passing check has `success: true`. When the check itself can't run, the message is "The connection could not be tested. Please try again."
+
+**Errors:**
+- `400` when `auth` isn't an object, the type has no connection check, or `connectorId` is a connector of another type.
+- `404` when the type isn't in the registry.
+- `403` and `404` for `connectorId` as in [Who can do what](#who-can-do-what).
+</Tab>
+</Tabs>
+</Accordion>
+
+<Accordion title="GET /network/egress-ips - Get the IP addresses connectors connect from">
+Get the public IP addresses PipesHub's connectors use to reach other systems, so you can allow them in a database's or API's firewall.
+
+<Tabs>
+<Tab title="Request">
+**Endpoint:** `GET /api/v1/connectors/network/egress-ips`
+
+**Scope:** `connector:read`
+</Tab>
+
+<Tab title="Response">
+**Status:** `200 OK`
+
+```json
+{
+  "success": true,
+  "egressIps": ["203.0.113.10"]
+}
+```
+
+The deployment can set the list in `CONNECTOR_EGRESS_IPS`, as comma-separated addresses. Otherwise the connectors service looks its address up and caches it. `egressIps` is empty when the address can't be found, for example without internet access, or when `CONNECTOR_EGRESS_IPS` is `none`.
 </Tab>
 </Tabs>
 </Accordion>
@@ -627,7 +706,12 @@ Save only the `auth` section. The connector is then marked configured but not au
 }
 ```
 
-To keep a stored secret, send it as `••••••••` or leave it out; to replace it, send the new value. The mask itself is never written to the connector or to its OAuth app.
+To keep a stored secret, send it as `••••••••` or leave it out. A new token, password or other secret replaces the stored one. The mask itself is never written to the connector or to its OAuth app.
+
+On an OAuth connector (`authType` `OAUTH`), a new client secret sent here isn't kept in the connector's `auth`:
+
+- **From an admin**, it updates the OAuth app named in `oauthConfigId`, so every connector on that app signs in with the new secret. Without `oauthConfigId`, a new OAuth app is created and the connector is linked to it.
+- **From anyone else**, such as the creator of a personal OAuth connector, it is dropped. The call still answers `200` and signs the connector out, and the OAuth app's secret stays as it was.
 </Tab>
 
 <Tab title="Response">
@@ -971,9 +1055,7 @@ Start a sync of a connector that has sync turned on.
 }
 ```
 
-If the sync request can't be queued, the answer is still `200`, with `resyncConnectorResponse.success` set to `false` and an `error`.
-
-**Errors:** `400` when `connectorName` is missing or sync is off for the connector ("Connector ... not allowed"); `409` while a sync is already running, or for a Local FS connector whose desktop device can't sync (see [Local FS refusals](#local-fs-refusals)).
+**Errors:** `400` when `connectorName` is missing or sync is off for the connector ("Connector ... not allowed"); `409` while a sync is already running, or for a Local FS connector whose desktop device can't sync (see [Local FS refusals](#local-fs-refusals)); `503` with the code `SERVICE_UNAVAILABLE` when the sync can't be queued ("We couldn't start this sync because PipesHub couldn't queue it. Nothing was synced. Try again in a minute; if it keeps happening, ask your admin to check the services page.").
 </Tab>
 </Tabs>
 </Accordion>
@@ -1076,7 +1158,9 @@ Get record counts by indexing status for a connector.
 }
 ```
 
-**Errors:** `404` when the connector doesn't exist or you can't see it: a personal connector you didn't create (admins included), a team connector you didn't create when you aren't an admin, or a knowledge base you have no role on. Both get the same answer, so the API doesn't confirm that the connector exists. `403` for a knowledge base where your role is other than owner, writer or reader ("Insufficient KB permissions for connector ...").
+**Errors:**
+- `404` "This connector was removed, or you no longer have access. Refresh the page and try again." when the connector doesn't exist or you can't open it: a personal connector you didn't create (admins included), a team connector you didn't create when you aren't an admin, or a knowledge base you have no role on. A missing connector and a hidden one get the same answer, so the API doesn't confirm that the connector exists.
+- `403` for a knowledge base where your role is other than owner, writer or reader ("Insufficient KB permissions for connector ...").
 </Tab>
 </Tabs>
 </Accordion>
@@ -1549,7 +1633,7 @@ Three answers differ:
 
 - [Local FS refusals](#local-fs-refusals) put `code` and `details` at the top level.
 - A failed OAuth callback answers `200` with `success: false` and a top-level `error` string.
-- A resync that can't be queued answers `200` with `resyncConnectorResponse` set to `{ "success": false, "error": "..." }`.
+- A failed check from `POST /api/v1/connectors/registry/:connectorType/test-connection` answers `200` with `{ "success": false, "message": "..." }`.
 
 A request that fails validation answers `400` with the code `VALIDATION_ERROR`. A refusal from the connectors service keeps its own message and status: `400`, `401`, `403`, `404`, `409`, `422` or `429`. A server failure in the connectors service becomes `500`, with a plain message that names what failed and no internal details.
 
@@ -1562,7 +1646,9 @@ A request that fails validation answers `400` with the code `VALIDATION_ERROR`. 
 - `404` - The connector, type or OAuth app doesn't exist, or the caller may not see it
 - `409` - Conflict: the connector is locked, already being deleted, or in use by an agent
 - `500` - Server failure
-- `503` - PipesHub couldn't reach the connectors service: "PipesHub is having trouble reaching one of its services. Try again in a minute; if it continues, ask your admin to check the services page."
+- `503` - Service unavailable, with the code `SERVICE_UNAVAILABLE`, in two cases:
+  - PipesHub couldn't reach the connectors service: "PipesHub is having trouble reaching one of its services. Try again in a minute; if it continues, ask your admin to check the services page."
+  - A resync couldn't be queued: "We couldn't start this sync because PipesHub couldn't queue it. Nothing was synced. Try again in a minute; if it keeps happening, ask your admin to check the services page."
 
 When the connectors service can't be reached, the request is tried up to three times, with a growing wait between tries, before it fails.
 
