@@ -269,7 +269,7 @@ Delete a knowledge base, with all its folders and records. Only the knowledge ba
 - **First,** PipesHub lists the knowledge base's uploaded files and schedules their removal. If either step fails, nothing is deleted and the request returns `503`; try again.
 - **A `200`** means the folders and records are gone from the graph. The indexing service then removes their search index (embeddings) and stored files.
 - **Retries.** If storage can't remove a file, or the file's record can't be checked, the removal is retried until it succeeds, with no time limit. If a record still lists the file, the removal is retried for up to one day, then the file is kept, because that record was never deleted (see the **Deletion** note on the [Storage page](/system-overview/storage#important-notes)).
-- **Shared content.** If a record in another knowledge base or connector has identical content, that record's uploaded file and the shared search index stay. If the processed copy of that content was filed under the deleted knowledge base, it is removed, and PipesHub re-indexes the surviving record to rebuild it.
+- **Shared content.** If a record in another knowledge base or connector has identical content, that record's uploaded file and the shared search index stay. If the processed copy of that content was filed under the deleted knowledge base, it is moved to the surviving record's storage location and keeps its document ID, so the surviving record isn't re-indexed. If that handover fails, nothing is deleted from the knowledge base's storage, and the release is retried until it succeeds.
 
 <Tabs>
 <Tab title="Request">
