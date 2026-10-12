@@ -246,13 +246,13 @@ Before configuring the Callback URL in Atlassian, copy the Redirect URI from Pip
    - **Instance Name** (e.g., `Confluence Production`)
    - **Client ID** — from Step 6
    - **Client Secret** — from Step 6
-   - **Grant Jira user access** — leave it at **No** (see note below).
+   - **Grant Jira user access** — leave it at **No**. The toolset doesn't use Jira.
 4. Click **Create**.
 
 <div className="text-center">
   <img
     src="/images/toolsets/confluence/enter-credentials.png"
-    alt="Enter Client ID and Client Secret in PipesHub (the dialog now also shows Grant Jira user access)"
+    alt="Enter Client ID and Client Secret in PipesHub"
     className="block mx-auto w-11/12"
   />
 </div>
@@ -262,7 +262,7 @@ Before configuring the Callback URL in Atlassian, copy the Redirect URI from Pip
 </Info>
 
 <Info>
-  **Grant Jira user access.** Leave this at **No**: the toolset then asks Atlassian only for the Confluence scopes from Step 5. The toolset doesn't use Jira, so **Yes** doesn't add anything for it; it only adds the `read:jira-user` scope to each user's sign-in request. (The email lookup through Jira that this setting's description mentions is a feature of the Confluence connector, not this toolset.) If you choose **Yes** without adding `read:jira-user` to your Atlassian app, Atlassian refuses the sign-in. The screenshot above was taken before this setting was added.
+  **Grant Jira user access.** Leave this at **No**, so the toolset asks Atlassian only for the Confluence scopes from Step 5. The toolset doesn't use Jira: **Yes** only adds the `read:jira-user` scope to each user's sign-in request, and if your Atlassian app doesn't have `read:jira-user`, Atlassian refuses the sign-in. The email lookup through Jira that the setting's description mentions belongs to the Confluence connector, not this toolset. The screenshot doesn't show this setting.
 </Info>
 
 #### Step 8: Authenticate the toolset
