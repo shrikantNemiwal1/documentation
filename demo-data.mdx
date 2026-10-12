@@ -7,7 +7,7 @@ icon: "flask"
 A fresh PipesHub has nothing to search until you connect a source, and connecting a real one takes an OAuth round-trip you may not want to do just to see what the product does. The **Demo** connector fills that gap: it loads *Acme Corp*, a small fictional company, and nothing else — no external service is contacted.
 
 <Note>
-  Available from the first release after 0.8.0. On 0.8.0 and earlier the Demo connector is not in the connectors list.
+  From 0.10.0, the Demo connector loads the Acme Corp this page describes. 0.9.0 and 0.9.1 load a smaller, earlier set: see [Earlier releases](#earlier-releases). On 0.8.0 and earlier the Demo connector is not in the connectors list.
 </Note>
 
 ## What you get
@@ -127,6 +127,20 @@ To do it by hand, delete the Demo connector from **Workspace → Connectors**. I
 ## Build Packs on the demo data
 
 A [Build Pack](https://github.com/pipeshub-ai/examples/tree/main/packs) is a set of instructions for Claude Code, Codex, Cursor and Omnigent, with the questions to ask and the records a good answer cites. The examples repository has one per team, built on that team's Acme Corp stories: [Engineering](https://github.com/pipeshub-ai/examples/tree/main/packs/engineering), [Sales](https://github.com/pipeshub-ai/examples/tree/main/packs/sales), [Support](https://github.com/pipeshub-ai/examples/tree/main/packs/support), [Marketing](https://github.com/pipeshub-ai/examples/tree/main/packs/marketing), [Finance](https://github.com/pipeshub-ai/examples/tree/main/packs/finance) and [People](https://github.com/pipeshub-ai/examples/tree/main/packs/hr). Try a pack on the demo data before pointing it at your own tools.
+
+## Earlier releases
+
+0.9.0 and 0.9.1 include the Demo connector, but load an earlier Acme Corp: 41 records with the two engineering story lines and none of the team stories. The [Build Packs](#build-packs-on-the-demo-data) are built on the 0.10.0 data. Loading, showing, hiding and removing the demo work as described above.
+
+| Looks like | Contains |
+| --- | --- |
+| **GitHub** | two repositories: pull requests, issues, review comments |
+| **Jira** | an incidents project and a support-escalation project |
+| **Slack** | four channels, including two decision threads |
+| **Google Drive** | design docs, a runbook, the on-call handbook, release notes — and one restricted pricing document |
+| **ServiceNow** | customer cases that led to an escalation |
+
+Alice Chen is in **Engineering readers** and **Support readers**. Bob Okafor is in those two and **Pricing committee**. The person who adds the connector joins the same two groups as Alice. The pricing question works as described in [Two people who see different things](#two-people-who-see-different-things); the other restricted questions have no records to find.
 
 ## For coding agents
 
