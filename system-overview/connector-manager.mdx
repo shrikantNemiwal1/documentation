@@ -513,6 +513,10 @@ Permanently delete a connector and everything synced from it. The request return
 <Accordion title="Configuration">
 A connector's configuration has three sections: `auth` (how it signs in), `sync` (when it syncs) and `filters` (what it syncs and indexes). It is stored encrypted. Reading it leaves out the `credentials` and `oauth` sections, which hold the sign-in tokens.
 
+Secrets in `auth` never come back in plain text. A secret is any field the connector type's setup form marks secret, such as an API token, password or client secret, and the service-account private key of an older Google Workspace connector. A secret that is set comes back as `••••••••`, on a read and in the answer to every save. A secret that isn't set comes back empty.
+
+When you save, a secret sent as `••••••••` or left out keeps the stored value, and a new value replaces it. So you can send back the configuration you read without retyping its secrets.
+
 <AccordionGroup>
 
 <Accordion title="GET /:connectorId/config - Get a connector's configuration">
@@ -557,7 +561,7 @@ A connector's configuration has three sections: `auth` (how it signs in), `sync`
 }
 ```
 
-The `credentials` and `oauth` sections, and the OAuth endpoints and scopes, are removed from `config.config`.
+The `credentials` and `oauth` sections, and the OAuth endpoints and scopes, are removed from `config.config`. Secrets in `auth` come back masked, for example `"auth": { "baseUrl": "https://example.atlassian.net", "apiToken": "••••••••" }` for an API-token connector.
 </Tab>
 </Tabs>
 </Accordion>
@@ -586,7 +590,9 @@ The `credentials` and `oauth` sections, and the OAuth endpoints and scopes, are 
 }
 ```
 
-Turn sync off first: the connector must not be active. Changing the credentials in `auth` signs the connector out (`isAuthenticated` becomes `false`), and its auth type can't be changed after creation.
+Turn sync off first: the connector must not be active. Changing the credentials in `auth` signs the connector out (`isAuthenticated` becomes `false`), and its auth type can't be changed after creation. A secret sent back as `••••••••` keeps the stored value and doesn't count as a credential change, so sending the configuration back unchanged keeps the connector signed in. Choosing a different OAuth app with `oauthConfigId` does count, and signs the connector out.
+
+On an OAuth connector, a new client secret sent here changes only the connector's own copy. Sign-in uses the linked OAuth app's secret; to rotate that, update the OAuth app with `PUT /api/v1/oauth/:connectorType/:configId`.
 </Tab>
 
 <Tab title="Response">
@@ -620,6 +626,8 @@ Save only the `auth` section. The connector is then marked configured but not au
   "baseUrl": "https://pipeshub.example.com"
 }
 ```
+
+To keep a stored secret, send it as `••••••••` or leave it out; to replace it, send the new value. The mask itself is never written to the connector or to its OAuth app.
 </Tab>
 
 <Tab title="Response">
