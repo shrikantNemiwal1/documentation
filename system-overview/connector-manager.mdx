@@ -1066,7 +1066,7 @@ Get record counts by indexing status for a connector.
 }
 ```
 
-**Errors:** `404` when the connector doesn't exist or you can't see it: a personal connector you didn't create (admins included), a team connector you didn't create when you aren't an admin, or a knowledge base you have no role on. The answer is the same as for a connector that doesn't exist, so the API doesn't confirm that it exists. `403` for a knowledge base where your role is other than owner, writer or reader ("Insufficient KB permissions for connector ...").
+**Errors:** `404` when the connector doesn't exist or you can't see it: a personal connector you didn't create (admins included), a team connector you didn't create when you aren't an admin, or a knowledge base you have no role on. Both get the same answer, so the API doesn't confirm that the connector exists. `403` for a knowledge base where your role is other than owner, writer or reader ("Insufficient KB permissions for connector ...").
 </Tab>
 </Tabs>
 </Accordion>
