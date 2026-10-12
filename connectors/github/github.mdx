@@ -431,7 +431,7 @@ The GitHub connector syncs the following data from your GitHub repositories:
 - Only the **default branch** is synced; content on other branches is expected to be absent
 - Files above 5 MB appear as records but their contents are not indexed
 - Lock files, minified files, source maps, and `.ndjson` / `.jsonl` files appear as records marked
-  **File Type Not Supported**; this is expected — see *How each file is indexed* below
+  **File Type Not Supported**; this is expected (see *How each file is indexed*)
 
 **A user sees no records even though they have GitHub access:**
 - Their email could not be read. Either verify your organization's domain in GitHub, or ask them
@@ -553,8 +553,8 @@ A repository holds more than source code, so PipesHub reads each file with the r
 | Line-delimited JSON: `.ndjson`, `.jsonl` | Not indexed |
 | Files that hold binary data under a text file name | Not indexed |
 
-A file that is not indexed keeps its record and stays findable by name and path. It shows
-**File Type Not Supported**, with a reason that says why. There are two you will see most:
+A file that isn't indexed keeps its record and stays findable by name and path. It shows
+**File Type Not Supported**, with one of two reasons you'll see most:
 
 - For `package-lock.json`, `pnpm-lock.yaml`, and minified files: "This is a generated file (a lock
   file, minified bundle, source map or test snapshot), so PipesHub skips it to keep search results

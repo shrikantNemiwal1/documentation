@@ -396,8 +396,8 @@ The GitLab connector syncs the following data from your GitLab projects:
   can read issues and merge requests but not repository contents
 - Only the **default branch** is synced; content on other branches is expected to be absent
 - Source and text files above 5 MB still appear as records, marked **File Type Not Supported**
-  with the file's size as the reason; their contents are not indexed — see *How each file is
-  indexed* below
+  with the file's size as the reason; their contents are not indexed (see *How each file is
+  indexed*)
 
 **A user sees no records even though they have GitLab access:**
 - Their GitLab **public email** is probably not set. Ask them to set it (see the email visibility
@@ -528,7 +528,7 @@ reader that fits it:
 | Line-delimited JSON: `.ndjson`, `.jsonl` | Not indexed |
 | Files that hold binary data under a text file name | Not indexed |
 
-A file that is not indexed keeps its record and stays findable by name and path. It shows
+A file that isn't indexed keeps its record and stays findable by name and path. It shows
 **File Type Not Supported**, with a reason that says why:
 
 - Above 5 MB: "This file is 12.5 MB, and PipesHub reads code and plain-text files up to 5 MB.
@@ -546,11 +546,11 @@ Nothing is cut short: a file is either indexed whole or not at all.
   `CODE_FILE_MAX_SIZE_MB` environment variable on the PipesHub container and restarting it. The
   limit applies to source and plain-text files; CSV, JSON, and YAML files are not subject to it.
 
-  Raising the limit does not index the file by itself. A file marked **File Type Not Supported**
-  has no Reindex action of its own, and a sync skips a repository that has not changed. Open the
-  project in PipesHub and choose **Index all** on its **Code repository**; that sends every file
-  in it, this one included, back through indexing. **Re-index failed**, on the same menu, only
-  retries files marked Failed and leaves this one as it is.
+  Raising the limit doesn't index the file by itself: a file marked **File Type Not Supported**
+  has no Reindex action, and a sync skips a repository that hasn't changed. To index it, open the
+  project in PipesHub and choose **Index all** on its **Code repository**, which sends every file
+  in it back through indexing. **Re-index failed**, on the same menu, retries only files marked
+  Failed, so it leaves this file as it is.
 </Note>
 
 <Warning>
