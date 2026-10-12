@@ -566,7 +566,7 @@ On Workspace, a file deleted or moved to the trash in Google Drive is usually re
 **When a full sync skips its cleanup.** At the end of a full sync, PipesHub removes the files and folders that the sync didn't find in Google Drive. It removes none of them when:
 
 - The listing is incomplete: a file, drive or user couldn't be read, a user's sync failed, Google reported that its results were incomplete, or the contents of a folder in **Folder IDs** are still unknown (see **When a listed folder can't be read**, below).
-- The sync recorded no file or folder at all. The **Created Date**, **Modified Date** and **Sync Files with Extensions** filters let folders through, and the sync records those folders, so these three filters don't cause this skip by themselves.
+- The sync recorded no file or folder at all, for example because the sync filters left out every file it listed and it recorded no folder. A sync that recorded even one folder isn't skipped for this reason.
 - PipesHub couldn't read the records it already holds for the connector.
 - More than half of the files and folders PipesHub holds for the connector are missing from the listing. Stand-in folders, which PipesHub keeps only to show the path to a synced file, don't count. Each later full sync checks again, so the missing files stay until no more than half are missing, or until a filter change leaves them out.
 
