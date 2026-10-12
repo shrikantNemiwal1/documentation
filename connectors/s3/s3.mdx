@@ -257,7 +257,11 @@ Still on the same tab, scroll down to **Indexing & sync filters**. Filters let y
 3. Click **Save Configuration** (bottom right) when you're done.
 
 <Info>
-  You can change filters any time later. New filters take effect on the next sync. Files that an extension, date or **Folders** filter now leaves out are removed from PipesHub, search results included. Folders exclusions are removed on the next sync. Extension and date exclusions are removed once a sync has listed everything in scope from start to finish: each included folder when **Folders** is set to **In**, otherwise the whole bucket. **Bucket Names** with *In* syncs only the buckets you pick; with *Not In* it syncs every bucket except those. A bucket the filter newly leaves out stops syncing, and the files already synced from it are removed on the next sync.
+  You can change filters any time later. New filters take effect on the next sync. When you narrow them, PipesHub removes the files they now leave out, search results included:
+
+  - **Folders:** files outside the new folders are removed on the next sync.
+  - **File Extensions** and dates: files left out are removed once a sync has listed everything in scope from start to finish (the whole bucket, or each included folder when **Folders** is set to **In**).
+  - **Bucket Names:** with *In*, only the buckets you pick sync; with *Not In*, every bucket except those. A bucket the filter newly leaves out stops syncing, and the files already synced from it are removed on the next sync.
 </Info>
 
 ### Step 8: Turn on sync
@@ -431,15 +435,15 @@ The first sync performs a complete scan of your configured S3 buckets:
 
 ### Incremental Sync
 
-After the initial sync, later syncs still list every object in scope (the whole bucket, or each included folder with a **Folders** filter set to **In**), but they only download and index the ones that changed:
+After the initial sync, each sync still lists every object in scope (the whole bucket, or each included folder when a **Folders** filter is set to **In**), but downloads and indexes only the ones that changed:
 
-- **Full Listing**: With no **Folders** filter, every sync makes one listing of the whole bucket, page by page. With a **Folders** filter set to **In**, it lists each included folder instead; set to **Not In**, it still lists the whole bucket and skips the excluded folders. Listing is much cheaper than downloading, but it still grows with the number of objects listed.
+- **Full Listing**: Without a **Folders** filter, each sync lists the whole bucket, page by page. With **Folders** set to **In**, it lists each included folder; with **Not In**, it lists the whole bucket and skips the excluded folders. Listing costs much less than downloading, but its time still grows with the number of objects listed.
 - **Change Detection**: Objects whose `LastModified` is older than the last sync are counted as still present and skipped; new and changed objects are processed.
 - **Sync Point Tracking**: Stores the last sync timestamp per bucket and folder.
 - **Pagination Resume**: Uses continuation tokens to resume an interrupted listing.
-- **Deletions**: Once everything in scope has been listed from start to finish (each included folder with **Folders** set to **In**, otherwise the whole bucket), files that are no longer there, and files a **File Extensions** or date filter now leaves out, are removed from PipesHub.
-- **Safe Removal**: If a listing failed, or resumed partway from an earlier interrupted sync, those files aren't removed on that sync, even if the listing reached the last page. They're removed after the next complete listing.
-- **Narrowed Folders**: Files outside a narrowed **Folders** filter don't wait for a complete listing. They're removed on the next sync, even if its listing is incomplete.
+- **Deletions**: After a complete listing of everything in scope, files that are no longer there, and files a **File Extensions** or date filter now leaves out, are removed from PipesHub.
+- **Safe Removal**: If a listing failed, or resumed partway from an earlier interrupted sync, those files aren't removed on that sync, even if the listing reached the last page. The next complete listing removes them.
+- **Narrowed Folders**: Files outside a narrowed **Folders** filter are removed on the next sync, even if its listing is incomplete.
 
 **How It Works:**
 
@@ -447,11 +451,11 @@ After the initial sync, later syncs still list every object in scope (the whole 
 2. It lists the bucket with `ListObjectsV2` (with **Folders** set to **In**, each included folder in turn), following continuation tokens to the last page.
 3. It processes objects that are new or changed since `last_sync_time`, and skips the rest.
 4. It saves the newest timestamp it saw as the next sync point.
-5. Once everything in scope was listed from start to finish, it removes the records of objects the listing no longer returned, and of objects an extension or date filter now leaves out. (Those are still listed, but they're skipped before they count as kept.)
+5. After a complete listing, it removes the records of objects the listing no longer returned, and of objects an extension or date filter now leaves out (these are still listed, but skipped before they count as kept).
 6. If the **Folders** filter was narrowed, it also removes the records outside the new folders, whether or not the listing was complete.
 
 <Info>
-  How long a sync takes depends on how many objects it lists (the whole bucket, or only the included folders with **Folders** set to **In**) and how many have changed (only those are downloaded and indexed).
+  Sync time depends on how many objects are listed (the whole bucket, or only the included folders when **Folders** is set to **In**) and how many changed, since only those are downloaded and indexed.
 </Info>
 
 ### Permission Handling
@@ -718,13 +722,13 @@ This connector is designed for **Amazon S3** and uses the AWS S3 API. It support
 <Accordion title="How does incremental sync work?">
   After the initial sync, each sync works like this:
   
-  1. **Lists Everything in Scope**: Lists every object in the bucket, or, with a **Folders** filter set to **In**, every object in each included folder
-  2. **Skips Unchanged Objects**: Objects not modified since the last sync timestamp are counted as present but not downloaded again
+  1. **Lists Everything in Scope**: Lists every object in the bucket, or in each included folder when a **Folders** filter is set to **In**
+  2. **Skips Unchanged Objects**: Objects not modified since the last sync are counted as present and not downloaded again
   3. **Processes Changes**: Downloads and indexes only new or modified objects
-  4. **Removes Deletions**: Once everything in scope was listed from start to finish, removes files that are no longer there
+  4. **Removes Deletions**: After a complete listing, removes files that are no longer there
   5. **Updates Timestamp**: Saves the newest timestamp for the next sync
   
-  Skipping unchanged objects is what makes later syncs faster than the first one. The listing itself still covers everything in scope: each included folder with a **Folders** filter set to **In**, otherwise the whole bucket.
+  Skipping unchanged objects is what makes later syncs faster than the first. The listing itself still covers everything in scope.
 </Accordion>
 
 <Accordion title="Can I sync S3 Glacier files?">
@@ -739,15 +743,11 @@ This connector is designed for **Amazon S3** and uses the AWS S3 API. It support
 </Accordion>
 
 <Accordion title="What happens if I delete a file in S3?">
-  When a file is deleted from S3:
+  The file's record and search index entries are deleted from PipesHub on the next sync that lists everything in scope from start to finish without an error (the whole bucket, or each included folder when a **Folders** filter is set to **In**). The file then no longer appears in search results.
   
-  - The next sync that lists everything in scope from start to finish without an error notices it's gone: each included folder with a **Folders** filter set to **In**, otherwise the whole bucket
-  - The file's record is deleted from PipesHub, along with its search index entries
-  - The file no longer appears in search results
+  If a listing fails, or resumes partway from an earlier interrupted sync, the file isn't removed on that sync, even if the listing reaches the last page. The next complete listing removes it.
   
-  If a listing fails, or resumes partway from an earlier interrupted sync, nothing is removed on that sync, even if it reaches the last page. The next complete listing removes it.
-  
-  **Note**: S3 versioning doesn't keep a deleted file visible. Once the current version is a delete marker, the listing no longer returns the key, so it is removed.
+  **Note**: S3 versioning doesn't keep a deleted file visible. Once the current version is a delete marker, the listing no longer returns the key, so the file is removed.
 </Accordion>
 
 <Accordion title="Can I sync encrypted S3 buckets?">
