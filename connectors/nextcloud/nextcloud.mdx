@@ -48,7 +48,7 @@ This connector uses the **Nextcloud WebDAV API** for file operations. WebDAV (We
 A **cursor** (activity ID) is used to track changes between syncs.
 
 1. When you first sync, the connector fetches all files and folders using WebDAV PROPFIND.
-2. After the sync completes, the connector saves the latest activity ID as a cursor. If the sync can't list the drive, can't read or save a file or folder, or can't remove a file it no longer keeps, no cursor is saved and the next sync starts over as a full sync. Files that did sync stay synced.
+2. After the sync completes, the connector saves the latest activity ID as a cursor. If the sync can't list the drive or can't read or save a file or folder, nothing is removed and files that did sync stay synced. If one file the sync no longer keeps can't be removed, the others still are, and only that file stays. Either way no cursor is saved, and the next sync starts over as a full sync.
 3. Instead of re-downloading the entire file list to check for changes, the connector queries the Activity API with this cursor.
 4. The API returns only the files and folders that have been added, modified, or deleted since the last sync.
 
@@ -173,7 +173,7 @@ Filters split into two categories:
 
 **Changing the filters later.** When you narrow the filters, the next sync removes from PipesHub the files they now leave out, search results included. Sync filters can be edited only while the connector is turned off, and saving them doesn't start a sync. The next sync, when you turn the connector back on or start one by hand, is a full sync: it lists your whole drive, saves every file the filters keep, then removes the rest. Until it finishes, the left-out files stay searchable. Changing the **Created Date** filter removes nothing, because the connector doesn't apply it.
 
-**When Nextcloud can't be read.** If the drive can't be read in full, a kept file can't be saved, or the stored records can't be read, nothing is removed on that sync. If one file can't be removed, the others still are. Either way no cursor is saved, so the next sync is a full sync again and finishes the job.
+**When a sync step fails.** If the drive can't be read in full, a kept file can't be saved, or the stored records can't be read, nothing is removed on that sync. If one file can't be removed, the others still are, and only that file stays. Either way no cursor is saved, so the next sync is a full sync again and finishes the job.
 
 <img
   src="/images/connectors/nextcloud/nc2.png"
@@ -290,7 +290,7 @@ Once the user is identified, the system creates a "Record Group":
    - `data_entities_processor.on_record_content_update` - For content modifications
    - `data_entities_processor.on_record_metadata_update` - For metadata changes
 
-5. **Removing what the sync no longer keeps:** After the whole drive is listed and every kept file and folder is saved, the connector removes the records of everything it didn't keep: files deleted in Nextcloud, and files the sync filters now leave out. The WebDAV listing still returns those, but they're dropped before they count as kept, so they're never saved. If the listing fails, a kept file can't be read or saved, or the stored records can't be read, this step is skipped and nothing is removed on that sync. If one record can't be removed, the others still are.
+5. **Removing what the sync no longer keeps:** After the whole drive is listed and every kept file and folder is saved, the connector removes the records of everything it didn't keep. A file deleted in Nextcloud is missing from the WebDAV listing. A file the sync filters now leave out is still listed but skipped, so it's never saved. If the listing fails, a kept file can't be read or saved, or the stored records can't be read, this step is skipped and nothing is removed on that sync. If one record can't be removed, the others still are, and only that record stays.
 6. **Cursor Initialization:** The connector saves the latest activity ID as the cursor for incremental syncs only after both the listing and the removal finish. Otherwise no cursor is saved, and the next sync is a full sync again.
 
 #### Incremental Sync
