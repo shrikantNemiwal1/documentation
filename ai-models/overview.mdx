@@ -89,7 +89,7 @@ After saving, your model appears under the **Configured** tab. Each row has the 
 
 ## Troubleshooting
 
-If the health check fails when you save a model, the dialog shows the check's message word for word.
+If the health check fails when you save a model, the dialog shows the check's message word for word. The one exception is an embedding model refused because content is indexed with another model; see [Changing the embedding model in use](#changing-the-embedding-model-in-use).
 
 <Note>
 If the health check fails when saving, double-check:
@@ -162,6 +162,15 @@ With **Multimodal** on, an embedding model is also asked to embed a test image. 
 - Image and text vectors differ in size: "Image embeddings are &lt;n&gt;-dimensional but text embeddings are &lt;m&gt;-dimensional; both share one collection."
 
 For any of these, turn off **Multimodal** for this model, or choose a model that embeds images. When the test image fails because of the endpoint or API key instead, the message says to check those.
+
+### Changing the embedding model in use
+
+Saving an embedding model that will become the one in use is also checked against what the vector store already holds. The dialog shows:
+- Content is indexed with another embedding model (400): "This model is embedding your indexed content. Delete the embeddings in Labs first, then change or delete the model and re-embed."
+- PipesHub can't read what the vector store holds (503): "Could not verify what the vector store currently holds, so an embedding model change cannot be validated. Check vector store connectivity and retry."
+- The vector store is empty but couldn't be rebuilt for the new model (503): "The vector store could not be rebuilt for the new embedding model, so the model was not changed. The empty collection may already have been removed; it is created again on the next upload. Check that the vector store is reachable and try again."
+
+In every case the model in use stays the same.
 
 ### A chat stops answering
 
