@@ -142,7 +142,8 @@ https://www.googleapis.com/auth/gmail.readonly,https://www.googleapis.com/auth/d
   The connector only reads, and asks for only these scopes:
   - `gmail.readonly`: read each user's mail and attachments
   - `drive.readonly`: open attachments shared as Google Drive links
-  - `admin.directory.user.readonly`, `admin.directory.group.readonly`, `admin.directory.domain.readonly`: list the users, groups and domains in your organization
+  - `admin.directory.user.readonly`, `admin.directory.group.readonly`: list the users and groups in your organization, and each group's members
+  - `admin.directory.domain.readonly`: requested with the other directory scopes, so grant it even though Gmail sync doesn't list domains
   - `admin.reports.audit.readonly`: read the admin audit log. The connector asks for it with the directory scopes, so grant it even though Gmail sync doesn't read the log
 </Info>
 
