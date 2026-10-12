@@ -268,7 +268,7 @@ Available sync filters:
 5. **Created Date** — filter by creation date. Same operators.
 
 <Info>
-  Date filters use the exact date and time you set: `Is Before` keeps content from before that moment, and `Is After` keeps content from after it. The time defaults to midnight, so a **Modified Date** or **Created Date** of `Is Before` 1 June keeps content up to the end of 31 May, and `Is After` 1 March starts just after midnight on 1 March. To keep 1 June, choose `Is Before` 2 June. Confluence compares these dates in your site's time zone, so on a site that isn't set to UTC the edge can move by that time-zone difference. Content that's already synced is removed for a date filter only when it falls more than a day outside the date you set, so a page or blog post less than a day outside the edge can stay in PipesHub.
+  Date filters apply exactly as set: `Is Before` keeps content from before that date and time, and `Is After` keeps content from after it. For **Modified Date** and **Created Date** the time defaults to midnight, so `Is Before` 1 June keeps content up to the end of 31 May, and `Is After` 1 March starts just after midnight on 1 March. To include 1 June, choose `Is Before` 2 June. Confluence compares these dates in your site's time zone, so on a site not set to UTC the edge can shift by that time-zone difference. Already-synced content is removed for a date filter only when it falls more than 24 hours outside the date you set, so a page or blog post closer to the edge can stay in PipesHub.
 </Info>
 
 <Info>
@@ -413,7 +413,7 @@ Each sync runs these steps in order:
 ### Later syncs
 - Uses timestamps to find changed content
 - Only syncs pages and blog posts that are new or changed since the last sync
-- Each sync also re-checks the 24 hours before the previous sync, so an edit made around that time is not missed. This look-back never reaches past a **Modified Date** `Is After` date you set
+- Each sync also re-checks the 24 hours before the previous sync, so edits made around then aren't missed. This look-back never goes earlier than a **Modified Date** `Is After` date you set
 - A separate audit log pass catches permission and restriction changes, because those do not change a page's last-modified time
 
 ### How permissions work
