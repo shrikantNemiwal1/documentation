@@ -19,6 +19,7 @@
           "for-agents-bootstrap",
           "quickstart",
           "demo-data",
+          "trash",
           "development",
           "onboarding",
           "contact-us"
@@ -365,6 +366,11 @@
           "anchor": "Discord",
           "href": "https://discord.com/invite/K5RskzJBm2",
           "icon": "discord"
+        },
+        {
+          "anchor": "Blog",
+          "href": "https://pipeshub.com/blog",
+          "icon": "blog"
         },
         {
           "anchor": "PipesHub",
