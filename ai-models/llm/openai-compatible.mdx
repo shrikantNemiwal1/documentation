@@ -137,7 +137,7 @@ PipesHub's OpenAI-compatible configuration works with any provider that implemen
 **Response Errors:**
 - Ensure the selected model is currently available (not deprecated)
 - Verify that multimodal/reasoning flags match the model's actual capabilities
-- If the provider rejects the reasoning effort (for example, `high`), set the model's default reasoning effort to a level it accepts (see [Reasoning](#reasoning)). Also check the level picked in the chat and the agent's own default, which both override the model's default. Change a rejected level to one the provider accepts, or choose **Model default**
+- If the provider rejects the reasoning effort (for example, `high`), set the model's default reasoning effort to a level it accepts (see [Reasoning](#reasoning)). Also check the level picked in the chat and the agent's own default, which both override the model's default. Change a rejected level to one the provider accepts. In a chat, **Model default** goes back to the model's default. In an agent chat the same option reads **Agent default** and uses the agent's level, so to drop a rejected agent default, set the agent's reasoning effort to **Model default** in the agent builder
 - Check your provider's status page for any ongoing issues
 
 For additional support, refer to your provider's documentation or contact PipesHub support.
