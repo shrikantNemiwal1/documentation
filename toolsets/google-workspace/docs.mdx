@@ -1,0 +1,71 @@
+---
+title: "Google Docs Toolset"
+description: "Let agents read, create and edit Google Docs"
+icon: "/logo/gdocs.png"
+---
+
+The Google Docs toolset lets an agent read a Google Doc, create a new one, add text, replace text, and make other edits, acting as the Google account that connected the toolset.
+
+## What agents can do
+
+| Tool | What it does |
+|------|-------------|
+| `get_document` | Read a document's title, text and link |
+| `create_document` | Create a new document, optionally with starting text |
+| `insert_text` | Add text at a position, or at the end of the document |
+| `replace_text` | Replace every occurrence of some text, and report how many changed |
+| `batch_update_document` | Apply Google Docs API edits the other tools don't cover, such as styles, tables or deleting a range |
+
+Tools that change a document (`create_document`, `insert_text`, `replace_text`, `batch_update_document`) act right away in the connected account.
+
+A tool finds a document by its id: the part of the link after `/document/d/`. To work with a document you only know by name, also add the [Drive toolset](/toolsets/google-workspace/drive) so the agent can search for it.
+
+## Permissions it asks for
+
+| Scope | Why |
+|-------|-----|
+| `https://www.googleapis.com/auth/documents` | Read and edit the Google Docs the account can open, and create new ones |
+
+Docs has its own sign-in, separate from Drive, Gmail and Calendar. Connecting it never asks those toolsets to sign in again.
+
+## Set up
+
+<Steps>
+  <Step title="Enable the Google Docs API">
+    In [Google Cloud Console](https://console.cloud.google.com/), open your project, go to **APIs & Services > Library**, search for **Google Docs API** and click **Enable**.
+  </Step>
+  <Step title="Add the scope to the consent screen">
+    In **APIs & Services > OAuth consent screen > Scopes**, add `https://www.googleapis.com/auth/documents`.
+  </Step>
+  <Step title="Copy the redirect URI from PipesHub">
+    In PipesHub, go to **Settings > Toolsets**, find **Docs**, click **Configure** and copy the **Redirect URI**.
+  </Step>
+  <Step title="Create an OAuth client">
+    In **APIs & Services > Credentials**, click **Create Credentials > OAuth client ID**, choose **Web application**, paste the redirect URI under **Authorized redirect URIs**, and click **Create**. Copy the **Client ID** and **Client Secret**.
+  </Step>
+  <Step title="Connect in PipesHub">
+    Back in the Docs dialog, enter the Client ID and Client Secret and click **Authenticate**. Sign in to Google, allow access, and the toolset shows **Authenticated**.
+  </Step>
+</Steps>
+
+You can use the same OAuth client as your other Google toolsets: add this toolset's redirect URI to it and enable the Docs API in the same project.
+
+## Errors you may see
+
+| Message | What to do |
+|---------|-----------|
+| "…has not given this app permission to do that…" | Reconnect the Docs toolset in **Settings > Toolsets** and allow Google Docs access |
+| "…could not find that document…" | Check the document id, and that the connected account can open the document |
+| "…too many requests right now…" | Wait the time the message gives, then try again |
+| "…the Google sign-in has expired or was revoked…" | Reconnect the Docs toolset |
+
+## FAQ
+
+<AccordionGroup>
+<Accordion title="How is this different from the Google Docs connector?">
+The [connector](/connectors/google-workspace/docs/docs) indexes documents so they appear in search and chat answers. The toolset lets an agent act on documents: create them and change them. Use both if agents should find documents and also edit them.
+</Accordion>
+<Accordion title="Can an agent read a document it found through search?">
+Yes. Search results link to the document, and `get_document` reads it by the id in that link, as long as the connected account can open it.
+</Accordion>
+</AccordionGroup>
