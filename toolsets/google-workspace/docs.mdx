@@ -10,13 +10,17 @@ The Google Docs toolset lets an agent read a Google Doc, create a new one, add t
 
 | Tool | What it does |
 |------|-------------|
-| `get_document` | Read a document's title, text and link |
+| `get_document` | Read a document's title, link, and the text of every tab, child tabs included |
 | `create_document` | Create a new document, optionally with starting text |
-| `insert_text` | Add text at a position, or at the end of the document |
-| `replace_text` | Replace every occurrence of some text, and report how many changed |
+| `insert_text` | Add text at a position, or at the end, in the first tab or a tab you name |
+| `replace_text` | Replace every occurrence of some text, in every tab or one tab, and report how many changed |
 | `batch_update_document` | Apply Google Docs API edits the other tools don't cover, such as styles, tables or deleting a range |
 
 Tools that change a document (`create_document`, `insert_text`, `replace_text`, `batch_update_document`) act right away in the connected account.
+
+**Tabs.** `get_document` labels each tab's text with its title and `tab_id`. Without a `tab_id`, `insert_text` writes into the first tab and `replace_text` changes every tab; give a `tab_id` to work in one tab.
+
+If `create_document` creates the document but can't add its starting text, it says so and gives the new document's id: the agent then adds the text with `insert_text` instead of creating a second document.
 
 A tool finds a document by its id: the part of the link after `/document/d/`. To work with a document you only know by name, also add the [Drive toolset](/toolsets/google-workspace/drive) so the agent can search for it.
 
@@ -24,40 +28,45 @@ A tool finds a document by its id: the part of the link after `/document/d/`. To
 
 | Scope | Why |
 |-------|-----|
-| `https://www.googleapis.com/auth/documents` | Read and edit the Google Docs the account can open, and create new ones |
+| `https://www.googleapis.com/auth/documents` | A sensitive scope: it lets the action read, edit, create and delete **all** of the connected account's Google Docs, not only ones the agent created |
 
-Docs has its own sign-in, separate from Drive, Gmail and Calendar. Connecting it never asks those toolsets to sign in again.
+Docs has its own sign-in, separate from Drive, Gmail and Calendar, so connecting it never asks those actions to sign in again.
 
 ## Set up
+
+An admin sets the action up once; then each person who wants agents to use it signs in with their own Google account.
 
 <Steps>
   <Step title="Enable the Google Docs API">
     In [Google Cloud Console](https://console.cloud.google.com/), open your project, go to **APIs & Services > Library**, search for **Google Docs API** and click **Enable**.
   </Step>
-  <Step title="Add the scope to the consent screen">
-    In **APIs & Services > OAuth consent screen > Scopes**, add `https://www.googleapis.com/auth/documents`.
+  <Step title="Add the scope">
+    Add `https://www.googleapis.com/auth/documents` to your OAuth app's scopes. In the newer console layout that is **Google Auth Platform > Data Access > Add or Remove Scopes**; in the older one, **APIs & Services > OAuth consent screen > Scopes**.
   </Step>
-  <Step title="Copy the redirect URI from PipesHub">
-    In PipesHub, go to **Settings > Toolsets**, find **Docs**, click **Configure** and copy the **Redirect URI**.
+  <Step title="Start the setup in PipesHub">
+    Go to **Workspace > Actions**, find **Docs** and click **Setup**. The **Action configuration** panel shows the **Redirect URI**; copy it.
   </Step>
   <Step title="Create an OAuth client">
-    In **APIs & Services > Credentials**, click **Create Credentials > OAuth client ID**, choose **Web application**, paste the redirect URI under **Authorized redirect URIs**, and click **Create**. Copy the **Client ID** and **Client Secret**.
+    In **APIs & Services > Credentials** (or **Google Auth Platform > Clients**), create an OAuth client of type **Web application**, paste the redirect URI under **Authorized redirect URIs**, and create it. Copy the **Client ID** and **Client secret**.
   </Step>
-  <Step title="Connect in PipesHub">
-    Back in the Docs dialog, enter the Client ID and Client Secret and click **Authenticate**. Sign in to Google, allow access, and the toolset shows **Authenticated**.
+  <Step title="Finish the action configuration">
+    Back in the **Action configuration** panel, enter an **Instance name**, an **OAuth app name**, the **Client ID** and the **Client secret**, then click **Create**.
+  </Step>
+  <Step title="Each person signs in">
+    Each user opens **Your actions**, finds the Docs action and clicks **Authenticate**, signs in to Google and allows access. The action then shows **Authenticated**.
   </Step>
 </Steps>
 
-You can use the same OAuth client as your other Google toolsets: add this toolset's redirect URI to it and enable the Docs API in the same project.
+You can reuse the OAuth client of your other Google actions: add this action's redirect URI to it and enable the Google Docs API in the same project.
 
 ## Errors you may see
 
 | Message | What to do |
 |---------|-----------|
-| "…has not given this app permission to do that…" | Reconnect the Docs toolset in **Settings > Toolsets** and allow Google Docs access |
+| "…has not given this app permission to do that. Authenticate Docs again under Your actions and allow Google Docs access…" | Open **Your actions**, click **Authenticate** on the Docs action and allow the permission. If Google doesn't ask for it, an admin adds the scope to the OAuth app (see [Set up](#set-up)) |
 | "…could not find that document…" | Check the document id, and that the connected account can open the document |
-| "…too many requests right now…" | Wait the time the message gives, then try again |
-| "…the Google sign-in has expired or was revoked…" | Reconnect the Docs toolset |
+| "…is receiving too many requests right now…" | Wait the time the message gives, then try again |
+| "…the Google sign-in has expired or was revoked. Authenticate Docs again under Your actions…" | Open **Your actions** and click **Authenticate** on the Docs action |
 
 ## FAQ
 
