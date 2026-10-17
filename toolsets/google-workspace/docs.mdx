@@ -16,7 +16,7 @@ The Google Docs toolset lets an agent read a Google Doc, create a new one, add t
 | `replace_text` | Replace every occurrence of some text, in every tab or one tab, and report how many changed |
 | `batch_update_document` | Apply Google Docs API edits the other tools don't cover, such as styles, tables or deleting a range |
 
-Tools that change a document (`create_document`, `insert_text`, `replace_text`, `batch_update_document`) act right away in the connected account.
+Tools that change a document (`create_document`, `insert_text`, `replace_text`, `batch_update_document`) act in the connected account. Each one asks the user to approve it before it runs, unless an admin has pre-approved it in the action's **Tool approvals**. Where nobody can approve (the Slack bot, scheduled runs, the API, and service-account agents), only pre-approved tools run.
 
 **Tabs.** `get_document` labels each tab's text with its title and `tab_id`. Without a `tab_id`, `insert_text` writes into the first tab and `replace_text` changes every tab; give a `tab_id` to work in one tab.
 
