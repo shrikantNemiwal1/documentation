@@ -262,7 +262,7 @@ Each tool says what it does to data, and that decides whether it runs straight a
 
 - **Tools that read** run.
 - **Tools that change data**, like creating a Jira issue, posting to Slack or adding a row to a spreadsheet, run.
-- **Tools whose action can't be undone** ask first. That means tools that delete data, clear a sheet, or send email, including calendar invites, which email the attendees. A database query that does more than read, insert or update, for example `DELETE`, `DROP` or `TRUNCATE`, asks first too.
+- **Tools whose action can't be undone** ask first. That means deleting data (including a Google Docs edit that deletes part of a document), clearing a sheet's values, sending email, and creating or changing a calendar event, which emails the attendees. A database query asks first unless it's a single plain read, insert or update, so `DELETE`, `DROP`, `TRUNCATE` or several statements in one query ask.
 - **In a chat in the PipesHub app**, the person sees an approval card and chooses **Allow** or **Deny**.
 - **Where nobody can answer a card** (the Slack bot, the API, the PipesHub MCP server and service-account agents), a tool that asks first doesn't run.
 
