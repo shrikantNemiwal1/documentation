@@ -18,7 +18,7 @@ The Google Sheets toolset lets an agent create a spreadsheet, read cells, write 
 | `append_values` | Add rows after the last row of data, without overwriting anything |
 | `clear_values` | Erase the values in a range, keeping its formatting |
 
-Tools that change a spreadsheet (`create_spreadsheet`, `update_values`, `append_values`, `clear_values`) act in the connected account. In a chat in the PipesHub app, each one asks the user to approve it before it runs, unless an admin has pre-approved it in the action's **Tool approvals**. Where nobody can approve (the Slack bot, the API, the PipesHub MCP server, and service-account agents), these tools run only if they are pre-approved; the read tools run as usual.
+Tools that change a spreadsheet (`create_spreadsheet`, `update_values`, `append_values`) act in the connected account and run straight away, like other tools that change data. `clear_values` erases values that can't be got back, so it asks first (see [Tool approvals](/toolsets/overview#tool-approvals)). In the Enterprise Edition, an admin can change these rules.
 
 **Ranges** use A1 notation, for example `Sheet1!A1:C10`, or just a sheet name such as `Sheet1` for the whole sheet. **Values are written as if typed** into the sheet by default (`USER_ENTERED`), so writing `=SUM(A1:A3)` stores a formula and `2026-10-15` a date. An agent can ask for `RAW` to store values exactly as given.
 
