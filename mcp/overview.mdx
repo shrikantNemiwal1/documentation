@@ -167,6 +167,12 @@ This returns all OAuth endpoints automatically:
 - Revocation: `PIPESHUB_INSTANCE_URL/api/v1/oauth2/revoke`
 - JWKS: `PIPESHUB_INSTANCE_URL/.well-known/jwks.json`
 
+### Request size limit
+
+PipesHub accepts MCP requests of up to 5 MB. A larger request is refused with HTTP 413 and a JSON-RPC error that gives the limit.
+
+Real tool calls are far smaller. A chat question can be at most 100,000 characters, and no tool uploads files. If a client hits the limit, send less in one call, such as a shorter question or fewer IDs.
+
 ## Troubleshooting
 
 <AccordionGroup>
@@ -185,6 +191,9 @@ This returns all OAuth endpoints automatically:
   </Accordion>
   <Accordion title="Cannot reach MCP endpoint">
     - Verify the endpoint is accessible: `curl -X POST PIPESHUB_INSTANCE_URL/mcp` (should return 401, not a connection error).
+  </Accordion>
+  <Accordion title="Request is too large (HTTP 413)">
+    One MCP request can be at most 5 MB. Send less in one call, such as a shorter question or fewer IDs, and try again.
   </Accordion>
   <Accordion title="Debugging with MCP Inspector">
     ```bash
