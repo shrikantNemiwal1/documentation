@@ -380,6 +380,13 @@ Retrieve a specific record by its ID with full metadata.
 ```
 
 `permissions` holds one entry describing your access to the record: `relationship` is your role, and `accessType` is how you have it (here, through the knowledge base). `metadata` lists the departments, categories, topics and languages found for the record. `folder` is often `null`, even for a file that is inside a folder.
+
+Some fields appear on `record` only in certain states:
+
+| Field | When it appears |
+|-------|-----------------|
+| `retryNotBefore` | The record is `QUEUED` because its source is limiting how often PipesHub can read from it. The value is the earliest time, in epoch milliseconds, that indexing tries the record again, and `reason` says when indexing resumes. Ignore it when `indexingStatus` is anything other than `QUEUED`. |
+| `restoredAtTimestamp` | A file was brought back from the trash and queued to be indexed again. The value is when that last happened, in epoch milliseconds. |
 </Tab>
 </Tabs>
 </Accordion>
