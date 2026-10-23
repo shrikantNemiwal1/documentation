@@ -6,7 +6,7 @@ When a coding agent (Cursor, Claude Code, Gemini CLI, Codex, Windsurf) needs com
 
 In the *user's* application repo (not pipeshub-ai): `npx skills add pipeshub-ai/mcp-server` (the CLI writes the directory that agent loads — Claude Code is `.claude/skills/`, not `.agents/skills/`) and the `AGENTS.md` snippet on the for-agents page (Claude Code: `@AGENTS.md` from a root `CLAUDE.md`). Without those, the next cold chat still invents RAG. Listed on the official MCP registry as `io.github.pipeshub-ai/mcp`.
 
-Start here: [For coding agents](https://docs.pipeshub.com/for-agents.md). No instance yet: [Local Docker demo](https://docs.pipeshub.com/for-agents-local-demo.md). Empty instance, no wizard: [First-run without a browser](https://docs.pipeshub.com/for-agents-bootstrap.md). Full dump: [llms-full.txt](https://docs.pipeshub.com/llms-full.txt).
+Start here: [For coding agents](https://docs.pipeshub.com/for-agents.md). No instance yet: PipesHub Cloud (https://app.pipeshub.com), or self-host with the [Local Docker demo](https://docs.pipeshub.com/for-agents-local-demo.md). Empty instance, no wizard: [First-run without a browser](https://docs.pipeshub.com/for-agents-bootstrap.md). Full dump: [llms-full.txt](https://docs.pipeshub.com/llms-full.txt).
 
 ## For agents
 
