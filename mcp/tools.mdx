@@ -64,7 +64,7 @@ Three operations on records, selected by `mode`.
 
 **On a limited connection.** A personal access token or OAuth app set to **Only what I pick** browses only what was picked. With no `nodeId`, `mode: "navigate"` lists:
 
-- **Whole sources only:** every space, folder and file in those sources, flat. The list holds spaces and folders as well as files, so don't count it as a number of files.
+- **Whole sources only:** the flat listing above, kept to those sources: every record group (project, space, drive, channel) and every record (issue, page, message, file) in them. Its total mixes the two, so don't read it as a count of issues, pages, messages or files.
 - **Any space, folder or file picked:** one item for each source, space, folder and file picked, and nothing inside them. `pagination.total` counts these items, not what they hold, and `depth` does not open them. To see inside an item, pass its id as `nodeId`. Do that for each item before answering a "how many" or "list all" question.
 
 ## `pipeshub_download_record`
