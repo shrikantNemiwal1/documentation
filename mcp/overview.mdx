@@ -87,7 +87,7 @@ The recommended `MCP_SCOPES` value covers the common chat, search, and directory
 MCP_SCOPES=openid,profile,email,offline_access,semantic:write,conversation:write,conversation:chat,kb:read,kb:write,kb:upload,team:read,user:read,config:read
 ```
 
-Leave `kb:write` and `kb:upload` out to keep agents read-only: tokens without them are not offered the upload tools. An instance that sets `MCP_SCOPES` in its `.env` keeps that list after an upgrade until you edit it.
+Leave `kb:write` and `kb:upload` out to stop agents creating collections and uploading: tokens without them are not offered those tools. Other tools that can act, such as `pipeshub_chat` with an agent whose toolsets take actions, are governed by their own scopes. An instance that sets `MCP_SCOPES` in its `.env` keeps that list after an upgrade until you edit it.
 
 ## Placeholders
 
