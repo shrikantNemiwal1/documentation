@@ -32,7 +32,7 @@ A default Docker Compose / `install.sh` instance (`curl -fsSL https://get.pipesh
 
 ## No instance yet
 
-**Fastest: PipesHub Cloud.** The human signs up at [app.pipeshub.com](https://app.pipeshub.com) and mints a [personal access token](/developer/personal-access-tokens) in **Workspace → Developer settings**. Then they add data in the PipesHub UI: connect a source (Slack, Drive, Jira, …) or upload files to a Knowledge Base, and wait for indexing — search returns nothing until it has. The MCP URL is `https://app.pipeshub.com/mcp`; continue at [Connect](#connect-ides-and-coding-agents). Never ask them to paste the token into chat.
+**Fastest: PipesHub Cloud.** The human signs up at [app.pipeshub.com](https://app.pipeshub.com) and mints a [personal access token](/developer/personal-access-tokens) in **Workspace → Developer settings**. Then data goes in: you upload the user's documents with `pipeshub_upload` (or they run `pipeshub upload <collectionId> <path>`), or they connect a source in the UI, and indexing finishes (`pipeshub_indexing_status`) — search returns nothing until it has. The MCP URL is `https://app.pipeshub.com/mcp`; continue at [Connect](#connect-ides-and-coding-agents). Never ask them to paste the token into chat.
 
 **Self-host instead:** offer a local Docker install. **Do not start it until they agree.** Do not invent a RAG stack while you wait.
 
@@ -163,7 +163,7 @@ claude mcp add --transport http \
   pipeshub PIPESHUB_INSTANCE_URL/mcp
 ```
 
-Tools: `pipeshub_chat`, `pipeshub_search`, `pipeshub_get_record_content`, `pipeshub_download_record`, `pipeshub_directory`, `pipeshub_sources`, `pipeshub_agents`. See [Tools](/mcp/tools).
+Tools: `pipeshub_search`, `pipeshub_get_record_content`, `pipeshub_download_record`, `pipeshub_directory`, `pipeshub_sources`, `pipeshub_chat`, `pipeshub_agents`. To fill an empty workspace without the browser: `pipeshub_create_collection`, `pipeshub_upload`, `pipeshub_indexing_status`, and `pipeshub_connect_source` for the link the user signs in on. See [Tools](/mcp/tools).
 
 If `pipeshub_chat` returns an answer with no citations, relay it as **unsourced and not confirmed**; do not restate its claims as fact. Cite `recordId` / `webUrl` when they are present. Do not invent a source.
 
