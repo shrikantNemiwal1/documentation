@@ -106,7 +106,7 @@ List the PipesHub **agents** configured for this org. To converse with one, take
 
 ## Filling a workspace
 
-Four tools take an empty workspace to a searchable one. The two that write, `pipeshub_create_collection` and `pipeshub_upload`, need the `kb:write` and `kb:upload` scopes. New personal access tokens and agent logins get them by default; a token without them is not offered those two tools. The local stdio server leaves them out with `--scope read`.
+Four tools take an empty workspace to a searchable one. The two that write, `pipeshub_create_collection` and `pipeshub_upload`, need the `kb:write` and `kb:upload` scopes. On a new install, personal access tokens and agent logins get them by default; on an upgraded instance, see [Customizing Default Scopes](/mcp/overview#customizing-default-scopes). A token without them is not offered those two tools. The local stdio server leaves them out with `--scope read`.
 
 ### `pipeshub_create_collection`
 
@@ -147,7 +147,7 @@ Returns the page where the user connects Slack, Google Drive, Jira or another so
 |---|---|---|---|
 | `connector` | string | no | Opens that connector directly, e.g. `Jira`. |
 
-Returns `{ url, adminUrl, instructions }`. `adminUrl` connects the source for the whole organization.
+Returns `{ url, adminUrl, instructions }`. Give the user `url`: it opens their personal connectors page. `adminUrl` opens the organization's connectors page and works only for an admin connecting the source for everyone; anyone else is redirected to their personal page without the connector selected.
 
 ## Quick Decision Guide
 
@@ -163,5 +163,5 @@ Returns `{ url, adminUrl, instructions }`. `adminUrl` connects the source for th
 | "Who am I?" | `pipeshub_directory` (`whoami`) |
 | First call of a session | `pipeshub_sources` (cache the result) |
 | "Index these docs" / the workspace is empty | Reuse the collection the user means (`pipeshub_sources`, `kind: "knowledgeBase"`), or `pipeshub_create_collection` if there is none → `pipeshub_upload` → `pipeshub_indexing_status` → `pipeshub_search` |
-| "Connect our Jira / Slack / Drive" | `pipeshub_connect_source`, then give the user the link |
+| "Connect our Jira / Slack / Drive" | `pipeshub_connect_source`, then give the user `url` (`adminUrl` only if they are an admin connecting it for the organization) |
 | "Create a Jira ticket" / talk to a configured agent | `pipeshub_agents` → `pipeshub_chat` with that `agentId` |
