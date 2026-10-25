@@ -120,7 +120,7 @@ Returns `{ collectionId, name, url }`.
 
 ### `pipeshub_upload`
 
-Uploads documents into a collection. Each document travels inline: `text` for text formats, `base64` for binary ones. Up to 20 documents and about 3 MB per call. For a folder or larger files, run the CLI: `pipeshub upload <collectionId> <path>`.
+Uploads documents into a collection. Each document travels inline: `text` for text formats, `base64` for binary ones. Up to 20 documents and about 3 MB per call. For a folder or larger files, run the CLI: `pipeshub upload <collectionId> <path>`, after signing it in with `pipeshub login`.
 
 | Argument | Type | Required | Description |
 |---|---|---|---|
