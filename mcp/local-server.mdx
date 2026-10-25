@@ -10,7 +10,7 @@ Instead of connecting to PipesHub's remote MCP endpoint, you can run the MCP ser
 
 - Node.js 20+ installed
 - A PipesHub instance URL
-- Authentication credentials: a **[Personal Access Token](/developer/personal-access-tokens)** (recommended — no OAuth app setup needed) or **OAuth Client ID + Secret**
+- A credential that acts as you, so results follow your permissions: a `pipeshub login` sign-in (no token in any config, below) or a **[Personal Access Token](/developer/personal-access-tokens)**
 
 <Tip>
   No instance yet? Start on [PipesHub Cloud](https://app.pipeshub.com), or self-host with the [Local Docker demo](/for-agents-local-demo), then come back here. Do not scaffold LangChain.
@@ -20,6 +20,22 @@ Instead of connecting to PipesHub's remote MCP endpoint, you can run the MCP ser
   For the `--bearer-auth` flag used throughout this page, a [Personal Access Token](/developer/personal-access-tokens) is the easiest option: create one under **Developer Settings > Personal Access Tokens** and use it directly — no OAuth app, redirect URIs, or token exchange required.
 </Tip>
 
+## No token in the config
+
+With `@pipeshub-ai/mcp` 4.7.0 or later, sign the CLI in once and let it write the client entry:
+
+```bash
+npm i -g @pipeshub-ai/mcp
+pipeshub login                     # PipesHub Cloud; add --url <origin> when self-hosted
+pipeshub mcp install --client cursor   # or claude-code, codex, gemini, claude-desktop
+```
+
+Restart the client. The entry runs `npx -y @pipeshub-ai/mcp@>=4.7.0 start --server-url <origin>` with no `--bearer-auth`: the local server uses the `pipeshub login` sign-in and refreshes it, so no token is written into the client's config. An agent setting this up runs `pipeshub login --no-wait`, gives the user the link and code, then `pipeshub login --wait`. `--dry-run` shows what `mcp install` would change, and `--force` replaces an existing `pipeshub` entry.
+
+The sign-in keeps refreshing on PipesHub versions that give device logins a refresh token; on older ones it lasts an hour. With no `--bearer-auth` and no sign-in, `start` also accepts `PIPESHUB_TOKEN` from the environment, sent only to `--server-url` or `PIPESHUB_BASE_URL`.
+
+The "Signed in" tabs below are the same entries written by hand.
+
 ## Placeholders
 
 Replace these in all configurations below:
@@ -28,8 +44,6 @@ Replace these in all configurations below:
 |---|---|---|
 | `PIPESHUB_API_URL` | Your PipesHub instance URL followed by `/api/v1` | `https://app.pipeshub.com/api/v1` |
 | `YOUR_BEARER_TOKEN` | [Personal access token](/developer/personal-access-tokens) (or any other Bearer JWT) | `phpat_eyJhbGci...` |
-| `YOUR_CLIENT_ID` | OAuth app client ID | `clid_abc123...` |
-| `YOUR_CLIENT_SECRET` | OAuth app client secret | `clsec_xyz789...` |
 
 ## Claude Desktop
 
@@ -59,23 +73,17 @@ Open **Cursor Settings > Tools and Integrations > New MCP Server**, or edit your
 }
 ```
 
-```json OAuth credentials
+```json Signed in (no token)
 {
   "mcpServers": {
     "pipeshub": {
       "command": "npx",
       "args": [
         "-y",
-        "@pipeshub-ai/mcp",
+        "@pipeshub-ai/mcp@>=4.7.0",
         "start",
         "--server-url",
-        "PIPESHUB_API_URL",
-        "--client-id",
-        "YOUR_CLIENT_ID",
-        "--client-secret",
-        "YOUR_CLIENT_SECRET",
-        "--token-url",
-        "/api/v1/oauth2/token"
+        "PIPESHUB_API_URL"
       ]
     }
   }
@@ -92,12 +100,9 @@ claude mcp add pipeshub -- npx -y @pipeshub-ai/mcp start \
   --bearer-auth YOUR_BEARER_TOKEN
 ```
 
-```bash OAuth credentials
-claude mcp add pipeshub -- npx -y @pipeshub-ai/mcp start \
-  --server-url PIPESHUB_API_URL \
-  --client-id YOUR_CLIENT_ID \
-  --client-secret YOUR_CLIENT_SECRET \
-  --token-url /api/v1/oauth2/token
+```bash Signed in (no token)
+claude mcp add --scope user pipeshub -- npx -y "@pipeshub-ai/mcp@>=4.7.0" start \
+  --server-url PIPESHUB_API_URL
 ```
 </CodeGroup>
 
@@ -110,12 +115,9 @@ gemini mcp add pipeshub -- npx -y @pipeshub-ai/mcp start \
   --bearer-auth YOUR_BEARER_TOKEN
 ```
 
-```bash OAuth credentials
-gemini mcp add pipeshub -- npx -y @pipeshub-ai/mcp start \
-  --server-url PIPESHUB_API_URL \
-  --client-id YOUR_CLIENT_ID \
-  --client-secret YOUR_CLIENT_SECRET \
-  --token-url /api/v1/oauth2/token
+```bash Signed in (no token)
+gemini mcp add pipeshub -- npx -y "@pipeshub-ai/mcp@>=4.7.0" start \
+  --server-url PIPESHUB_API_URL
 ```
 </CodeGroup>
 
