@@ -34,6 +34,8 @@ A default Docker Compose / `install.sh` instance (`curl -fsSL https://get.pipesh
 
 **Fastest: PipesHub Cloud.** The human signs up at [app.pipeshub.com](https://app.pipeshub.com) and mints a [personal access token](/developer/personal-access-tokens) in **Workspace → Developer settings**. Then data goes in: create a collection with `pipeshub_create_collection` (or reuse a `knowledgeBase` id from `pipeshub_sources`) and upload the user's documents to it with `pipeshub_upload` (or they run `pipeshub upload <collectionId> <path>`), or they connect a source in the UI; then wait for indexing (`pipeshub_indexing_status`) — search returns nothing until it has. The MCP URL is `https://app.pipeshub.com/mcp`; continue at [Connect](#connect-ides-and-coding-agents). Never ask them to paste the token into chat.
 
+**The `pipeshub` CLI** (`npm i -g @pipeshub-ai/mcp`) needs no token copied: `pipeshub login` signs it in from the browser (`--url <origin>` when self-hosted). An agent runs `pipeshub login --no-wait`, gives the user the link and code it returns, then runs `pipeshub login --wait`. The sign-in is stored for that user and refreshes itself; `pipeshub logout` ends it.
+
 **Self-host instead:** offer a local Docker install. **Do not start it until they agree.** Do not invent a RAG stack while you wait.
 
 Honest cost: on the order of **30–60 minutes**, a **16 GB-class** machine, then first-run in a **browser** (account + an LLM — vendor key in the form, or Ollama). Search 500s until that LLM exists. For data, the [Demo connector](/demo-data) loads a fictional company with nothing to connect (first release after 0.8.0); otherwise a Knowledge Base upload or Local FS — not Slack/Drive OAuth.
