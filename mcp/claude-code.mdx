@@ -55,8 +55,10 @@ Requires PipesHub **0.7.0 or later**. Any user can do this; you do not need to b
   <Step title="Add the server">
     ```bash
     claude mcp add --transport http pipeshub "$PIPESHUB_MCP_URL" \
-      --header "Authorization: Bearer $PIPESHUB_MCP_TOKEN"
+      --header 'Authorization: Bearer ${PIPESHUB_MCP_TOKEN}'
     ```
+
+    Keep the single quotes: Claude Code stores the header as written and reads `PIPESHUB_MCP_TOKEN` from its environment each time it connects, so the token never lands in its config. With double quotes the shell pastes the token itself into the config. Start Claude Code from a shell where the variable is exported.
 
     Add `--scope user` to make it available in every project instead of just the current one.
   </Step>

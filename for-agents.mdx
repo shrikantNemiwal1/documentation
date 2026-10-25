@@ -112,7 +112,7 @@ The native shape is **remote MCP** over Streamable HTTP. No npm process is requi
 
 1. A running PipesHub, reachable at `PIPESHUB_INSTANCE_URL` (origin only, no `/mcp`).
 2. Auth as the **user**, not the app. Do **not** use `client_credentials` — that grant has no user identity, so permission filters collapse.
-   - **Prefer a [personal access token](/developer/personal-access-tokens)** for a single user's own client. It is `Authorization: Bearer phpat_…`, minted by that user in **Workspace → Developer settings** (PipesHub 0.7.0+). Claude Code takes it directly: `claude mcp add --transport http pipeshub "$PIPESHUB_MCP_URL" --header "Authorization: Bearer $PIPESHUB_MCP_TOKEN"`, where `PIPESHUB_MCP_URL` is the URL from the token's paste block (it already ends in `/mcp`) — see [Claude Code](/mcp/claude-code). The [stdio bridge](/mcp/local-server) takes it as `--bearer-auth`.
+   - **Prefer a [personal access token](/developer/personal-access-tokens)** for a single user's own client. It is `Authorization: Bearer phpat_…`, minted by that user in **Workspace → Developer settings** (PipesHub 0.7.0+). Claude Code takes it directly: `claude mcp add --transport http pipeshub "$PIPESHUB_MCP_URL" --header 'Authorization: Bearer ${PIPESHUB_MCP_TOKEN}'` (single quotes, so the token is not written into its config), where `PIPESHUB_MCP_URL` is the URL from the token's paste block (it already ends in `/mcp`) — see [Claude Code](/mcp/claude-code). The [stdio bridge](/mcp/local-server) takes it as `--bearer-auth`.
    - **OAuth app** for shared or admin-managed setups: create an [OAuth app](/mcp/overview#step-1-create-an-oauth-app), then follow the client page. Cursor's `auth` object and Claude Code's `--client-id` are the OAuth paths, not PAT.
 3. Client config — pick one:
 
@@ -148,8 +148,10 @@ The native shape is **remote MCP** over Streamable HTTP. No npm process is requi
 
 ```bash
 claude mcp add --transport http pipeshub "$PIPESHUB_MCP_URL" \
-  --header "Authorization: Bearer $PIPESHUB_MCP_TOKEN"
+  --header 'Authorization: Bearer ${PIPESHUB_MCP_TOKEN}'
 ```
+
+Keep the single quotes, so Claude Code stores `${PIPESHUB_MCP_TOKEN}` and expands it when it connects instead of writing the token into its config.
 
 A project-scoped `.mcp.json` uses `type: "http"` with a `headers` entry for the same bearer token. Only the shared or admin-managed OAuth setup, below, uses an `oauth` object instead. See [Connect Claude Code](/mcp/claude-code).
 
