@@ -17,12 +17,14 @@ Claude Code connects to PipesHub's remote MCP endpoint over HTTP. There are two 
 
 Installs the MCP server, the PipesHub skill, and two commands: `/pipeshub:ask <question>` and `/pipeshub:setup`.
 
+Run these in your terminal, not inside a Claude Code session:
+
 ```bash
-/plugin marketplace add pipeshub-ai/mcp-server
-/plugin install pipeshub@pipeshub
+claude plugin marketplace add pipeshub-ai/mcp-server
+claude plugin install pipeshub@pipeshub
 ```
 
-Newer Claude Code versions also accept the one-step form `/plugin install pipeshub --marketplace pipeshub-ai/mcp-server`.
+Newer Claude Code versions also accept the one-step form `claude plugin install pipeshub --marketplace pipeshub-ai/mcp-server`.
 
 It reads two environment variables. Set them in your shell profile, not in a chat, then restart Claude Code:
 
