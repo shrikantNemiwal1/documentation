@@ -42,5 +42,6 @@ Start here: [For coding agents](https://docs.pipeshub.com/for-agents.md). No ins
 - [OpenAPI](https://raw.githubusercontent.com/pipeshub-ai/pipeshub-ai/main/backend/nodejs/apps/src/modules/api-docs/pipeshub-openapi.yaml): Full HTTP API (OpenAPI 3, YAML) from `main`; the SDKs cover a subset
 - [Local MCP stdio](https://docs.pipeshub.com/mcp/local-server.md): `npx @pipeshub-ai/mcp start` when remote HTTP is not practical
 - [llms-full.txt](https://docs.pipeshub.com/llms-full.txt): Entire docs site as one file (large)
+- Docs MCP server `https://docs.pipeshub.com/mcp` (HTTP, no auth): searches these docs. It is not a PipesHub instance; a user's own data is at their instance's `/mcp`
 - [GitHub](https://github.com/pipeshub-ai/pipeshub-ai): Core platform
 - [mcp-server](https://github.com/pipeshub-ai/mcp-server): MCP package, `pipeshub` CLI, QM bundle, agent skill
