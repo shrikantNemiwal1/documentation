@@ -39,7 +39,7 @@ Start here: [For coding agents](https://docs.pipeshub.com/for-agents.md). No ins
 
 ## Optional
 
-- [OpenAPI](https://docs.pipeshub.com/api-reference/openapi.json): Full HTTP API
+- [OpenAPI](https://raw.githubusercontent.com/pipeshub-ai/pipeshub-ai/main/backend/nodejs/apps/src/modules/api-docs/pipeshub-openapi.yaml): Full HTTP API (OpenAPI 3, YAML), the spec the SDKs are generated from
 - [Local MCP stdio](https://docs.pipeshub.com/mcp/local-server.md): `npx @pipeshub-ai/mcp start` when remote HTTP is not practical
 - [llms-full.txt](https://docs.pipeshub.com/llms-full.txt): Entire docs site as one file (large)
 - [GitHub](https://github.com/pipeshub-ai/pipeshub-ai): Core platform
