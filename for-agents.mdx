@@ -191,6 +191,14 @@ Auth for an IDE or stdio client is the signed-in user (OAuth app or a PAT from t
 
 Do not curl `POST /api/v1/personal-access-tokens` from a chat — the response body contains the secret. Use the bootstrap script instead: [First-run without a browser](/for-agents-bootstrap). Slack / Drive / Jira still need a browser.
 
+## Searching these docs
+
+`https://docs.pipeshub.com/mcp` is an MCP server (HTTP, no auth) that searches this documentation, for setting PipesHub up. It is not a PipesHub instance and has none of the user's data: their documents are at their own instance's `/mcp` (PipesHub Cloud: `https://app.pipeshub.com/mcp`).
+
+```bash
+claude mcp add --transport http pipeshub-docs https://docs.pipeshub.com/mcp
+```
+
 ## Rules that are easy to get wrong
 
 `semantic:write` is what runs a search. `semantic:read` is search *history* and is not on a stock instance. Do not ask the user to add `semantic:read`.
