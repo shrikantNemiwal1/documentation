@@ -6,7 +6,7 @@ icon: "magnifying-glass"
 
 `POST /api/v1/retrieve` returns the passages ("chunks") that best match a query, each with the record it came from and a citation link. Use it when you build your own RAG pipeline or agent on top of PipesHub and want PipesHub's search, with its permissions and connectors, without its chat.
 
-- **Same results as search.** Chunks are filtered by the caller's permissions exactly as PipesHub search is, and take the same filters and date bounds.
+- **Same permissions and filters as search.** Chunks are filtered by the caller's permissions exactly as PipesHub search is, and take the same filters and date bounds. The ranking can differ: retrieval runs one search for your text, with no query rewrite unless you ask for it and no timeline mode for long date ranges.
 - **Nothing is stored.** No search history and no citation documents are written, so you can call it on every request your application serves.
 - **Ready to cite.** Every chunk carries a deep link to the passage, and a link to the record.
 
@@ -42,13 +42,13 @@ curl -s "$PIPESHUB_URL/api/v1/retrieve" \
 
 | Field | Type | Default | Description |
 |---|---|---|---|
-| `query` | string | required | What to find. Searched as written unless `rewriteQuery` is true. |
+| `query` | string | required | What to find. This text is always searched. |
 | `limit` | integer, 1–50 | `8` | Most chunks to return, best first. |
 | `maxChunksPerRecord` | integer, 1–50 | see below | Most chunks from any one record. Left out, at most `max(4, limit / 6)` passages come from one record (4 at `limit` 8, 8 at `limit` 50). |
 | `filters` | object | all sources | Narrow to sources: `apps` (connector instance and collection ids), `recordGroups` (a drive, space or project), `records` (a folder or record and everything under it), `recordsExact` (records alone). Ids are UUIDs, at most 200 per request. |
 | `createdAfter`, `createdBefore` | string | none | When the source record was created: `YYYY-MM-DD` or an ISO 8601 datetime with an offset, inclusive. |
 | `modifiedAfter`, `modifiedBefore` | string | none | The same, on when the source record last changed. |
-| `rewriteQuery` | boolean | `false` | Rewrite and expand the query with your organization's model first. Better recall for vague questions, slower. |
+| `rewriteQuery` | boolean | `false` | Also search rewritten and expanded versions of the query, made by your organization's model. Better recall for vague questions, slower. The original text is still searched, so exact identifiers keep matching. |
 
 ---
 
@@ -92,7 +92,7 @@ curl -s "$PIPESHUB_URL/api/v1/retrieve" \
 | `incomplete` | `true` when part of the search could not run, for example a source timed out. The chunks are still valid, but there may be better ones. |
 | `message` | Why `chunks` is empty, when it is. |
 
-Nothing to find is not an error. No match, no records you can access, or nothing indexed yet all return `200` with `chunks: []` and a `message`.
+Nothing to find is not an error. No match, no records you can access (including an `apps` id that does not exist or that you cannot read), or nothing indexed yet all return `200` with `chunks: []` and a `message`.
 
 ### Errors
 
@@ -101,7 +101,7 @@ Nothing to find is not an error. No match, no records you can access, or nothing
 | `400` | The body is invalid, for example an unknown filter key or a `limit` out of range. |
 | `401` | The token is missing, expired or revoked. |
 | `403` | The token lacks `semantic:write`. |
-| `404` | None of the selected filter nodes exist or are readable, or the instance predates this API. |
+| `404` | A `recordGroups`, `records` or `recordsExact` selection resolves to nothing you can read. On an instance without the Retrieval API, every call is a `404` because the route does not exist. |
 | `422` | The filter selection is too large, or touches a source that is still being prepared. |
 | `503` | The search index or permission check is unavailable. Retry with backoff. |
 
@@ -194,6 +194,6 @@ Keep `citation.url` in your answer so readers can open the source passage.
 | **For** | Your own RAG pipeline or agent | The PipesHub search experience |
 | **Stores** | Nothing | Search history and citations |
 | **Returns** | A flat list of chunks with record and citation | Search results shaped for the search UI |
-| **Query rewrite** | Off unless `rewriteQuery: true` | On |
+| **Query rewrite** | Off unless `rewriteQuery: true` | On by default |
 
 The full schema is in the [API reference](/developer/api-reference).
