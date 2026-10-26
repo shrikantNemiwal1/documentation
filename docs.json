@@ -351,6 +351,7 @@
           "developer/getting-started",
           "developer/oauth2",
           "developer/personal-access-tokens",
+          "developer/retrieval-api",
           "developer/api-reference"
         ]
       },
