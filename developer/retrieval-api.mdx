@@ -1,0 +1,199 @@
+---
+title: "Retrieval API"
+description: "Get permission-filtered passages with citations for your own RAG pipeline or agent, with one call and nothing stored"
+icon: "magnifying-glass"
+---
+
+`POST /api/v1/retrieve` returns the passages ("chunks") that best match a query, each with the record it came from and a citation link. Use it when you build your own RAG pipeline or agent on top of PipesHub and want PipesHub's search, with its permissions and connectors, without its chat.
+
+- **Same permissions and filters as search.** Chunks are filtered by the caller's permissions exactly as PipesHub search is, and take the same filters and date bounds. The ranking can differ: retrieval runs one search for your text, with no query rewrite unless you ask for it and no timeline mode for long date ranges.
+- **Nothing is stored.** No search history and no citation documents are written, so you can call it on every request your application serves.
+- **Ready to cite.** Every chunk carries a deep link to the passage, and a link to the record.
+
+<Note>
+  The Retrieval API needs a PipesHub version that includes it. An older instance answers `404` for this path.
+</Note>
+
+<Tip>
+  Coding agents connecting an IDE to company documents should use [MCP](/mcp/overview), not this API. See [For coding agents](/for-agents).
+</Tip>
+
+---
+
+## Authentication
+
+Send a [personal access token](/developer/personal-access-tokens) or an [OAuth 2.0](/developer/oauth2) access token that carries the `semantic:write` scope, the scope search uses. The token decides whose permissions apply: a personal access token sees what you can see.
+
+```bash
+export PIPESHUB_URL="https://your-pipeshub-instance.com"
+export PIPESHUB_TOKEN="phpat_..."
+```
+
+---
+
+## Request
+
+```bash
+curl -s "$PIPESHUB_URL/api/v1/retrieve" \
+  -H "Authorization: Bearer $PIPESHUB_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"query": "How do we roll back a canary deploy?", "limit": 5}'
+```
+
+| Field | Type | Default | Description |
+|---|---|---|---|
+| `query` | string | required | What to find. This text is always searched. |
+| `limit` | integer, 1–50 | `8` | Most chunks to return, best first. |
+| `maxChunksPerRecord` | integer, 1–50 | see below | Most chunks from any one record. Left out, at most `max(4, limit / 6)` passages come from one record (4 at `limit` 8, 8 at `limit` 50). |
+| `filters` | object | all sources | Narrow to sources: `apps` (connector instance and collection ids), `recordGroups` (a drive, space or project), `records` (a folder or record and everything under it), `recordsExact` (records alone). Ids are UUIDs, at most 200 per request. |
+| `createdAfter`, `createdBefore` | string | none | When the source record was created: `YYYY-MM-DD` or an ISO 8601 datetime with an offset, inclusive. |
+| `modifiedAfter`, `modifiedBefore` | string | none | The same, on when the source record last changed. |
+| `rewriteQuery` | boolean | `false` | Also search rewritten and expanded versions of the query, made by your organization's model. Better recall for vague questions, slower. The original text is still searched, so exact identifiers keep matching. |
+
+---
+
+## Response
+
+```json
+{
+  "requestId": "6f1c…",
+  "chunks": [
+    {
+      "id": "8b2e…:4",
+      "text": "To roll back a canary, set the weight to 0 and …",
+      "score": 0.83,
+      "record": {
+        "recordId": "1d0a…",
+        "name": "Deploy runbook",
+        "connector": "CONFLUENCE",
+        "mimeType": "text/html",
+        "updatedAt": "2026-10-01T09:12:00Z"
+      },
+      "citation": {
+        "url": "https://acme.atlassian.net/wiki/…#:~:text=roll%20back%20a%20canary",
+        "recordUrl": "https://acme.atlassian.net/wiki/…",
+        "pageNum": null,
+        "blockIndex": 4
+      }
+    }
+  ],
+  "incomplete": false
+}
+```
+
+| Field | Description |
+|---|---|
+| `chunks[].id` | Stable for the same indexed passage. Use it to deduplicate and cache. |
+| `chunks[].text` | The passage to put in your prompt. |
+| `chunks[].score` | Relevance, higher is better. Chunks are already sorted. |
+| `chunks[].record` | The record the passage came from. |
+| `chunks[].citation.url` | Deep link to the passage, highlighting it where the source supports text fragments. |
+| `chunks[].citation.recordUrl` | Link to the whole record. |
+| `incomplete` | `true` when part of the search could not run, for example a source timed out. The chunks are still valid, but there may be better ones. |
+| `message` | Why `chunks` is empty, when it is. |
+
+Nothing to find is not an error. No match, no records you can access (including an `apps` id that does not exist or that you cannot read), or nothing indexed yet all return `200` with `chunks: []` and a `message`.
+
+### Errors
+
+| Status | Meaning |
+|---|---|
+| `400` | The body is invalid, for example an unknown filter key or a `limit` out of range. |
+| `401` | The token is missing, expired or revoked. |
+| `403` | The token lacks `semantic:write`. |
+| `404` | A `recordGroups`, `records` or `recordsExact` selection resolves to nothing you can read. On an instance without the Retrieval API, every call is a `404` because the route does not exist. |
+| `422` | The filter selection is too large, or touches a source that is still being prepared. |
+| `503` | The search index or permission check is unavailable. Retry with backoff. |
+
+---
+
+## Use it in your code
+
+<CodeGroup>
+
+```python Python
+import os
+import requests
+
+def retrieve(query: str, limit: int = 8, **options) -> list[dict]:
+    response = requests.post(
+        f"{os.environ['PIPESHUB_URL']}/api/v1/retrieve",
+        headers={"Authorization": f"Bearer {os.environ['PIPESHUB_TOKEN']}"},
+        json={"query": query, "limit": limit, **options},
+        timeout=60,
+    )
+    response.raise_for_status()
+    return response.json()["chunks"]
+
+for chunk in retrieve("How do we roll back a canary deploy?", limit=5):
+    print(chunk["score"], chunk["record"]["name"], chunk["citation"]["url"])
+```
+
+```typescript TypeScript
+async function retrieve(query: string, limit = 8, options: Record<string, unknown> = {}) {
+  const response = await fetch(`${process.env.PIPESHUB_URL}/api/v1/retrieve`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${process.env.PIPESHUB_TOKEN}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ query, limit, ...options }),
+  });
+  if (!response.ok) throw new Error(`retrieve failed: ${response.status}`);
+  return (await response.json()).chunks;
+}
+
+for (const chunk of await retrieve("How do we roll back a canary deploy?", 5)) {
+  console.log(chunk.score, chunk.record.name, chunk.citation.url);
+}
+```
+
+</CodeGroup>
+
+### As a LangChain retriever
+
+```python
+import os
+import requests
+from langchain_core.documents import Document
+from langchain_core.retrievers import BaseRetriever
+
+
+class PipesHubRetriever(BaseRetriever):
+    limit: int = 8
+
+    def _get_relevant_documents(self, query: str, *, run_manager) -> list[Document]:
+        response = requests.post(
+            f"{os.environ['PIPESHUB_URL']}/api/v1/retrieve",
+            headers={"Authorization": f"Bearer {os.environ['PIPESHUB_TOKEN']}"},
+            json={"query": query, "limit": self.limit},
+            timeout=60,
+        )
+        response.raise_for_status()
+        return [
+            Document(
+                id=chunk["id"],
+                page_content=chunk["text"],
+                metadata={**chunk["record"], **chunk["citation"], "score": chunk.get("score")},
+            )
+            for chunk in response.json()["chunks"]
+        ]
+
+
+docs = PipesHubRetriever(limit=5).invoke("How do we roll back a canary deploy?")
+```
+
+Keep `citation.url` in your answer so readers can open the source passage.
+
+---
+
+## Retrieval or search?
+
+| | `POST /api/v1/retrieve` | `POST /api/v1/search` |
+|---|---|---|
+| **For** | Your own RAG pipeline or agent | The PipesHub search experience |
+| **Stores** | Nothing | Search history and citations |
+| **Returns** | A flat list of chunks with record and citation | Search results shaped for the search UI |
+| **Query rewrite** | Off unless `rewriteQuery: true` | On by default |
+
+The full schema is in the [API reference](/developer/api-reference).
