@@ -40,7 +40,7 @@ PipesHub has two Notion connectors. Both sync **pages**, **databases**, **commen
 </Warning>
 
 <Note>
-  Both connectors identify people by **email**. Sign in to PipesHub with the **same email** you use in Notion. On the team connector that is how workspace members are granted access to the synced set. On Notion Personal it is how PipesHub recognizes you as the owner.
+  The team connector identifies people by **email**: workspace members get access to the synced set when they sign in to PipesHub with the **same email** they use in Notion. Notion Personal does not need a matching email. The PipesHub user who created the connector is its only audience.
 </Note>
 
 ### What gets synced
@@ -255,7 +255,7 @@ When you see **Connected – you can continue to Configure records**, click **Co
 </div>
 
 <Warning>
-  **Authorize with the same email you use in PipesHub.** A different account can cause missing pages or permission issues.
+  **Authorize with the Notion account whose pages you want to sync.** Notion only shows that account's pages in the picker, so a different account means different or missing pages.
 </Warning>
 
 <Warning>
@@ -340,22 +340,27 @@ The **team** connector can use an **Access token** (Internal Integration Secret)
 
 ## Current limitations
 
-Scheduled and incremental syncs use Notion's Search API and only process pages and databases whose **`last_edited_time` is newer than the last successful run**. Notion does not expose a changelog of move, share, or delete events, so those changes are easy to miss until you run a **Full sync** on the connector instance page in PipesHub.
+Each sync uses Notion's Search API and reads the pages and databases whose **`last_edited_time`** is newer than the last successful run, plus a ten-minute overlap. At the end of every sync, PipesHub also compares what it holds with everything the connection can see now:
 
-| Situation | What incremental sync does | What to do |
-|-----------|----------------------------|------------|
-| **Move** a page or database (new parent, no content edit) | Usually nothing. A move alone often does not update `last_edited_time`, and Notion has no API for pure move operations. | Edit the page or database, or run **Full sync**. |
-| **Share new pages** with the connection (OAuth picker, **+ Add pages & databases**, or **Add connection**) | Misses them if their last edit is older than the last sync. | Run **Full sync**. A later edit on that page will also pick it up. |
-| **Delete**, trash, or archive a page or database, or **revoke** the connection's access | Incremental does not remove the record. Archived or trashed items in Search are skipped, not deleted in PipesHub. | Run **Full sync** so PipesHub can drop or refresh those records. |
+- Pages and databases shared with the connection later are synced, even if nobody edited them.
+- Pages and databases that are deleted, moved to the trash, unshared, or moved under a page the connection cannot see are removed from PipesHub.
+
+A record is removed only when Notion confirms the page is gone or in the trash. If Notion returns an error or the listing does not finish, nothing is removed that run and the next sync tries again.
+
+| Situation | What a sync does | What to do |
+|-----------|------------------|------------|
+| **Move** a page or database to a new parent that the connection can still see (no content edit) | Usually nothing. A move alone often does not update `last_edited_time`, and Notion has no API for move events. | Edit the page or database, or run **Full sync**. |
+| **Add or delete a comment** | Notion does not update a page's `last_edited_time` for comments. Each sync rechecks the comments of a slice of pages, so a change is picked up within about 24 syncs (about a day at the default 1-hour interval; longer on very large workspaces). | Edit the page, or run **Full sync**, if you need it sooner. |
 
 Other limits that come from the same Notion API:
 
 - **No per-page ACLs on the team connector.** See [Access and permissions](#access-and-permissions). Notion does not return who a page is shared with.
 - **Not realtime.** There is no webhook-driven sync. Changes appear on the next scheduled run, a manual **Sync**, or a **Full sync**.
+- **Size limits.** Images added by URL are fetched up to **20 MB**, and files added by URL up to **100 MB**. Larger ones are not indexed.
 - **Only pages the connection can see.** Search never returns content you did not share with the integration.
 - **Rate limit.** Notion allows about **3 requests per second** per integration. Large pages need many block fetches, so the first sync of a big workspace can take a long time.
 - **Images are not separate files.** Inline images stay on the page (and may be inlined for indexing). **Index Files** covers file, video, PDF, and audio attachments - not image blocks.
-- **Users without email.** The team connector maps workspace members by email. People Notion does not return an email for are not granted search access.
+- **Users without email.** The team connector maps workspace members by email. A member who hides their email in Notion is not granted access, but keeps any access they already had. If Notion returns no email for anyone, the sync stops and asks you to enable the email capability.
 - **Personal access tokens** from Developer tools are not a supported auth method.
 
 ---
@@ -388,6 +393,17 @@ Other limits that come from the same Notion API:
 
 - Regenerate the secret in Notion if needed and paste the new value into **Authenticate Instance**.
 
+**Sync failed with a token or capability message**
+
+| Message | What to do |
+|---------|------------|
+| *Notion rejected the API token: it is invalid or was revoked.* | Copy a current **Access token** from the connection and paste it on **Authenticate Instance**. |
+| *The Notion integration is missing the … capability.* | Enable the named capability (**Read content**, **Read comments**, or **Read user information including email addresses**) on the connection, then sync again. |
+| *Notion token is missing the … capability* or *Notion OAuth token is no longer active* | Enable the capability on the connection, then use **Re-authenticate with provider** on **Authorize**. |
+| *Notion returned no email address for any workspace member.* | Enable **Read user information including email addresses** on the connection, then sync again. |
+
+PipesHub also sends a notification when a sync fails, and a warning when some pages could not be read. Those pages are retried on the next sync.
+
 **Internal secret rejected**
 
 - Use an **internal connection** installation token (`ntn_...`), not a Notion personal access token.
@@ -395,7 +411,7 @@ Other limits that come from the same Notion API:
 **Missing pages after sync**
 
 - Re-run **Authorize** and add the pages, or share them with an internal connection (**Content access** or **Add connection**). The connector only sees content you explicitly share.
-- If you already granted access, incremental sync will not pick those pages up until they are edited. Run **Full sync** on the connector instance page. See [Current limitations](#current-limitations).
+- Pages you share later are picked up at the end of the next sync. If they are still missing after a sync finishes, check the instance for a sync warning. See [Current limitations](#current-limitations).
 
 **Everyone can see a private page (team)**
 
@@ -404,7 +420,7 @@ Other limits that come from the same Notion API:
 **Email / visibility**
 
 - Confirm **Capabilities** include **user information with email**, and that people sign in to PipesHub with the same address as in Notion.
-- On Notion Personal, only the creator can search. If your PipesHub email does not match the account that created the instance, records can sync with no one able to see them.
+- On Notion Personal, only the PipesHub user who created the instance can search its records. Other users will not see them.
 
 **Reindex does nothing / manual indexing stuck**
 
@@ -431,8 +447,9 @@ Other limits that come from the same Notion API:
 
 ### Incremental sync
 
-- Runs on your **Sync interval** when using a scheduled strategy. It only fetches pages and databases with a newer **`last_edited_time`** than the last successful run.
-- Moves, newly shared pages, and deletes are not reliable on incremental sync. Use **Full sync** on the instance page. See [Current limitations](#current-limitations).
+- Runs on your **Sync interval** when using a scheduled strategy. It fetches pages and databases with a newer **`last_edited_time`** than the last successful run.
+- At the end of each sync, newly shared pages are added and deleted, trashed, or unshared pages are removed.
+- Comment changes and moves without an edit can lag. See [Current limitations](#current-limitations).
 - Not realtime. Use manual **Sync** or **Full sync** when you need an immediate refresh.
 
 ### Reindex
@@ -452,7 +469,7 @@ Other limits that come from the same Notion API:
 <Accordion title="Queries not returning results. What could be wrong?">
 
 1. **Wrong connector** - Team records are visible to mapped workspace members. Personal records are visible only to the creator.
-2. **Email mismatch** - Use the same email in PipesHub as in Notion.
+2. **Email mismatch** - On the team connector, use the same email in PipesHub as in Notion.
 3. **Scope** - Confirm the right pages were selected during **Authorize** (or shared with the internal connection) and that indexing toggles match what you expect.
 4. **Still indexing** - Open the instance **Overview** until queues complete.
 
