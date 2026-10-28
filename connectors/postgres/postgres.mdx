@@ -87,7 +87,7 @@ Download the installer from the [pgAdmin Downloads page](https://www.pgadmin.org
 Create a dedicated read-only role for PipesHub. Run these as a superuser (e.g. `postgres`) against the target database:
 
 ```sql
-CREATE USER pipeshub_user WITH PASSWORD 'a_strong_password';
+CREATE USER pipeshub_user WITH PASSWORD '<password>';
 GRANT CONNECT ON DATABASE bird_mini_dev TO pipeshub_user;
 GRANT USAGE ON SCHEMA public TO pipeshub_user;
 GRANT SELECT ON ALL TABLES IN SCHEMA public TO pipeshub_user;
@@ -96,8 +96,10 @@ ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT SELECT ON TABLES TO pipeshub_use
 
 The connector also reads schema metadata from `information_schema` and `pg_catalog`, which are available to any authenticated user by default.
 
+Agents can run SQL queries against this database, so keep this user read-only. See [Use a read-only database user](/toolsets/read-only-database-user).
+
 <Info>
-  Replace `pipeshub_user` and `a_strong_password` with your own values, and repeat the `USAGE`/`SELECT`/`ALTER DEFAULT PRIVILEGES` grants for each schema you plan to sync.
+  Replace `pipeshub_user` and `<password>` with your own values, and repeat the `USAGE`/`SELECT`/`ALTER DEFAULT PRIVILEGES` grants for each schema you plan to sync. `ALTER DEFAULT PRIVILEGES` covers only tables that the user who runs it creates later. If another role creates your tables, such as your application or migration user, run it once more for each such role with `FOR ROLE <role>` after `ALTER DEFAULT PRIVILEGES`.
 </Info>
 
 </Accordion>
@@ -155,7 +157,7 @@ The dataset includes Formula 1 tables: `circuits`, `constructors`, `constructorr
 | **Host** | `localhost` |
 | **Port** | `5432` |
 | **Database** | `bird_mini_dev` |
-| **User** | `postgres` |
+| **User** | `pipeshub_user` |
 | **Password** | your password |
 
 #### Option 2: Connection String
@@ -163,7 +165,7 @@ The dataset includes Formula 1 tables: `circuits`, `constructors`, `constructorr
 Use a single PostgreSQL connection string:
 
 ```
-postgresql://postgres:your_password@localhost:5432/bird_mini_dev
+postgresql://pipeshub_user:<password>@localhost:5432/bird_mini_dev
 ```
 
 If your password contains special characters, URL-encode them:
@@ -179,7 +181,7 @@ If your password contains special characters, URL-encode them:
 Example: `p@ss:word` becomes `p%40ss%3Aword`
 
 ```
-postgresql://postgres:p%40ss%3Aword@localhost:5432/bird_mini_dev
+postgresql://pipeshub_user:p%40ss%3Aword@localhost:5432/bird_mini_dev
 ```
 
 <div className="text-center">
